@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar fixed-top bg-body-tertiary " >
         <div class="container-xl">
-          <a class="navbar-brand" href="#">HENTAI COMIC</a>
+          <a class="navbar-brand ms-5" href="#">MANGA COMIC</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -48,7 +48,8 @@
             </form>
           </div>
         </div>
-        
+        <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập</button>
+        <button type="button" class="btn btn-outline-success me-4" data-bs-toggle="modal" data-bs-target="#logup">Đăng ký</button>
       </nav>
 
       <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
@@ -66,18 +67,103 @@
                 <div class="card-body">
                   <h5 class="card-title">Card title</h5>
                   <p class="card-text">Chưa có dữ liệu</p>
-                  <p class="card-text"><small class="text-body-secondary">DDD</small></p>
+                  <p class="card-text"><small class="text-body-secondary">Chưa có dữ liệu</small></p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <div class="modal fade" id="login" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">Đăng nhập</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="mb-3">
+                  <label for="exampleInputEmail1" class="form-label">Email address</label>
+                  <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Mật khẩu</label>
+                  <input type="password" class="form-control" id="exampleInputPassword1">
+                </div>
+                <div class="mb-3 form-check">
+                  <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                  <label class="form-check-label" for="exampleCheck1">Lưu lại mật khẩu</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Đăng nhập</button>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+              <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#logup">Chưa có tài khoản ?</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal fade" id="logup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">Đăng ký</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Email</label>
+                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                <div id="emailHelp" class="form-text">Chúng tôi sẽ không bao giờ chia sẻ email của bạn với bất kỳ ai khác.</div>
+              </div>
+              <div class="mb-3">
+                <label for="exampleFormControlTextarea1" class="form-label">Tên người dùng</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="1"></textarea>
+              </div>
+              <div class="row g-3 align-items-center">
+                <div class="col-auto">
+                  <label for="inputPassword6" class="col-form-label">Mật khẩu</label>
+                </div>
+                <div class="col-auto">
+                  <input type="password" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline">
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                  <label class="form-check-label" for="flexCheckDefault">
+                    Hiển thị mật khẩu
+                  </label>
+                </div>
+                <div class="col-auto">
+                  <span id="passwordHelpInline" class="form-text">
+                    Yêu cầu mật khẩu độ dài ký tự 8-20, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.
+                  </span>
+                </div>
+              </div>
+              <label for="inputPassword5" class="form-label">Xác nhận mật khẩu</label>
+                <input type="password" id="inputPassword5" class="form-control" aria-describedby="passwordHelpBlock">
+                <div id="passwordHelpBlock" class="form-text">
+                  Xác nhận lại mật khẩu của bạn.
+                </div>
+                <button type="submit" class="btn btn-primary">Đăng ký</button>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+              <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#login">Bạn có tài khoản ?</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <br><br><br>
+
 
       <div class="container-fluid">
         <!-- Navbar có thẻ h1 -->
-            <h1 class="w-100 text-center my-3"> CHÀO MỪNG ĐẾN VỚI TRANG WEB TRUYỆN TRANH SÚC VẬT! </h1>
+            <h1 class="w-100 text-center my-3"> CHÀO MỪNG ĐẾN VỚI TRANG WEB TRUYỆN TRANH MANGA! </h1>
         <br>
         <!-- Phần card được tách riêng ra khỏi navbar -->
         <div class="row row-cols-1 row-cols-md-6 g-4">
@@ -108,6 +194,105 @@
               </li>
             </ul>
           </nav>
+          
+                  <!-- Modal card-->
+                  <div class="modal fade" id="card" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+
+                          <div class="card mb-3" style="max-width: 540px;">
+                            <div class="row g-0">
+                              <div class="col-md-4">
+                                <img src="..." class="img-fluid rounded-start" alt="...">
+                              </div>
+                              <div class="col-md-8">
+                                <div class="card-body">
+                                  <h5 class="card-title">Tên truyện</h5>
+                                  <p class="card-text">Tên tác giả.</p>
+                                  <p class="card-text">Thể loại.</p>
+                                  <p class="card-text"><small class="text-body-secondary">Nội dung truyện</small></p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Phần chương truyện -->
+                        <div class="accordion" id="accordionExample">
+                          <div class="accordion-item">
+                            <h2 class="accordion-header">
+                              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Chương 1
+                              </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                              <div class="accordion-body">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doctruyen">
+                                  Đọc truyện
+                                </button>
+                                <strong>Tên chương.</strong> Nội dung của chương
+                              </div>
+                            </div>
+                          </div>
+                          <div class="accordion-item">
+                            <h2 class="accordion-header">
+                              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Chương 2
+                              </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                              <div class="accordion-body">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doctruyen">
+                                  Đọc truyện
+                                </button>
+                                <strong>Tên chương.</strong> Nội dung của chương
+                              </div>
+                            </div>
+                          </div>
+                          <div class="accordion-item">
+                            <h2 class="accordion-header">
+                              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Chương 3
+                              </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                              <div class="accordion-body">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doctruyen">
+                                  Đọc truyện
+                                </button>
+                                <strong>Tên chương.</strong> Nội dung của chương
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Modal đọc truyện-->
+                  <div class="modal fade" id="doctruyen" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-fullscreen">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="exampleModalLabel">Tên chương</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          Nơi hiện thị ảnh của truyện nằm chính giữa ở đây
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+
           <br>
       <!-- Footer -->
 <footer class="footer mt-auto py-3 bg-light fixed-bottom bg-body-tertiary">
@@ -144,5 +329,7 @@
 <script src="./js/background.js"></script>
 <script src="./js/pagination.js"></script>
 <script src="./js/card_title.js"></script>
+<script src="./js/logup.js"></script>
+<script src="./js/chapter.js"></script>
 </body>
 </html>
