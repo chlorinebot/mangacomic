@@ -9,7 +9,7 @@ const cardData = [
   },
   {
     id: 2,
-    title: "Đại Chiến Người Khổng Lồ - Attack On Titan - Chương 1",
+    title: "Đại Chiến Người Khổng Lồ - Attack On Titan - Mùa 1",
     image: "https://resizing.flixster.com/SEKqvD_3s-g47nWx0tsZykurPvQ=/206x305/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p10873160_b_v8_aa.jpg",
     content: "Tác giả: Isayama Hajime.",
     link: "#product2"

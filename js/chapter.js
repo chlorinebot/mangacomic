@@ -28,7 +28,7 @@ const chapterData = {
       },
       {
         chapterNumber: 2,
-        chapterTitle: "Tiếp nối câu chuyện",
+        chapterTitle: "Ngày hôm đó",
         content: "Nội dung chương 2 của sản phẩm 2.",
         imageFolder: "./images/attackontitan/chapter2",
         imageCount: 45
