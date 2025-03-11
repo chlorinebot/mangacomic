@@ -6,12 +6,69 @@ document.addEventListener('DOMContentLoaded', function() {
   const nextButton = paginationContainer.querySelector('.page-item:last-child');
   const pageLinks = Array.from(paginationContainer.querySelectorAll('.page-item:not(:first-child):not(:last-child)'));
   
-  // Số trang tối đa (có thể thay đổi theo nhu cầu)
-  const totalPages = pageLinks.length;
+  // Số trang tối đa (từ số lượng nút phân trang hoặc tính toán từ dữ liệu)
+  const totalPages = Math.ceil(cardData.length / 24); // Tính số trang dựa trên 24 card/trang
+  
+  // Số lượng card trên mỗi trang
+  const itemsPerPage = 24; // Thay đổi từ 8 thành 24
+  
+  // Hiển thị cards cho trang hiện tại
+  function displayCardsForPage(pageNumber) {
+    // Tính toán vị trí bắt đầu và kết thúc của dữ liệu cần hiển thị
+    const startIndex = (pageNumber - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    
+    // Lấy dữ liệu cho trang hiện tại
+    const currentPageData = cardData.slice(startIndex, endIndex);
+    
+    // Xóa tất cả cards hiện tại
+    const cardContainer = document.querySelector('.row');
+    cardContainer.innerHTML = '';
+    
+    // Thêm cards mới cho trang hiện tại
+    currentPageData.forEach(data => {
+      const colDiv = document.createElement('div');
+      colDiv.className = 'col';
+      
+      const cardDiv = document.createElement('div');
+      cardDiv.className = 'card';
+      
+      const img = document.createElement('img');
+      img.className = 'card-img-top';
+      img.src = data.image;
+      img.alt = data.title;
+      
+      const cardBody = document.createElement('div');
+      cardBody.className = 'card-body';
+      
+      const cardTitle = document.createElement('h5');
+      cardTitle.className = 'card-title';
+      cardTitle.textContent = data.title;
+      
+      const cardText = document.createElement('p');
+      cardText.className = 'card-text';
+      cardText.textContent = data.content;
+      
+      cardBody.appendChild(cardTitle);
+      cardBody.appendChild(cardText);
+      
+      cardDiv.appendChild(img);
+      cardDiv.appendChild(cardBody);
+      
+      const link = document.createElement('a');
+      link.href = data.link;
+      link.style.textDecoration = 'none';
+      link.style.color = 'inherit';
+      
+      link.appendChild(cardDiv);
+      colDiv.appendChild(link);
+      
+      cardContainer.appendChild(colDiv);
+    });
+  }
   
   // Hàm cập nhật trạng thái active cho các nút
   function updatePaginationState(currentPage) {
-    // Cập nhật trạng thái cho các nút số trang
     pageLinks.forEach((item, index) => {
       if (index + 1 === currentPage) {
         item.classList.add('active');
@@ -22,7 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
     
-    // Cập nhật trạng thái cho nút Previous
     if (currentPage === 1) {
       prevButton.classList.add('disabled');
       prevButton.querySelector('a').setAttribute('tabindex', '-1');
@@ -31,7 +87,6 @@ document.addEventListener('DOMContentLoaded', function() {
       prevButton.querySelector('a').removeAttribute('tabindex');
     }
     
-    // Cập nhật trạng thái cho nút Next
     if (currentPage === totalPages) {
       nextButton.classList.add('disabled');
       nextButton.querySelector('a').setAttribute('tabindex', '-1');
@@ -40,7 +95,6 @@ document.addEventListener('DOMContentLoaded', function() {
       nextButton.querySelector('a').removeAttribute('tabindex');
     }
     
-    // Kiểm tra và áp dụng lại chế độ tối nếu đã được bật
     applyCurrentTheme();
   }
   
@@ -51,14 +105,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const allPageItems = document.querySelectorAll('.page-item');
     
     if (currentTheme === 'enabled') {
-      // Áp dụng kiểu phân trang tối cho tất cả các liên kết trang
       allPageLinks.forEach(link => {
         link.style.backgroundColor = '#333';
         link.style.color = '#fff';
         link.style.borderColor = '#444';
       });
       
-      // Kiểu dáng đặc biệt cho nút trang hiện tại (active)
       allPageItems.forEach(item => {
         if (item.classList.contains('active')) {
           const activeLink = item.querySelector('.page-link');
@@ -68,8 +120,6 @@ document.addEventListener('DOMContentLoaded', function() {
             activeLink.style.color = '#fff';
           }
         }
-        
-        // Kiểu dáng cho nút bị vô hiệu hóa (disabled)
         if (item.classList.contains('disabled')) {
           const disabledLink = item.querySelector('.page-link');
           if (disabledLink) {
@@ -80,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       });
     } else {
-      // Khôi phục tất cả các liên kết trang về mặc định cho chế độ sáng
       allPageLinks.forEach(link => {
         link.style.backgroundColor = '';
         link.style.color = '';
@@ -91,14 +140,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Hàm chuyển đến trang được chọn
   function goToPage(pageNumber) {
-    // Cập nhật UI - Ở đây bạn có thể thêm logic để tải nội dung trang mới
     updatePaginationState(pageNumber);
-    
-    // Giả lập việc tải nội dung trang mới - Trong ứng dụng thực tế, bạn sẽ thay thế phần này
-    console.log(`Đã chuyển đến trang ${pageNumber}`);
-    
-    // Lưu trang hiện tại vào sessionStorage để duy trì trạng thái khi load lại trang
+    displayCardsForPage(pageNumber);
     sessionStorage.setItem('currentPage', pageNumber);
+    console.log(`Đã chuyển đến trang ${pageNumber}`);
   }
   
   // Xử lý sự kiện click cho các nút số trang
@@ -113,8 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
   prevButton.addEventListener('click', function(event) {
     event.preventDefault();
     if (!this.classList.contains('disabled')) {
-      const currentPage = parseInt(sessionStorage.getItem('currentPage') || 
-                                  document.querySelector('.page-item.active').textContent);
+      const currentPage = parseInt(sessionStorage.getItem('currentPage') || 1);
       goToPage(currentPage - 1);
     }
   });
@@ -123,13 +167,12 @@ document.addEventListener('DOMContentLoaded', function() {
   nextButton.addEventListener('click', function(event) {
     event.preventDefault();
     if (!this.classList.contains('disabled')) {
-      const currentPage = parseInt(sessionStorage.getItem('currentPage') || 
-                                  document.querySelector('.page-item.active').textContent);
+      const currentPage = parseInt(sessionStorage.getItem('currentPage') || 1);
       goToPage(currentPage + 1);
     }
   });
   
-  // Khởi tạo trạng thái ban đầu dựa trên sessionStorage hoặc mặc định là trang 1
+  // Khởi tạo trạng thái ban đầu
   const initialPage = parseInt(sessionStorage.getItem('currentPage')) || 1;
   goToPage(initialPage);
 });
