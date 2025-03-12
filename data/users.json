@@ -1,12 +1,1 @@
-{
-  "users": [
-    {
-      "id": "1741769760603",
-      "email": "kimdominic714@gmail.com",
-      "username": "tuan1903",
-      "password": "$2b$10$9oDWzHF659SMDxAhfMI6LOBl9S5.9XeJTghY2wefy6XoAJ9mKZCqS",
-      "registeredAt": "2025-03-12T08:56:00.603Z",
-      "history": []
-    }
-  ]
-}
+{"users":[]}
