@@ -14,6 +14,13 @@ const cardData = [
     content: "Tác giả: Isayama Hajime.",
     link: "#product2"
   },
+  {
+    id: 3,
+    title: "Conan Volume 1",
+    image: "./banner_img/conan_v1.png",
+    content: "Tác giả: Aoyama Gōshō.",
+    link: "#product3"
+  },
   // Các card khác được giữ nguyên
 ];
 

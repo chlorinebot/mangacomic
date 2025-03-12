@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Tạo card element
       const cardDiv = document.createElement('div');
       cardDiv.className = 'card mb-3';
+      cardDiv.style.maxWidth = '540px'; // Giữ đồng bộ với giao diện mẫu
       
       // Tạo nội dung bên trong
       cardDiv.innerHTML = `
@@ -78,29 +79,33 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Áp dụng kiểu dark mode nếu cần
       if (isDarkMode) {
-        // Card
         cardDiv.style.backgroundColor = '#212529';
         cardDiv.style.borderColor = '#343a40';
         cardDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
         
-        // Card body
         const cardBody = cardDiv.querySelector('.card-body');
         if (cardBody) {
           cardBody.style.backgroundColor = '#212529';
         }
         
-        // Card title
         const cardTitle = cardDiv.querySelector('.card-title');
         if (cardTitle) {
           cardTitle.style.color = '#fff';
         }
         
-        // Card text
         const cardText = cardDiv.querySelector('.card-text');
         if (cardText) {
           cardText.style.color = '#adb5bd';
         }
       }
+      
+      // Thêm sự kiện click để mở modal chi tiết
+      cardDiv.style.cursor = 'pointer';
+      cardDiv.addEventListener('click', function(event) {
+        // Ngăn sự kiện click từ nút "Xem chi tiết" kích hoạt modal
+        if (event.target.tagName === 'A') return;
+        openCardModal(item);
+      });
       
       // Thêm card vào offcanvas
       offcanvasBody.appendChild(cardDiv);
@@ -110,11 +115,58 @@ document.addEventListener('DOMContentLoaded', function() {
     const darkModeSwitch = document.getElementById('flexSwitchCheckDefault');
     if (darkModeSwitch) {
       darkModeSwitch.addEventListener('change', function() {
-        // Kiểm tra lại trạng thái hiện tại và cập nhật lại kết quả hiển thị
         if (results.length > 0) {
           displaySearchResults(results);
         }
       });
     }
+  }
+
+  // Hàm mở modal và hiển thị thông tin card (tích hợp từ card_title.js)
+  function openCardModal(data) {
+    // Lưu dữ liệu card hiện tại
+    currentCardData = data;
+    
+    // Lấy các phần tử modal
+    const modal = document.getElementById('card');
+    const modalTitle = modal.querySelector('.modal-title');
+    const modalBody = modal.querySelector('.modal-body');
+    
+    // Đặt tiêu đề modal là tiêu đề card
+    modalTitle.textContent = data.title;
+    
+    // Cập nhật hình ảnh và thông tin trong card bên trong modal
+    const cardImg = modalBody.querySelector('.img-fluid') || modalBody.querySelector('.card img');
+    if (cardImg) {
+      cardImg.src = data.image;
+      cardImg.alt = data.title;
+    }
+    
+    const cardTitle = modalBody.querySelector('.card-title');
+    if (cardTitle) {
+      cardTitle.textContent = data.title;
+    }
+    
+    const cardTexts = modalBody.querySelectorAll('.card-text');
+    if (cardTexts.length > 0) {
+      cardTexts[0].textContent = data.content; // Tác giả hoặc nội dung chính
+      if (cardTexts.length > 1) {
+        cardTexts[1].textContent = "Thể loại: Truyện tranh";
+      }
+      if (cardTexts.length > 2) {
+        cardTexts[2].textContent = `Nội dung truyện: ${data.content}`;
+      }
+    }
+    
+    // Đóng offcanvas nếu đang mở
+    const offcanvasElement = document.getElementById('offcanvasRight');
+    const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement);
+    if (offcanvasInstance) {
+      offcanvasInstance.hide();
+    }
+    
+    // Mở modal sử dụng Bootstrap
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
   }
 });

@@ -33,6 +33,57 @@ const chapterData = {
         imageFolder: "./images/attackontitan/chapter2",
         imageCount: 45
       }
+    ],
+    3: [
+      {
+        chapterNumber: 1,
+        chapterTitle: "Viên thuốc độc",
+        content: "BLA BLA.",
+        imageFolder: "./images/conan/conan_v1/chapter1", // Thư mục chứa ảnh
+        imageCount: 35 // Số lượng ảnh trong chương (page1.jpg, page2.jpg, page3.jpg)
+      },
+      {
+        chapterNumber: 2,
+        chapterTitle: "Thám tử thu nhỏ",
+        content: "ABC.",
+        imageFolder: "./images/conan/conan_v1/chapter2",
+        imageCount: 28
+      },
+      {
+        chapterNumber: 3,
+        chapterTitle: "Thám tử bị cô lập",
+        content: "ABC.",
+        imageFolder: "./images/conan/conan_v1/chapter3",
+        imageCount: 16
+      },
+      {
+        chapterNumber: 4,
+        chapterTitle: "Ống khói thứ sáu",
+        content: "ABC.",
+        imageFolder: "./images/conan/conan_v1/chapter4",
+        imageCount: 16
+      },
+      {
+        chapterNumber: 5,
+        chapterTitle: "Thêm một trọng tội",
+        content: "ABC.",
+        imageFolder: "./images/conan/conan_v1/chapter5",
+        imageCount: 16
+      },
+      {
+        chapterNumber: 6,
+        chapterTitle: "Từ thám tử gà mờ thành thám thử tài ba",
+        content: "ABC.",
+        imageFolder: "./images/conan/conan_v1/chapter6",
+        imageCount: 17
+      },
+      {
+        chapterNumber: 7,
+        chapterTitle: "Thần tượng đẫm máu",
+        content: "ABC.",
+        imageFolder: "./images/conan/conan_v1/chapter7",
+        imageCount: 18
+      }
     ]
   };
   
