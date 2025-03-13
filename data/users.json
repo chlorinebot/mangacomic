@@ -1,1 +1,12 @@
-{"users":[]}
+{
+  "users": [
+    {
+      "id": "1741770779784",
+      "email": "kimdominic714@gmail.com",
+      "username": "tuan1903",
+      "password": "$2b$10$iYZ1t4Uawuqk2.RS.9MwfOoxY9tP24P9.shkus3X4e1FheRKo/lQe",
+      "registeredAt": "2025-03-12T09:12:59.785Z",
+      "history": []
+    }
+  ]
+}

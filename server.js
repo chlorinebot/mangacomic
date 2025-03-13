@@ -190,9 +190,12 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Route for serving the main HTML page
+// Serve static files from the root directory as well
+app.use(express.static(path.join(__dirname)));
+
+// Route for serving the main HTML page from root directory
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start server
