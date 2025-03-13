@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MangaComic</title>
+    <!-- CSS Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-</head>
+    <!-- PURE-CSS từ Github -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+  </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar fixed-top bg-body-tertiary " >
         <div class="container-xl">
@@ -32,7 +35,7 @@
               </li>
               
               <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="modal" data-bs-target="#history" href="#">Lịch sử</a>
+                <a class="nav-link" data-bs-toggle="modal" data-bs-target="#history" href="#" aria-disabled="true">Lịch sử</a>
               </li> 
             </ul>
             <div class="form-check form-switch me-4">
@@ -112,6 +115,7 @@
                   <label class="form-check-label" for="exampleCheck1">Lưu lại mật khẩu</label>
                 </div>
                 <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                <span class="pure-form-message-inline">Nếu bạn đăng nhập thì đã đồng ý các <a href="#">điều khoản dịch vụ</a> của chúng tôi!</span>
               </form>
             </div>
             <div class="modal-footer">
@@ -126,45 +130,45 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h1 class="modal-title fs-5" id="staticBackdropLabel">Đăng ký</h1>
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">Đăng ký người dùng mới</h1>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Email</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                <div id="emailHelp" class="form-text">Chúng tôi sẽ không bao giờ chia sẻ email của bạn với bất kỳ ai khác.</div>
-              </div>
-              <div class="mb-3">
-                <label for="exampleFormControlTextarea1" class="form-label">Tên người dùng</label>
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="1"></textarea>
-              </div>
-              <div class="row g-3 align-items-center">
-                <div class="col-auto">
-                  <label for="inputPassword6" class="col-form-label">Mật khẩu</label>
-                </div>
-                <div class="col-auto">
-                  <input type="password" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline">
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-                  <label class="form-check-label" for="flexCheckDefault">
-                    Hiển thị mật khẩu
-                  </label>
-                </div>
-                <div class="col-auto">
-                  <span id="passwordHelpInline" class="form-text">
-                    Yêu cầu mật khẩu độ dài ký tự 8-20, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.
-                  </span>
-                </div>
-              </div>
-              <label for="inputPassword5" class="form-label">Xác nhận mật khẩu</label>
-                <input type="password" id="inputPassword5" class="form-control" aria-describedby="passwordHelpBlock">
-                <div id="passwordHelpBlock" class="form-text">
-                  Xác nhận lại mật khẩu của bạn.
-                </div>
-                <button type="submit" class="btn btn-primary">Đăng ký</button>
-            </div>
+            <!-- Form đăng ký từ PURE-CSS-->
+            <form class="pure-form pure-form-aligned">
+              <fieldset>
+                  <div class="pure-control-group">
+                      <label for="aligned-name">Tên người dùng</label>
+                      <input id="aligned-name" type="text" placeholder="Tên người dùng" />
+                      <span class="pure-form-message-inline">Chỉ chấp nhận tên người dùng chữ thường và số.</span><!-- Giới hạn 15 ký tự -->
+                  </div>
+                  <div class="pure-control-group">
+                      <label for="aligned-password">Mật khẩu</label>
+                      <input id="aligned-password" type="password" placeholder="Password" />
+                      <label class="ms-3" for="aligned-cb" class="pure-checkbox">
+                        Hiện thị mật khẩu<input id="aligned-cb" type="checkbox" /> 
+                    </label>
+                      <span class="pure-form-message-inline">Yêu cầu mật khẩu độ dài ký tự 8-20, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</span>
+                  </div>
+                  
+                  <div class="pure-control-group">
+                    <label for="aligned-password">Xác nhận mật khẩu</label>
+                    <input id="aligned-password" type="password" placeholder="Password" />
+                  </div>
+                  <div class="pure-control-group">
+                      <label for="aligned-email">Email</label>
+                      <input id="aligned-email" type="email" placeholder="Email Address" />
+                      <span class="pure-form-message-inline">Chúng tôi sẽ không bao giờ chia sẻ email của bạn với bất kỳ ai khác.</span>
+                  </div>
+                  
+                  <div class="pure-controls">
+                      <label for="aligned-cb" class="pure-checkbox">
+                          <input id="aligned-cb" type="checkbox" /> Tôi đồng ý với các <a href="#">điều khoản dịch vụ</a> của Website!!!
+                      </label>
+                      <button type="submit" class="pure-button pure-button-primary">Đăng ký</button>
+                  </div>
+              </fieldset>
+          </form>
+            
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
               <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#login">Bạn có tài khoản ?</button>
@@ -236,28 +240,34 @@
               height: 60px; /* Chiều cao của footer */
             }
           </style>
-                  <!-- Modal lịch sử -->
-                  <div class="modal fade" id="history" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-fullscreen">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h1 class="modal-title fs-5" id="exampleModalLabel">Lịch sử</h1>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-
-                          <!-- Form tìm kiếm trong lịch sử -->
-                          <form class="d-flex" role="search" style="width: 600px;">
-                            <input class="form-control me-2" type="search" placeholder="Tìm kiếm trong lịch sử của bạn" aria-label="Search"> <!-- Tìm kiếm trong lịch sử -->
-                            <button class="btn btn-outline-success" type="button" style="width: 70px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                            </svg></button>
-                          </form>
-                          <h1> Vui lòng đăng nhập để xem lại lịch sử xem!!! </h1>
-                          <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập tại đây</button>
-                          <!-- Phần hiện thị các thẻ đã từng xem chỉ khi người dùng đã đăng nhập -->
-
-                        </div>
+          <!-- Modal lịch sử -->
+          <div class="modal fade" id="history" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Tên chương</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <!-- Form tìm kiếm trong lịch sử -->
+          <form class="d-flex" role="search" style="width: 600px;">
+            <input class="form-control me-2" type="search" placeholder="Tìm kiếm trong lịch sử của bạn" aria-label="Search"> <!-- Tìm kiếm trong lịch sử -->
+            <button class="btn btn-outline-success" type="button" style="width: 70px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+            </svg></button>
+          </form>
+          <h1> Vui lòng đăng nhập để xem lại lịch sử xem!!! </h1>
+          <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập tại đây</button>
+          <!-- Phần hiện thị các thẻ đã từng xem chỉ khi người dùng đã đăng nhập -->
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>      
+                  
                   <!-- Modal card-->
                   <div class="modal fade" id="card" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-fullscreen">
@@ -381,13 +391,33 @@
                           Nơi hiện thị ảnh của truyện nằm chính giữa ở đây
                         </div>
                         <div class="modal-footer">
+                          <!-- Phần đánh giá truyện thao tác bằng java script -->
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                            <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                          </svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
+                            <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                          </svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-half" viewBox="0 0 16 16">
+                            <path d="M5.354 5.119 7.538.792A.52.52 0 0 1 8 .5c.183 0 .366.097.465.292l2.184 4.327 4.898.696A.54.54 0 0 1 16 6.32a.55.55 0 0 1-.17.445l-3.523 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256a.5.5 0 0 1-.146.05c-.342.06-.668-.254-.6-.642l.83-4.73L.173 6.765a.55.55 0 0 1-.172-.403.6.6 0 0 1 .085-.302.51.51 0 0 1 .37-.245zM8 12.027a.5.5 0 0 1 .232.056l3.686 1.894-.694-3.957a.56.56 0 0 1 .162-.505l2.907-2.77-4.052-.576a.53.53 0 0 1-.393-.288L8.001 2.223 8 2.226z"/>
+                          </svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star" viewBox="0 0 16 16">
+                            <path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/>
+                          </svg>
+                          <!-- Phần nút bấm dẫn tới bình luận truyện -->
+                          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#binhluantruyen">
+                            Launch static backdrop modal
+                          </button>
+                          <!-- Nút bấm chuyển chương -->
                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                           <button type="button" class="btn btn-primary">Save changes</button>
                         </div>
                       </div>
                     </div>
-                  </div>
+                    
 
+                  
+                        
 
           <br>
       
@@ -404,5 +434,15 @@
 <script src="./js/logup.js"></script>
 <script src="./js/chapter.js"></script>
 <script src="./js/chapter_scroll.js"></script>
+
+<!-- Cách sử dụng bằng cách thêm id="X", X là tên thư viện! -->
+<!-- Thêm thư viện Mini.css -->
+<script src="./js/css.library/minicss.js"></script>
+<!-- Thêm thư viện Tailwind CSS -->
+<script src="./js/css.library/tailwindcss.js"></script>
+
+
+
+
 </body>
 </html>
