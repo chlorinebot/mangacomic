@@ -106,7 +106,18 @@ const chapterData = {
       rating: 4.9,
       commentCount: 43
     }
-  ]
+  ],
+  4: [
+    {
+      chapterNumber: 1,
+      chapterTitle: "Kẻ thù trong bóng tối",
+      content: "ABC.",
+      imageFolder: "https://pops-images-vn.akamaized.net/api/v2/containers/file2/cms_thumbnails/lactroi-01355878da52-1685600629917-s7qYv1Wa.png?v=0&maxW=420&format=webp",
+      imageCount: 16,
+      rating: 4.7,
+      commentCount: 31
+      },
+    ]
 };
 
 // Dữ liệu bình luận mẫu

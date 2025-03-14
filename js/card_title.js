@@ -21,6 +21,13 @@ const cardData = [
     content: "Tác giả: Aoyama Gōshō.",
     link: "#product3"
   },
+  {
+    id: 4,
+    title: "Lạc Trôi",
+    image: "https://pops-images-vn.akamaized.net/api/v2/containers/file2/cms_thumbnails/lactroi-01355878da52-1685600629917-s7qYv1Wa.png?v=0&maxW=420&format=webp",
+    content: "Tác giả: Nguyễn Huỳnh Bảo Châu.",
+    link: "#product4"
+  },
   // Các card khác được giữ nguyên
 ];
 
@@ -38,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
   }
   
-  const itemsPerPage = 24; // Số lượng card mỗi trang
+  const itemsPerPage = 12; // Số lượng card mỗi trang
   const totalPages = Math.ceil(cardData.length / itemsPerPage); // Tính tổng số trang
   
   // Kiểm tra nếu có phân trang thì thiết lập
