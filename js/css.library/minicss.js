@@ -8,7 +8,7 @@ function applyScopedCSS(elementId) {
 
     // Thêm link CSS và nội dung vào Shadow DOM
     shadow.innerHTML = `
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
+      <link rel="stylesheet" href="https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css">
       ${content}
     `;
   }
