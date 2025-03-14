@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.style.filter = 'blur(10px)';
             setTimeout(() => {
                 document.body.style.filter = 'none';
-            }, 100);
+            }, 1000); // Làm mờ trong 1 giây
         }
     });
 
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.style.filter = 'blur(10px)';
         setTimeout(() => {
             document.body.style.filter = 'none';
-        }, 500); // Làm mờ trong 0.5 giây
+        }, 700); // Làm mờ trong 0.7 giây
     });
 
     // Ngăn kéo thả văn bản
