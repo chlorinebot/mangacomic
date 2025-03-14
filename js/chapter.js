@@ -2,15 +2,15 @@
 
 // Dữ liệu chương truyện mẫu cho các truyện (dựa trên id từ cardData trong card_title.js)
 const chapterData = {
-  1: [ // id: 1 - "7 Viên Ngọc Rồng – Dragon Ball"
+  1: [
     {
       chapterNumber: 1,
       chapterTitle: "Cuộc gặp gỡ với Bulma",
       content: "Son Goku gặp Bulma và bắt đầu hành trình tìm ngọc rồng.",
-      imageFolder: "images/dragonball/chapter1", // Thư mục chứa ảnh
-      imageCount: 3, // Số lượng ảnh trong chương (page1.jpg, page2.jpg, page3.jpg)
-      rating: 4.5, // Đánh giá trung bình (thang 5 sao)
-      commentCount: 24 // Số lượng bình luận
+      imageFolder: "images/dragonball/chapter1",
+      imageCount: 3,
+      rating: 4.5,
+      commentCount: 24
     },
     {
       chapterNumber: 2,
@@ -22,13 +22,13 @@ const chapterData = {
       commentCount: 18
     }
   ],
-  2: [ // id: 2 - "Sản phẩm 2"
+  2: [
     {
       chapterNumber: 1,
       chapterTitle: "Đến giờ, đã 2000 năm.",
       content: "Mô tả nội dung chương 1 của sản phẩm 2.",
-      imageFolder: "./images/attackontitan/chapter1", // Thư mục chứa ảnh
-      imageCount: 55, // Giả sử có 4 trang ảnh
+      imageFolder: "./images/attackontitan/chapter1",
+      imageCount: 55,
       rating: 4.8,
       commentCount: 42
     },
@@ -47,8 +47,8 @@ const chapterData = {
       chapterNumber: 1,
       chapterTitle: "Viên thuốc độc",
       content: "BLA BLA.",
-      imageFolder: "./images/conan/conan_v1/chapter1", // Thư mục chứa ảnh
-      imageCount: 35, // Số lượng ảnh trong chương (page1.jpg, page2.jpg, page3.jpg)
+      imageFolder: "./images/conan/conan_v1/chapter1",
+      imageCount: 35,
       rating: 4.7,
       commentCount: 31
     },
@@ -109,7 +109,35 @@ const chapterData = {
   ]
 };
 
-// Biến lưu trữ dữ liệu chương hiện tại và id truyện
+// Dữ liệu bình luận mẫu
+const commentData = {
+  1: { // cardId: 1
+    1: [ // chapterNumber: 1
+      { id: 1, username: "User1", rating: 4.5, comment: "Truyện rất hay!", likes: 10, dislikes: 2, replies: [{ id: 1, username: "User2", comment: "Đúng vậy!" }] },
+      { id: 2, username: "User3", rating: 4.0, comment: "Cũng ổn.", likes: 5, dislikes: 1, replies: [] }
+    ],
+    2: [
+      { id: 1, username: "User4", rating: 4.2, comment: "Hành trình thú vị!", likes: 8, dislikes: 0, replies: [] }
+    ]
+  },
+  2: {
+    1: [
+      { id: 1, username: "User5", rating: 4.8, comment: "Tuyệt vời!", likes: 15, dislikes: 3, replies: [] }
+    ],
+    2: [
+      { id: 1, username: "User6", rating: 4.6, comment: "Rất hấp dẫn!", likes: 12, dislikes: 2, replies: [] }
+    ]
+  },
+  3: {
+    1: [
+      { id: 1, username: "User7", rating: 4.7, comment: "Kịch tính!", likes: 9, dislikes: 1, replies: [] }
+    ],
+    2: [
+      { id: 1, username: "User8", rating: 4.5, comment: "Hay lắm!", likes: 7, dislikes: 0, replies: [] }
+    ]
+  }
+};
+
 let currentChapterData = null;
 let currentCardId = null;
 
@@ -199,6 +227,28 @@ function displayChapters(cardId) {
   });
 }
 
+// Hàm tạo sao SVG dựa trên rating
+function generateStarRating(rating) {
+  const fullStar = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-fill me-1" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>`;
+  const halfStar = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star-half me-1" viewBox="0 0 16 16"><path d="M5.354 5.119 7.538.792A.52.52 0 0 1 8 .5c.183 0 .366.097.465.292l2.184 4.327 4.898.696A.54.54 0 0 1 16 6.32a.55.55 0 0 1-.17.445l-3.523 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256a.5.5 0 0 1-.146.05c-.342.06-.668-.254-.6-.642l.83-4.73L.173 6.765a.55.55 0 0 1-.172-.403.6.6 0 0 1 .085-.302.51.51 0 0 1 .37-.245zM8 12.027a.5.5 0 0 1 .232.056l3.686 1.894-.694-3.957a.56.56 0 0 1 .162-.505l2.907-2.77-4.052-.576a.53.53 0 0 1-.393-.288L8.001 2.223 8 2.226z"/></svg>`;
+  const emptyStar = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-star me-1" viewBox="0 0 16 16"><path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.56.56 0 0 0-.163-.505L1.71 6.745l4.052-.576a.53.53 0 0 0 .393-.288L8 2.223l1.847 3.658a.53.53 0 0 0 .393.288l4.052.575-2.906 2.77a.56.56 0 0 0-.163.506l.694 3.957-3.686-1.894a.5.5 0 0 0-.461 0z"/></svg>`;
+
+  let stars = '';
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.5;
+
+  for (let i = 0; i < 5; i++) {
+    if (i < fullStars) {
+      stars += fullStar;
+    } else if (i === fullStars && hasHalfStar) {
+      stars += halfStar;
+    } else {
+      stars += emptyStar;
+    }
+  }
+  return stars;
+}
+
 function openReadModal(chapter) {
   currentChapterData = chapter;
 
@@ -210,289 +260,228 @@ function openReadModal(chapter) {
   modalTitle.textContent = `Chương ${chapter.chapterNumber} - ${chapter.chapterTitle}`;
   modalBody.innerHTML = '';
 
-  // Hiển thị ảnh từ thư mục
+  // Thêm nội dung truyện
+  const contentContainer = document.createElement('div');
+  contentContainer.id = 'chapter-content';
   if (chapter.imageFolder && chapter.imageCount > 0) {
     for (let i = 1; i <= chapter.imageCount; i++) {
       const img = document.createElement('img');
-      img.src = `${chapter.imageFolder}/page (${i}).jpg`; // Tạo URL động: images/product2/chapter1/page1.jpg
+      img.src = `${chapter.imageFolder}/page (${i}).jpg`;
       img.className = 'd-block mx-auto mb-3';
       img.alt = `Trang ${i} - Chương ${chapter.chapterNumber}`;
       img.style.maxWidth = '100%';
-      modalBody.appendChild(img);
+      contentContainer.appendChild(img);
     }
   } else {
-    modalBody.textContent = chapter.content;
+    contentContainer.textContent = chapter.content;
   }
 
-  // Cập nhật footer với nút điều hướng và container đánh giá
+  // Thêm phần bình luận (ẩn mặc định)
+  const commentSection = document.createElement('div');
+  commentSection.id = 'comment-section';
+  commentSection.className = 'mt-3';
+  commentSection.style.display = 'none';
+
+  modalBody.appendChild(contentContainer);
+  modalBody.appendChild(commentSection);
+
   modalFooter.innerHTML = '';
-  
-  // Tạo container cho đánh giá và nút bình luận (bên trái)
-  const ratingCommentContainer = document.createElement('div');
-  ratingCommentContainer.className = 'd-flex align-items-center me-auto';
-  
-  // Tạo hiển thị đánh giá
-  const ratingDisplay = document.createElement('div');
-  ratingDisplay.className = 'd-flex align-items-center me-3';
-  
-  // Hiển thị các ngôi sao
-  const ratingStars = document.createElement('div');
-  ratingStars.className = 'me-1';
-  
-  // Tạo 5 ngôi sao với màu phù hợp dựa trên đánh giá
-  const rating = chapter.rating || 0;
-  for (let i = 1; i <= 5; i++) {
-    const star = document.createElement('i');
-    if (i <= Math.floor(rating)) {
-      // Sao đầy đủ
-      star.className = 'fas fa-star text-warning';
-    } else if (i - 0.5 <= rating) {
-      // Nửa sao
-      star.className = 'fas fa-star-half-alt text-warning';
-    } else {
-      // Sao rỗng
-      star.className = 'far fa-star text-warning';
-    }
-    ratingStars.appendChild(star);
-  }
-  
-  // Hiển thị số điểm đánh giá
-  const ratingNumber = document.createElement('span');
-  ratingNumber.className = 'ms-1';
-  ratingNumber.textContent = `${rating}/5`;
-  
-  ratingDisplay.appendChild(ratingStars);
-  ratingDisplay.appendChild(ratingNumber);
-  
-  // Tạo nút bình luận
+  modalFooter.className = 'modal-footer d-flex justify-content-between';
+
+  const leftGroup = document.createElement('div');
+  leftGroup.className = 'd-flex align-items-center';
+
+  const ratingContainer = document.createElement('div');
+  ratingContainer.className = 'd-flex align-items-center me-3';
+  ratingContainer.innerHTML = `${generateStarRating(chapter.rating)} <span class="ms-2">${chapter.rating}/5</span>`;
+
   const commentButton = document.createElement('button');
   commentButton.type = 'button';
-  commentButton.className = 'btn btn-outline-secondary btn-sm';
-  commentButton.innerHTML = `<i class="far fa-comment"></i> Bình luận (${chapter.commentCount || 0})`;
+  commentButton.className = 'btn btn-outline-primary';
+  commentButton.innerHTML = `<i class="bi bi-chat"></i> Bình luận (${chapter.commentCount || 0})`;
   commentButton.addEventListener('click', function() {
-    showComments(chapter);
+    if (commentSection.style.display === 'none') {
+      displayComments(commentSection, chapter);
+      commentSection.style.display = 'block';
+      contentContainer.style.display = 'none';
+      commentButton.textContent = 'Quay lại truyện';
+    } else {
+      commentSection.style.display = 'none';
+      contentContainer.style.display = 'block';
+      commentButton.innerHTML = `<i class="bi bi-chat"></i> Bình luận (${chapter.commentCount || 0})`;
+    }
   });
-  
-  // Thêm rating và comment button vào container
-  ratingCommentContainer.appendChild(ratingDisplay);
-  ratingCommentContainer.appendChild(commentButton);
-  
-  // Nút điều hướng (bên phải)
-  const navigationContainer = document.createElement('div');
-  navigationContainer.className = 'd-flex';
-  
+
+  leftGroup.appendChild(ratingContainer);
+  leftGroup.appendChild(commentButton);
+
+  const rightGroup = document.createElement('div');
+  rightGroup.className = 'd-flex align-items-center';
+
   const prevButton = document.createElement('button');
   prevButton.type = 'button';
   prevButton.className = 'btn btn-secondary me-2';
   prevButton.textContent = 'Chương trước';
   prevButton.addEventListener('click', goToPreviousChapter);
-  
+
   const nextButton = document.createElement('button');
   nextButton.type = 'button';
   nextButton.className = 'btn btn-primary';
   nextButton.textContent = 'Chương tiếp theo';
   nextButton.addEventListener('click', goToNextChapter);
-  
-  navigationContainer.appendChild(prevButton);
-  navigationContainer.appendChild(nextButton);
-  
-  // Thêm các phần tử vào footer
-  modalFooter.appendChild(ratingCommentContainer);
-  modalFooter.appendChild(navigationContainer);
-  
+
+  rightGroup.appendChild(prevButton);
+  rightGroup.appendChild(nextButton);
+
+  modalFooter.appendChild(leftGroup);
+  modalFooter.appendChild(rightGroup);
+
   updateNavigationButtons(prevButton, nextButton);
-  
+
   const bsModal = new bootstrap.Modal(modal);
   bsModal.show();
 }
 
-function showComments(chapter) {
-  // Tạo và hiển thị modal bình luận
-  let commentModal = document.getElementById('commentModal');
-  
-  // Tạo modal nếu chưa tồn tại
-  if (!commentModal) {
-    commentModal = document.createElement('div');
-    commentModal.className = 'modal fade';
-    commentModal.id = 'commentModal';
-    commentModal.setAttribute('tabindex', '-1');
-    commentModal.setAttribute('aria-labelledby', 'commentModalLabel');
-    commentModal.setAttribute('aria-hidden', 'true');
-    
-    const modalHTML = `
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="commentModalLabel">Bình luận</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="comments-container">
-              <!-- Bình luận sẽ được thêm vào đây -->
-            </div>
-            <hr>
-            <div class="comment-form mt-3">
-              <h6>Thêm bình luận</h6>
-              <div class="mb-3">
-                <label for="ratingInput" class="form-label">Đánh giá</label>
-                <div class="rating-input">
-                  <i class="far fa-star" data-rating="1"></i>
-                  <i class="far fa-star" data-rating="2"></i>
-                  <i class="far fa-star" data-rating="3"></i>
-                  <i class="far fa-star" data-rating="4"></i>
-                  <i class="far fa-star" data-rating="5"></i>
-                </div>
-              </div>
-              <div class="mb-3">
-                <label for="commentInput" class="form-label">Nội dung</label>
-                <textarea class="form-control" id="commentInput" rows="3"></textarea>
-              </div>
-              <button type="button" class="btn btn-primary" id="submitComment">Gửi bình luận</button>
-            </div>
-          </div>
+function displayComments(commentSection, chapter) {
+  const comments = (commentData[currentCardId] && commentData[currentCardId][chapter.chapterNumber]) || [];
+  commentSection.innerHTML = `
+    <div class="position-sticky top-0 bg-white p-2" style="z-index: 10;">
+      <h5>Bình luận (${chapter.commentCount || 0})</h5>
+    </div>
+    <div class="comment-list" style="max-height: 50vh; overflow-y: auto;">
+      ${comments.length === 0 ? '<p>Chưa có bình luận nào.</p>' : ''}
+    </div>
+    <div class="comment-form p-3 bg-light position-sticky bottom-0" style="z-index: 10;">
+      <form>
+        <div class="mb-3">
+          <label for="new-comment" class="form-label">Bình luận của bạn:</label>
+          <textarea class="form-control" id="new-comment" rows="3" placeholder="Nhập bình luận..."></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Đánh giá:</label>
+          <select class="form-select w-auto d-inline-block" id="new-rating">
+            <option value="5">5 sao</option>
+            <option value="4.5">4.5 sao</option>
+            <option value="4">4 sao</option>
+            <option value="3.5">3.5 sao</option>
+            <option value="3">3 sao</option>
+            <option value="2.5">2.5 sao</option>
+            <option value="2">2 sao</option>
+            <option value="1.5">1.5 sao</option>
+            <option value="1">1 sao</option>
+            <option value="0.5">0.5 sao</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+      </form>
+    </div>
+  `;
+
+  const commentList = commentSection.querySelector('.comment-list');
+  comments.forEach(comment => {
+    const toast = document.createElement('div');
+    toast.className = 'toast show mb-3';
+    toast.innerHTML = `
+      <div class="toast-header">
+        <strong class="me-auto">${comment.username}</strong>
+        <div class="d-flex align-items-center">
+          ${generateStarRating(comment.rating)}
+          <span class="ms-2">${comment.rating}</span>
         </div>
       </div>
-    `;
-    
-    commentModal.innerHTML = modalHTML;
-    document.body.appendChild(commentModal);
-    
-    // Xử lý chọn sao đánh giá
-    const stars = commentModal.querySelectorAll('.rating-input i');
-    stars.forEach(star => {
-      star.addEventListener('click', function() {
-        const rating = this.getAttribute('data-rating');
-        // Reset tất cả các sao
-        stars.forEach(s => s.className = 'far fa-star');
-        // Đặt sao đã chọn và các sao trước đó
-        for (let i = 0; i < rating; i++) {
-          stars[i].className = 'fas fa-star text-warning';
-        }
-      });
-      
-      star.addEventListener('mouseover', function() {
-        const rating = this.getAttribute('data-rating');
-        // Hiển thị preview khi hover
-        for (let i = 0; i < rating; i++) {
-          stars[i].className = 'fas fa-star text-warning';
-        }
-      });
-      
-      star.addEventListener('mouseout', function() {
-        // Khi không hover nữa, khôi phục trạng thái đã chọn hoặc mặc định
-        stars.forEach(s => {
-          if (s.classList.contains('selected')) {
-            s.className = 'fas fa-star text-warning selected';
-          } else {
-            s.className = 'far fa-star';
-          }
-        });
-      });
-    });
-    
-    // Xử lý nút gửi bình luận
-    const submitButton = commentModal.querySelector('#submitComment');
-    submitButton.addEventListener('click', function() {
-      const commentInput = commentModal.querySelector('#commentInput');
-      const comment = commentInput.value.trim();
-      
-      // Kiểm tra nội dung bình luận không rỗng
-      if (comment) {
-        // Giả lập thêm bình luận mới vào container
-        const commentsContainer = commentModal.querySelector('.comments-container');
-        const newComment = document.createElement('div');
-        newComment.className = 'comment border-bottom pb-3 mb-3';
-        newComment.innerHTML = `
-          <div class="d-flex align-items-center mb-2">
-            <strong>Người dùng</strong>
-            <span class="ms-2 text-warning">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-            </span>
-            <small class="ms-auto text-muted">Vừa xong</small>
+      <div class="toast-body">
+        <p>${comment.comment}</p>
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <button class="btn btn-sm btn-outline-success me-2 like-btn" data-comment-id="${comment.id}">
+              <i class="bi bi-hand-thumbs-up"></i> ${comment.likes}
+            </button>
+            <button class="btn btn-sm btn-outline-danger dislike-btn" data-comment-id="${comment.id}">
+              <i class="bi bi-hand-thumbs-down"></i> ${comment.dislikes}
+            </button>
           </div>
-          <p>${comment}</p>
-        `;
-        
-        // Thêm bình luận mới lên đầu danh sách
-        if (commentsContainer.firstChild) {
-          commentsContainer.insertBefore(newComment, commentsContainer.firstChild);
-        } else {
-          commentsContainer.appendChild(newComment);
-        }
-        
-        // Xóa nội dung sau khi gửi
-        commentInput.value = '';
-        stars.forEach(s => s.className = 'far fa-star');
+          <button class="btn btn-sm btn-outline-primary reply-btn" data-comment-id="${comment.id}">Trả lời</button>
+        </div>
+        <div class="replies mt-2" id="replies-${comment.id}"></div>
+      </div>
+    `;
+    commentList.appendChild(toast);
+
+    const repliesContainer = toast.querySelector(`#replies-${comment.id}`);
+    comment.replies.forEach(reply => {
+      const replyToast = document.createElement('div');
+      replyToast.className = 'toast show ms-3 mb-2';
+      replyToast.innerHTML = `
+        <div class="toast-header">
+          <strong class="me-auto">${reply.username}</strong>
+        </div>
+        <div class="toast-body">${reply.comment}</div>
+      `;
+      repliesContainer.appendChild(replyToast);
+    });
+  });
+
+  // Sự kiện cho các nút
+  commentList.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const commentId = parseInt(this.getAttribute('data-comment-id'));
+      const comment = comments.find(c => c.id === commentId);
+      comment.likes++;
+      this.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> ${comment.likes}`;
+    });
+  });
+
+  commentList.querySelectorAll('.dislike-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const commentId = parseInt(this.getAttribute('data-comment-id'));
+      const comment = comments.find(c => c.id === commentId);
+      comment.dislikes++;
+      this.innerHTML = `<i class="bi bi-hand-thumbs-down"></i> ${comment.dislikes}`;
+    });
+  });
+
+  commentList.querySelectorAll('.reply-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const commentId = parseInt(this.getAttribute('data-comment-id'));
+      const replyText = prompt('Nhập câu trả lời của bạn:');
+      if (replyText) {
+        const comment = comments.find(c => c.id === commentId);
+        const newReply = {
+          id: comment.replies.length + 1,
+          username: "Bạn",
+          comment: replyText
+        };
+        comment.replies.push(newReply);
+        displayComments(commentSection, chapter);
       }
     });
-  }
-  
-  // Cập nhật tiêu đề modal với tên chương
-  const modalTitle = commentModal.querySelector('.modal-title');
-  modalTitle.textContent = `Bình luận - Chương ${chapter.chapterNumber}: ${chapter.chapterTitle}`;
-  
-  // Hiển thị các bình luận mẫu
-  const commentsContainer = commentModal.querySelector('.comments-container');
-  commentsContainer.innerHTML = '';
-  
-  // Tạo một số bình luận mẫu dựa trên số lượng bình luận
-  const sampleComments = [
-    {
-      username: "MangaFan123",
-      rating: 5,
-      content: "Chương này thật tuyệt vời! Tôi rất thích cách tác giả phát triển nhân vật.",
-      time: "1 ngày trước"
-    },
-    {
-      username: "OtakuMaster",
-      rating: 4,
-      content: "Cốt truyện đang rất hay, nhưng tôi nghĩ một số hình ảnh hành động hơi khó theo dõi.",
-      time: "3 ngày trước"
-    },
-    {
-      username: "TruyenTranh2024",
-      rating: 5,
-      content: "Không thể đợi đến chương tiếp theo! Cảm ơn vì đã dịch nhanh chóng.",
-      time: "1 tuần trước"
+  });
+
+  const form = commentSection.querySelector('form');
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const commentText = form.querySelector('#new-comment').value;
+    const rating = parseFloat(form.querySelector('#new-rating').value);
+
+    if (commentText) {
+      const newComment = {
+        id: comments.length + 1,
+        username: "Bạn",
+        rating: rating,
+        comment: commentText,
+        likes: 0,
+        dislikes: 0,
+        replies: []
+      };
+      if (!commentData[currentCardId]) commentData[currentCardId] = {};
+      if (!commentData[currentCardId][chapter.chapterNumber]) commentData[currentCardId][chapter.chapterNumber] = [];
+      commentData[currentCardId][chapter.chapterNumber].push(newComment);
+      chapter.commentCount++;
+      commentButton.innerHTML = `<i class="bi bi-chat"></i> Bình luận (${chapter.commentCount})`;
+      displayComments(commentSection, chapter);
+      form.querySelector('#new-comment').value = '';
     }
-  ];
-  
-  // Tạo số lượng bình luận tương ứng
-  const commentCount = Math.min(chapter.commentCount || 0, 10); // Giới hạn hiển thị tối đa 10 bình luận
-  for (let i = 0; i < commentCount; i++) {
-    const commentSample = sampleComments[i % sampleComments.length];
-    const commentRating = Math.floor(Math.random() * 2) + 4; // Random 4-5 sao
-    
-    const commentElement = document.createElement('div');
-    commentElement.className = 'comment border-bottom pb-3 mb-3';
-    
-    // Tạo nội dung HTML cho bình luận
-    let starsHTML = '';
-    for (let j = 1; j <= 5; j++) {
-      starsHTML += `<i class="${j <= commentRating ? 'fas' : 'far'} fa-star"></i>`;
-    }
-    
-    commentElement.innerHTML = `
-      <div class="d-flex align-items-center mb-2">
-        <strong>${commentSample.username}</strong>
-        <span class="ms-2 text-warning">
-          ${starsHTML}
-        </span>
-        <small class="ms-auto text-muted">${commentSample.time}</small>
-      </div>
-      <p>${commentSample.content}</p>
-    `;
-    
-    commentsContainer.appendChild(commentElement);
-  }
-  
-  // Hiển thị modal
-  const bsCommentModal = new bootstrap.Modal(commentModal);
-  bsCommentModal.show();
+  });
 }
 
 function goToPreviousChapter() {
