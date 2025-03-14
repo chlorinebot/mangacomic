@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
     cookieModal.id = 'cookieModal';
     cookieModal.style.cssText = `
         position: fixed;
-        bottom: 20px;
+        bottom: 70px; /* Nhích lên 50px so với footer */
         right: 20px;
         width: 350px;
         background: #fff;
@@ -87,18 +87,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Hàm vô hiệu hóa các chức năng sử dụng cookie
     function disableCookies() {
         cookiesEnabled = false;
-        // Xóa tất cả cookie không cần thiết
+        // Chỉ xóa cookie theme và searchHistory, giữ username nếu đã đăng nhập
         eraseCookie('theme');
         eraseCookie('searchHistory');
-        eraseCookie('username');
-        // Reset giao diện và trạng thái
+        // Reset giao diện dark mode
         document.body.classList.remove('dark-mode');
         document.getElementById('flexSwitchCheckDefault').checked = false;
-        const userDropdown = document.querySelector('.nav-item.dropdown .nav-link.dropdown-toggle');
-        userDropdown.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-        </svg> Đăng nhập/Đăng ký`;
     }
 
     // === Các tính năng tối ưu bằng Cookie ===
@@ -238,8 +232,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// CSS cho dark mode (thêm vào thẻ <style> trong HTML)
-const darkModeStyle = `
+// CSS cho dark mode và modal cookie (thêm vào thẻ <style> trong HTML)
+const styleSheet = document.createElement('style');
+styleSheet.innerText = `
     .dark-mode {
         background-color: #333;
         color: #fff;
@@ -255,7 +250,29 @@ const darkModeStyle = `
         background-color: #444;
         color: #fff;
     }
+    #cookieModal {
+        position: fixed;
+        bottom: 70px; /* Nhích lên 50px so với footer */
+        right: 20px;
+        width: 350px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        z-index: 1000;
+        display: none;
+    }
+    #cookieModal h5 {
+        margin-bottom: 10px;
+        font-size: 1.2em;
+    }
+    #cookieModal p {
+        margin-bottom: 15px;
+        font-size: 0.9em;
+        color: #333;
+    }
+    #cookieModal .btn {
+        font-size: 0.9em;
+    }
 `;
-const styleSheet = document.createElement('style');
-styleSheet.innerText = darkModeStyle;
 document.head.appendChild(styleSheet);
