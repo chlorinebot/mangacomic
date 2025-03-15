@@ -1,124 +1,58 @@
 // frontend/js/card_title.js
-
-document.addEventListener('DOMContentLoaded', async function() {
+// Dữ liệu cho các card
+const cardData = [
+    {
+      id: 1,
+      title: "7 Viên Ngọc Rồng – Dragon Ball",
+      image: "https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-7-vien-ngoc-rong-dragon-ball.jpg",
+      content: "Tác giả: Akira Toriyama",
+      link: "#product1"
+    },
+    {
+      id: 2,
+      title: "Đại Chiến Người Khổng Lồ - Attack On Titan - Mùa 1",
+      image: "https://resizing.flixster.com/SEKqvD_3s-g47nWx0tsZykurPvQ=/206x305/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p10873160_b_v8_aa.jpg",
+      content: "Tác giả: Isayama Hajime.",
+      link: "#product2"
+    },
+    {
+      id: 3,
+      title: "Conan Volume 1",
+      image: "./banner_img/conan_v1.png",
+      content: "Tác giả: Aoyama Gōshō.",
+      link: "#product3"
+    },
+    // Các card khác được giữ nguyên
+  ];
+  
+  // Biến lưu trữ dữ liệu card hiện tại
+  let currentCardData = null;
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra xem có bị trùng với sự kiện DOMContentLoaded của chapter.js không
     if (window.cardInitialized) return;
     window.cardInitialized = true;
-
+    
     const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
     if (!cardContainer) {
         console.error('Không tìm thấy container cho cards!');
         return;
     }
-
-    try {
-        const response = await fetch('http://localhost:3000/api/comics');
-        const cardData = await response.json();
-
-        const itemsPerPage = 12;
-        const totalPages = Math.ceil(cardData.length / itemsPerPage);
-
-        if (document.querySelector('.pagination')) {
-            setupCardPagination(cardData);
-            displayCardsForPage(1, cardData);
-        } else {
-            displayAllCards(cardData);
-        }
-
-        setupCardModalBehavior();
-    } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu truyện:', error);
+    
+    const itemsPerPage = 24; // Số lượng card mỗi trang
+    const totalPages = Math.ceil(cardData.length / itemsPerPage); // Tính tổng số trang
+    
+    // Kiểm tra nếu có phân trang thì thiết lập
+    if (document.querySelector('.pagination')) {
+        setupCardPagination();
+        displayCardsForPage(1); // Hiển thị trang đầu tiên
+    } else {
+        displayAllCards(); // Nếu không có phân trang thì hiển thị tất cả
     }
-});
-
-function displayCardsForPage(pageNumber, cardData) {
-    const itemsPerPage = 12; // Giảm xuống để test
-    const startIndex = (pageNumber - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentPageData = cardData.slice(startIndex, endIndex);
-
-    const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
-    cardContainer.innerHTML = '';
-
-    currentPageData.forEach(data => {
-        const colDiv = document.createElement('div');
-        colDiv.className = 'col';
-
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card';
-
-        const img = document.createElement('img');
-        img.className = 'card-img-top';
-        img.src = data.image_url;
-        img.alt = data.title;
-
-        const cardBody = document.createElement('div');
-        cardBody.className = 'card-body';
-
-        const cardTitle = document.createElement('h5');
-        cardTitle.className = 'card-title';
-        cardTitle.textContent = data.title;
-
-        const cardText = document.createElement('p');
-        cardText.className = 'card-text';
-        cardText.textContent = `Tác giả: ${data.author}`;
-
-        cardBody.appendChild(cardTitle);
-        cardBody.appendChild(cardText);
-        cardDiv.appendChild(img);
-        cardDiv.appendChild(cardBody);
-
-        cardDiv.style.cursor = 'pointer';
-        cardDiv.addEventListener('click', function() {
-            openCardModal(data);
-        });
-
-        colDiv.appendChild(cardDiv);
-        cardContainer.appendChild(colDiv);
-    });
-}
-
-function displayAllCards(cardData) {
-    const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
-    cardContainer.innerHTML = '';
-    cardData.forEach(data => {
-        const colDiv = document.createElement('div');
-        colDiv.className = 'col';
-
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card';
-
-        const img = document.createElement('img');
-        img.className = 'card-img-top';
-        img.src = data.image_url;
-        img.alt = data.title;
-
-        const cardBody = document.createElement('div');
-        cardBody.className = 'card-body';
-
-        const cardTitle = document.createElement('h5');
-        cardTitle.className = 'card-title';
-        cardTitle.textContent = data.title;
-
-        const cardText = document.createElement('p');
-        cardText.className = 'card-text';
-        cardText.textContent = `Tác giả: ${data.author}`;
-
-        cardBody.appendChild(cardTitle);
-        cardBody.appendChild(cardText);
-        cardDiv.appendChild(img);
-        cardDiv.appendChild(cardBody);
-
-        cardDiv.style.cursor = 'pointer';
-        cardDiv.addEventListener('click', function() {
-            openCardModal(data);
-        });
-
-        colDiv.appendChild(cardDiv);
-        cardContainer.appendChild(colDiv);
-    });
-}
-
-// Giữ nguyên các hàm khác như setupCardModalBehavior, openCardModal, setupCardPagination
+    
+    // Sử dụng setupCardModalBehavior thay vì setupModalBehavior để tránh xung đột
+    setupCardModalBehavior();
+  });
 // Đổi tên hàm để tránh xung đột với chapter.js
 function setupCardModalBehavior() {
   const docTruyenModal = document.getElementById('doctruyen');
