@@ -107,10 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (e.ctrlKey && e.key === 'x') {
                 e.preventDefault();
             }
-            // Ngăn Ctrl+V (dán)
-            if (e.ctrlKey && e.key === 'v') {
-                e.preventDefault();
-            }
+            
             // Ngăn Ctrl+P (in trang)
             if (e.ctrlKey && e.key === 'p') {
                 e.preventDefault();
