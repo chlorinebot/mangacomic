@@ -108,20 +108,23 @@ const chapterData = {
   ]
 };
 
-// Biến lưu trữ dữ liệu chương hiện tại và id truyện
+// Biến lưu trữ dữ liệu chương và id truyện hiện tại
 let currentChapterData = null;
 let currentCardId = null;
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Tránh khởi tạo trùng lặp
   if (window.chapterInitialized) return;
   window.chapterInitialized = true;
+
+  console.log("chapter.js đã được tải"); // Debug để kiểm tra
 
   const cardModal = document.getElementById('card');
   if (cardModal) {
     cardModal.addEventListener('show.bs.modal', function() {
       if (currentCardData && currentCardData.id) {
         currentCardId = currentCardData.id;
-        displayChapters(currentCardData.id);
+        displayChapters(currentCardId);
       }
     });
   }
@@ -182,6 +185,7 @@ function displayChapters(cardId) {
     readButton.className = 'btn btn-primary';
     readButton.textContent = 'Đọc truyện';
     readButton.addEventListener('click', function() {
+      console.log(`Mở chương ${chapter.chapterNumber}`); // Debug
       openReadModal(chapter);
     });
 
@@ -197,10 +201,16 @@ function displayChapters(cardId) {
     accordion.appendChild(accordionItem);
   });
 }
+
 function openReadModal(chapter) {
   currentChapterData = chapter;
 
   const modal = document.getElementById('doctruyen');
+  if (!modal) {
+    console.error('Không tìm thấy modal #doctruyen!');
+    return;
+  }
+
   const modalTitle = modal.querySelector('.modal-title');
   const modalBody = modal.querySelector('.modal-body');
   const modalFooter = modal.querySelector('.modal-footer');
@@ -224,47 +234,11 @@ function openReadModal(chapter) {
     contentContainer.textContent = chapter.content;
   }
 
-  // Thêm phần bình luận (ẩn mặc định)
-  const commentSection = document.createElement('div');
-  commentSection.id = 'comment-section';
-  commentSection.className = 'mt-3';
-  commentSection.style.display = 'none';
-
   modalBody.appendChild(contentContainer);
-  modalBody.appendChild(commentSection);
 
+  // Cấu hình footer
   modalFooter.innerHTML = '';
   modalFooter.className = 'modal-footer d-flex justify-content-between';
-
-  const leftGroup = document.createElement('div');
-  leftGroup.className = 'd-flex align-items-center';
-
-  const ratingContainer = document.createElement('div');
-  ratingContainer.className = 'd-flex align-items-center me-3';
-  ratingContainer.innerHTML = `${generateStarRating(chapter.rating)} <span class="ms-2">${chapter.rating}/5</span>`;
-
-  const commentButton = document.createElement('button');
-  commentButton.type = 'button';
-  commentButton.className = 'btn btn-outline-primary';
-  commentButton.innerHTML = `<i class="bi bi-chat"></i> Bình luận (${chapter.commentCount || 0})`;
-  commentButton.addEventListener('click', function() {
-    if (commentSection.style.display === 'none') {
-      displayComments(commentSection, chapter);
-      commentSection.style.display = 'block';
-      contentContainer.style.display = 'none';
-      commentButton.textContent = 'Quay lại truyện';
-    } else {
-      commentSection.style.display = 'none';
-      contentContainer.style.display = 'block';
-      commentButton.innerHTML = `<i class="bi bi-chat"></i> Bình luận (${chapter.commentCount || 0})`;
-    }
-  });
-
-  leftGroup.appendChild(ratingContainer);
-  leftGroup.appendChild(commentButton);
-
-  const rightGroup = document.createElement('div');
-  rightGroup.className = 'd-flex align-items-center';
 
   const prevButton = document.createElement('button');
   prevButton.type = 'button';
@@ -278,158 +252,19 @@ function openReadModal(chapter) {
   nextButton.textContent = 'Chương tiếp theo';
   nextButton.addEventListener('click', goToNextChapter);
 
-  rightGroup.appendChild(prevButton);
-  rightGroup.appendChild(nextButton);
-
-  modalFooter.appendChild(leftGroup);
-  modalFooter.appendChild(rightGroup);
+  modalFooter.appendChild(prevButton);
+  modalFooter.appendChild(nextButton);
 
   updateNavigationButtons(prevButton, nextButton);
 
-  const bsModal = new bootstrap.Modal(modal);
-  bsModal.show();
-}
-
-function displayComments(commentSection, chapter) {
-  const comments = (commentData[currentCardId] && commentData[currentCardId][chapter.chapterNumber]) || [];
-  commentSection.innerHTML = `
-    <div class="position-sticky top-0 bg-white p-2" style="z-index: 10;">
-      <h5>Bình luận (${chapter.commentCount || 0})</h5>
-    </div>
-    <div class="comment-list" style="max-height: 50vh; overflow-y: auto;">
-      ${comments.length === 0 ? '<p>Chưa có bình luận nào.</p>' : ''}
-    </div>
-    <div class="comment-form p-3 bg-light position-sticky bottom-0" style="z-index: 10;">
-      <form>
-        <div class="mb-3">
-          <label for="new-comment" class="form-label">Bình luận của bạn:</label>
-          <textarea class="form-control" id="new-comment" rows="3" placeholder="Nhập bình luận..."></textarea>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Đánh giá:</label>
-          <select class="form-select w-auto d-inline-block" id="new-rating">
-            <option value="5">5 sao</option>
-            <option value="4.5">4.5 sao</option>
-            <option value="4">4 sao</option>
-            <option value="3.5">3.5 sao</option>
-            <option value="3">3 sao</option>
-            <option value="2.5">2.5 sao</option>
-            <option value="2">2 sao</option>
-            <option value="1.5">1.5 sao</option>
-            <option value="1">1 sao</option>
-            <option value="0.5">0.5 sao</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Gửi bình luận</button>
-      </form>
-    </div>
-  `;
-
-  const commentList = commentSection.querySelector('.comment-list');
-  comments.forEach(comment => {
-    const toast = document.createElement('div');
-    toast.className = 'toast show mb-3';
-    toast.innerHTML = `
-      <div class="toast-header">
-        <strong class="me-auto">${comment.username}</strong>
-        <div class="d-flex align-items-center">
-          ${generateStarRating(comment.rating)}
-          <span class="ms-2">${comment.rating}</span>
-        </div>
-      </div>
-      <div class="toast-body">
-        <p>${comment.comment}</p>
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <button class="btn btn-sm btn-outline-success me-2 like-btn" data-comment-id="${comment.id}">
-              <i class="bi bi-hand-thumbs-up"></i> ${comment.likes}
-            </button>
-            <button class="btn btn-sm btn-outline-danger dislike-btn" data-comment-id="${comment.id}">
-              <i class="bi bi-hand-thumbs-down"></i> ${comment.dislikes}
-            </button>
-          </div>
-          <button class="btn btn-sm btn-outline-primary reply-btn" data-comment-id="${comment.id}">Trả lời</button>
-        </div>
-        <div class="replies mt-2" id="replies-${comment.id}"></div>
-      </div>
-    `;
-    commentList.appendChild(toast);
-
-    const repliesContainer = toast.querySelector(`#replies-${comment.id}`);
-    comment.replies.forEach(reply => {
-      const replyToast = document.createElement('div');
-      replyToast.className = 'toast show ms-3 mb-2';
-      replyToast.innerHTML = `
-        <div class="toast-header">
-          <strong class="me-auto">${reply.username}</strong>
-        </div>
-        <div class="toast-body">${reply.comment}</div>
-      `;
-      repliesContainer.appendChild(replyToast);
-    });
-  });
-
-  // Sự kiện cho các nút
-  commentList.querySelectorAll('.like-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const commentId = parseInt(this.getAttribute('data-comment-id'));
-      const comment = comments.find(c => c.id === commentId);
-      comment.likes++;
-      this.innerHTML = `<i class="bi bi-hand-thumbs-up"></i> ${comment.likes}`;
-    });
-  });
-
-  commentList.querySelectorAll('.dislike-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const commentId = parseInt(this.getAttribute('data-comment-id'));
-      const comment = comments.find(c => c.id === commentId);
-      comment.dislikes++;
-      this.innerHTML = `<i class="bi bi-hand-thumbs-down"></i> ${comment.dislikes}`;
-    });
-  });
-
-  commentList.querySelectorAll('.reply-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const commentId = parseInt(this.getAttribute('data-comment-id'));
-      const replyText = prompt('Nhập câu trả lời của bạn:');
-      if (replyText) {
-        const comment = comments.find(c => c.id === commentId);
-        const newReply = {
-          id: comment.replies.length + 1,
-          username: "Bạn",
-          comment: replyText
-        };
-        comment.replies.push(newReply);
-        displayComments(commentSection, chapter);
-      }
-    });
-  });
-
-  const form = commentSection.querySelector('form');
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const commentText = form.querySelector('#new-comment').value;
-    const rating = parseFloat(form.querySelector('#new-rating').value);
-
-    if (commentText) {
-      const newComment = {
-        id: comments.length + 1,
-        username: "Bạn",
-        rating: rating,
-        comment: commentText,
-        likes: 0,
-        dislikes: 0,
-        replies: []
-      };
-      if (!commentData[currentCardId]) commentData[currentCardId] = {};
-      if (!commentData[currentCardId][chapter.chapterNumber]) commentData[currentCardId][chapter.chapterNumber] = [];
-      commentData[currentCardId][chapter.chapterNumber].push(newComment);
-      chapter.commentCount++;
-      commentButton.innerHTML = `<i class="bi bi-chat"></i> Bình luận (${chapter.commentCount})`;
-      displayComments(commentSection, chapter);
-      form.querySelector('#new-comment').value = '';
-    }
-  });
+  // Mở modal
+  try {
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    console.log('Modal #doctruyen đã được mở'); // Debug
+  } catch (error) {
+    console.error('Lỗi khi mở modal:', error);
+  }
 }
 
 function goToPreviousChapter() {
@@ -460,19 +295,9 @@ function updateNavigationButtons(prevButton, nextButton) {
   const chapters = chapterData[currentCardId];
   const currentIndex = chapters.findIndex(ch => ch.chapterNumber === currentChapterData.chapterNumber);
 
-  if (currentIndex <= 0) {
-    prevButton.disabled = true;
-    prevButton.classList.add('disabled');
-  } else {
-    prevButton.disabled = false;
-    prevButton.classList.remove('disabled');
-  }
+  prevButton.disabled = currentIndex <= 0;
+  prevButton.classList.toggle('disabled', currentIndex <= 0);
 
-  if (currentIndex >= chapters.length - 1) {
-    nextButton.disabled = true;
-    nextButton.classList.add('disabled');
-  } else {
-    nextButton.disabled = false;
-    nextButton.classList.remove('disabled');
-  }
+  nextButton.disabled = currentIndex >= chapters.length - 1;
+  nextButton.classList.toggle('disabled', currentIndex >= chapters.length - 1);
 }
