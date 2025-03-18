@@ -131,7 +131,6 @@ document.addEventListener('DOMContentLoaded', function() {
       resetModalState();
     });
   }
-
   setupChapterModalBehavior();
 });
 
