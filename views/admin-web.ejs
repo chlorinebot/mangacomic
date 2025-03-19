@@ -4,101 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Truyện Tranh & Người Dùng</title>
-    <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            padding-top: 20px;
-            background-color: #f8f9fa;
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .table-responsive {
-            margin-top: 20px;
-        }
+        .sidebar { height: 100vh; position: fixed; top: 0; left: 0; width: 250px; padding-top: 20px; background-color: #f8f9fa; }
+        .main-content { margin-left: 250px; padding: 20px; }
+        .table-responsive { margin-top: 20px; }
+        .password-mask, .password-text { display: inline; }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
     <div class="sidebar bg-light border-end">
         <h3 class="text-center">Admin Panel</h3>
         <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="#comic-management" data-bs-toggle="tab"><i class="bi bi-book"></i> Quản Lý Truyện</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#user-management" data-bs-toggle="tab"><i class="bi bi-person"></i> Quản Lý Người Dùng</a>
-            </li>
-            <li class="nav-item">
-                <button id="logoutButton" class="btn btn-danger">Đăng xuất</button>
-            </li>
+            <li class="nav-item"><a class="nav-link active" href="#comic-management" data-bs-toggle="tab"><i class="bi bi-book"></i> Quản Lý Truyện</a></li>
+            <li class="nav-item"><a class="nav-link" href="#user-management" data-bs-toggle="tab"><i class="bi bi-person"></i> Quản Lý Người Dùng</a></li>
+            <li class="nav-item"><button id="logoutButton" class="btn btn-danger w-100">Đăng xuất</button></li>
         </ul>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
         <div class="tab-content">
-            <!-- Quản Lý Truyện Tranh -->
             <div class="tab-pane fade show active" id="comic-management">
                 <h2>Quản Lý Truyện Tranh</h2>
-                
-                <!-- Nút thêm truyện -->
-                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addComicModal">
-                    <i class="bi bi-plus"></i> Thêm Truyện Mới
-                </button>
-
-                <!-- Bảng danh sách truyện -->
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addComicModal"><i class="bi bi-plus"></i> Thêm Truyện</button>
+                <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addChapterModal"><i class="bi bi-book"></i> Thêm Chương</button>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tên Truyện</th>
-                                <th>Tác Giả</th>
-                                <th>Thể Loại</th>
-                                <th>Hành Động</th>
-                            </tr>
+                            <tr><th>ID</th><th>Tên Truyện</th><th>Tác Giả</th><th>Link</th><th>Hành Động</th></tr>
                         </thead>
-                        <tbody id="comicTableBody">
-                            <!-- Dữ liệu sẽ được load động bằng JavaScript -->
-                        </tbody>
+                        <tbody id="comicTableBody"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Quản Lý Người Dùng -->
             <div class="tab-pane fade" id="user-management">
                 <h2>Quản Lý Người Dùng</h2>
-                
-                <!-- Nút thêm người dùng -->
-                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                    <i class="bi bi-plus"></i> Thêm Người Dùng
-                </button>
-
-                <!-- Bảng danh sách người dùng -->
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="bi bi-plus"></i> Thêm Người Dùng</button>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tên Người Dùng</th>
-                                <th>Email</th>
-                                <th>Mật khẩu</th>
-                                <th>Ngày Đăng Ký</th>
-                                <th>Hành Động</th>
-                            </tr>
+                            <tr><th>ID</th><th>Tên Tài Khoản</th><th>Email</th><th>Mật Khẩu</th><th>Ngày Đăng Ký</th><th>Hành Động</th></tr>
                         </thead>
-                        <tbody id="userTableBody">
-                            <!-- Dữ liệu sẽ được load động bằng JavaScript -->
-                        </tbody>
+                        <tbody id="userTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -120,15 +69,85 @@
                             <input type="text" class="form-control" id="comicTitle" required>
                         </div>
                         <div class="mb-3">
-                            <label for="comicAuthor" class="form-label">Tác Giả</label>
-                            <input type="text" class="form-control" id="comicAuthor" required>
+                            <label for="comicContent" class="form-label">Tác Giả</label>
+                            <input type="text" class="form-control" id="comicContent" required>
                         </div>
                         <div class="mb-3">
-                            <label for="comicGenre" class="form-label">Thể Loại</label>
-                            <input type="text" class="form-control" id="comicGenre" required>
+                            <label for="comicLink" class="form-label">Link</label>
+                            <input type="url" class="form-control" id="comicLink">
                         </div>
                         <button type="submit" class="btn btn-primary">Thêm</button>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Chương -->
+    <div class="modal fade" id="addChapterModal" tabindex="-1" aria-labelledby="addChapterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addChapterModalLabel">Thêm Chương Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addChapterForm">
+                        <div class="mb-3">
+                            <label for="chapterCardId" class="form-label">ID Truyện</label>
+                            <input type="number" class="form-control" id="chapterCardId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="chapterNumber" class="form-label">Số Chương</label>
+                            <input type="number" class="form-control" id="chapterNumber" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="chapterTitle" class="form-label">Tiêu Đề Chương</label>
+                            <input type="text" class="form-control" id="chapterTitle">
+                        </div>
+                        <div class="mb-3">
+                            <label for="chapterContent" class="form-label">Nội Dung</label>
+                            <textarea class="form-control" id="chapterContent"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="chapterImageFolder" class="form-label">Thư Mục Hình Ảnh</label>
+                            <input type="text" class="form-control" id="chapterImageFolder">
+                        </div>
+                        <div class="mb-3">
+                            <label for="chapterImageCount" class="form-label">Số Lượng Hình Ảnh</label>
+                            <input type="number" class="form-control" id="chapterImageCount" min="0" value="0">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Hiển Thị Chương -->
+    <div class="modal fade" id="chapterModal" tabindex="-1" aria-labelledby="chapterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chapterModalTitle">Danh Sách Chương</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Số Chương</th>
+                                    <th>Tiêu Đề</th>
+                                    <th>Nội Dung</th>
+                                    <th>Thư Mục Hình Ảnh</th>
+                                    <th>Số Lượng Hình Ảnh</th>
+                                    <th>Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chapterTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -145,7 +164,7 @@
                 <div class="modal-body">
                     <form id="addUserForm">
                         <div class="mb-3">
-                            <label for="userName" class="form-label">Tên Người Dùng</label>
+                            <label for="userName" class="form-label">Tên Tài Khoản</label>
                             <input type="text" class="form-control" id="userName" required>
                         </div>
                         <div class="mb-3">
@@ -153,8 +172,8 @@
                             <input type="email" class="form-control" id="userEmail" required>
                         </div>
                         <div class="mb-3">
-                            <label for="userEmail" class="form-label">Email</label>
-                            <input type="password" class="form-control" id="password" required>
+                            <label for="userPassword" class="form-label">Mật Khẩu</label>
+                            <input type="password" class="form-control" id="userPassword" required>
                         </div>
                         <button type="submit" class="btn btn-primary">Thêm</button>
                     </form>
@@ -163,77 +182,7 @@
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS -->
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/index/login.js"></script>
-    <script>
-        // Xóa truyện
-        function deleteComic(button) {
-            if (confirm('Bạn có chắc chắn muốn xóa truyện này?')) {
-                button.closest('tr').remove();
-                // Thêm logic xóa từ database nếu cần
-            }
-        }
-
-        // Xóa người dùng
-        function deleteUser(button) {
-            if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-                button.closest('tr').remove();
-                // Thêm logic xóa từ database nếu cần
-            }
-        }
-
-        // Thêm truyện
-        document.getElementById('addComicForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const title = document.getElementById('comicTitle').value;
-            const author = document.getElementById('comicAuthor').value;
-            const genre = document.getElementById('comicGenre').value;
-            const tableBody = document.getElementById('comicTableBody');
-            const newId = tableBody.children.length + 1;
-
-            const newRow = `
-                <tr>
-                    <td>${newId}</td>
-                    <td>${title}</td>
-                    <td>${author}</td>
-                    <td>${genre}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="deleteComic(this)"><i class="bi bi-trash"></i> Xóa</button>
-                    </td>
-                </tr>
-            `;
-            tableBody.insertAdjacentHTML('beforeend', newRow);
-            this.reset();
-            bootstrap.Modal.getInstance(document.getElementById('addComicModal')).hide();
-            // Thêm logic lưu vào database nếu cần
-        });
-
-        // Thêm người dùng
-        document.getElementById('addUserForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const name = document.getElementById('userName').value;
-            const email = document.getElementById('userEmail').value;
-            const tableBody = document.getElementById('userTableBody');
-            const newId = tableBody.children.length + 1;
-            const date = new Date().toISOString().split('T')[0];
-
-            const newRow = `
-                <tr>
-                    <td>${newId}</td>
-                    <td>${name}</td>
-                    <td>${email}</td>
-                    <td>${date}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="deleteUser(this)"><i class="bi bi-trash"></i> Xóa</button>
-                    </td>
-                </tr>
-            `;
-            tableBody.insertAdjacentHTML('beforeend', newRow);
-            this.reset();
-            bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
-            // Thêm logic lưu vào database nếu cần
-        });
-    </script>
+    <script src="/js/admin-web/manager.js"></script>
 </body>
 </html>

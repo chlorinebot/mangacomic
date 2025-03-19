@@ -63,7 +63,7 @@ app.get('/api/cards', checkDbConnection, async (req, res) => {
     try {
         connection = await dbPool.getConnection();
         console.log('Lấy kết nối cho /api/cards');
-        const [rows] = await connection.query('SELECT id, title, image, content FROM cards');
+        const [rows] = await connection.query('SELECT id, title, image, content, link FROM cards');
         res.json(rows);
     } catch (err) {
         console.error('Lỗi khi lấy cards:', err.stack);
@@ -102,6 +102,25 @@ app.get('/api/chapters', checkDbConnection, async (req, res) => {
         if (connection) {
             connection.release();
             console.log('Đã release kết nối cho /api/chapters');
+        }
+    }
+});
+
+// Route để lấy danh sách người dùng
+app.get('/api/users', checkDbConnection, async (req, res) => {
+    let connection;
+    try {
+        connection = await dbPool.getConnection();
+        console.log('Lấy kết nối cho /api/users');
+        const [rows] = await connection.query('SELECT id, username, email, password, role_id, created_at FROM users');
+        res.json(rows);
+    } catch (err) {
+        console.error('Lỗi khi lấy users:', err.stack);
+        res.status(500).json({ error: 'Lỗi server khi lấy users', details: err.message });
+    } finally {
+        if (connection) {
+            connection.release();
+            console.log('Đã release kết nối cho /api/users');
         }
     }
 });
@@ -226,30 +245,6 @@ app.post('/api/login', checkDbConnection, async (req, res) => {
     }
 });
 
-// Route để phục vụ admin-web.ejs
-app.get('/admin-web', checkDbConnection, (req, res) => {
-    res.render('admin-web');
-});
-
-// Route root (index.ejs)
-app.get('/', checkDbConnection, async (req, res) => {
-    let connection;
-    try {
-        connection = await dbPool.getConnection();
-        console.log('Lấy kết nối cho route /');
-        const [rows] = await connection.query('SELECT VERSION() as version');
-        res.render('index', { mysqlVersion: rows[0].version });
-    } catch (err) {
-        console.error('Lỗi khi lấy version MySQL:', err.stack);
-        res.status(500).send('Lỗi server');
-    } finally {
-        if (connection) {
-            connection.release();
-            console.log('Đã release kết nối cho route /');
-        }
-    }
-});
-
 // Route để lưu cardData
 app.post('/api/cards', checkDbConnection, async (req, res) => {
     let connection;
@@ -260,7 +255,7 @@ app.post('/api/cards', checkDbConnection, async (req, res) => {
 
         const cards = req.body;
         const query = 'INSERT INTO cards (id, title, image, content, link) VALUES ? ON DUPLICATE KEY UPDATE title=VALUES(title), image=VALUES(image), content=VALUES(content), link=VALUES(link)';
-        const values = cards.map(card => [card.id, card.title, card.image, card.content, card.link]);
+        const values = cards.map(card => [card.id, card.title, card.image || null, card.content, card.link || null]);
 
         const [result] = await connection.query(query, [values]);
         await connection.commit();
@@ -295,12 +290,12 @@ app.post('/api/chapters', checkDbConnection, async (req, res) => {
                 values.push([
                     cardId,
                     chapter.chapterNumber,
-                    chapter.chapterTitle,
-                    chapter.content,
-                    chapter.imageFolder,
-                    chapter.imageCount,
-                    chapter.rating,
-                    chapter.commentCount
+                    chapter.chapterTitle || null,
+                    chapter.content || null,
+                    chapter.imageFolder || null,
+                    chapter.imageCount || 0,
+                    chapter.rating || 0,
+                    chapter.commentCount || 0
                 ]);
             });
         });
@@ -317,6 +312,118 @@ app.post('/api/chapters', checkDbConnection, async (req, res) => {
         if (connection) {
             connection.release();
             console.log('Đã release kết nối cho /api/chapters (POST)');
+        }
+    }
+});
+
+// Route để xóa truyện
+app.delete('/api/cards/:id', checkDbConnection, async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        connection = await dbPool.getConnection();
+        console.log('Lấy kết nối cho /api/cards/:id (DELETE)');
+        await connection.beginTransaction();
+
+        // Xóa các chương liên quan trước
+        await connection.query('DELETE FROM chapters WHERE card_id = ?', [id]);
+        // Xóa truyện
+        const [result] = await connection.query('DELETE FROM cards WHERE id = ?', [id]);
+
+        await connection.commit();
+        console.log('Xóa card thành công, affectedRows:', result.affectedRows);
+        res.json({ message: 'Xóa truyện thành công!', affectedRows: result.affectedRows });
+    } catch (err) {
+        if (connection) await connection.rollback();
+        console.error('Lỗi khi xóa card:', err.stack);
+        res.status(500).json({ error: 'Lỗi server khi xóa card', details: err.message });
+    } finally {
+        if (connection) {
+            connection.release();
+            console.log('Đã release kết nối cho /api/cards/:id (DELETE)');
+        }
+    }
+});
+
+// Route để xóa chương
+app.delete('/api/chapters', checkDbConnection, async (req, res) => {
+    let connection;
+    try {
+        const { card_id, chapter_number } = req.query;
+        if (!card_id || !chapter_number) {
+            return res.status(400).json({ error: 'Vui lòng cung cấp card_id và chapter_number!' });
+        }
+
+        connection = await dbPool.getConnection();
+        console.log('Lấy kết nối cho /api/chapters (DELETE)');
+        await connection.beginTransaction();
+
+        const [result] = await connection.query(
+            'DELETE FROM chapters WHERE card_id = ? AND chapter_number = ?',
+            [card_id, chapter_number]
+        );
+
+        await connection.commit();
+        console.log('Xóa chapter thành công, affectedRows:', result.affectedRows);
+        res.json({ message: 'Xóa chương thành công!', affectedRows: result.affectedRows });
+    } catch (err) {
+        if (connection) await connection.rollback();
+        console.error('Lỗi khi xóa chapter:', err.stack);
+        res.status(500).json({ error: 'Lỗi server khi xóa chapter', details: err.message });
+    } finally {
+        if (connection) {
+            connection.release();
+            console.log('Đã release kết nối cho /api/chapters (DELETE)');
+        }
+    }
+});
+
+// Route để xóa người dùng
+app.delete('/api/users/:id', checkDbConnection, async (req, res) => {
+    let connection;
+    try {
+        const { id } = req.params;
+        connection = await dbPool.getConnection();
+        console.log('Lấy kết nối cho /api/users/:id (DELETE)');
+        await connection.beginTransaction();
+
+        const [result] = await connection.query('DELETE FROM users WHERE id = ?', [id]);
+
+        await connection.commit();
+        console.log('Xóa user thành công, affectedRows:', result.affectedRows);
+        res.json({ message: 'Xóa người dùng thành công!', affectedRows: result.affectedRows });
+    } catch (err) {
+        if (connection) await connection.rollback();
+        console.error('Lỗi khi xóa user:', err.stack);
+        res.status(500).json({ error: 'Lỗi server khi xóa user', details: err.message });
+    } finally {
+        if (connection) {
+            connection.release();
+            console.log('Đã release kết nối cho /api/users/:id (DELETE)');
+        }
+    }
+});
+
+// Route để phục vụ admin-web.ejs
+app.get('/admin-web', checkDbConnection, (req, res) => {
+    res.render('admin-web');
+});
+
+// Route root (index.ejs)
+app.get('/', checkDbConnection, async (req, res) => {
+    let connection;
+    try {
+        connection = await dbPool.getConnection();
+        console.log('Lấy kết nối cho route /');
+        const [rows] = await connection.query('SELECT VERSION() as version');
+        res.render('index', { mysqlVersion: rows[0].version });
+    } catch (err) {
+        console.error('Lỗi khi lấy version MySQL:', err.stack);
+        res.status(500).send('Lỗi server');
+    } finally {
+        if (connection) {
+            connection.release();
+            console.log('Đã release kết nối cho route /');
         }
     }
 });

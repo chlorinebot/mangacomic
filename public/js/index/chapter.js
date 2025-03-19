@@ -1,4 +1,3 @@
-// chapter.js
 let chapterData = {}; // Khởi tạo rỗng, sẽ được cập nhật từ API
 let currentChapterData = null;
 let currentCardId = null;
@@ -109,7 +108,7 @@ function displayChapters(cardId) {
         });
 
         const chapterContent = document.createElement('p');
-        chapterContent.innerHTML = `<strong>${chapter.chapterTitle}</strong> ${chapter.content}`;
+        chapterContent.innerHTML = `<strong>${chapter.chapterTitle}</strong> ${chapter.content || ''}`;
 
         accordionBody.appendChild(readButton);
         accordionBody.appendChild(chapterContent);
@@ -143,17 +142,58 @@ function openReadModal(chapter) {
 
     const contentContainer = document.createElement('div');
     contentContainer.id = 'chapter-content';
-    if (chapter.imageFolder && chapter.imageCount > 0) {
+
+    // Xử lý hiển thị ảnh từ imageLink hoặc imageFolder
+    if (chapter.imageLink && chapter.imageCount > 0) {
+        // Xử lý imageLink (URL raw GitHub)
+        // Ví dụ: https://raw.githubusercontent.com/chlorinebot/image-comic/refs/heads/main/images/attackontitan/chapter1/page%20(1).jpg
+        let baseImageLink = chapter.imageLink;
+
+        // Nếu không phải raw URL, chuyển từ blob sang raw (nếu cần)
+        if (!baseImageLink.includes('raw.githubusercontent.com') && baseImageLink.includes('github.com') && baseImageLink.includes('/blob/')) {
+            baseImageLink = baseImageLink
+                .replace('github.com', 'raw.githubusercontent.com')
+                .replace('/blob/', '/');
+        }
+
         for (let i = 1; i <= chapter.imageCount; i++) {
             const img = document.createElement('img');
-            img.src = `${chapter.imageFolder}/page (${i}).jpg`;
+            const imageUrl = baseImageLink.replace(/page%20\(\d+\)\.jpg/, `page%20(${i}).jpg`);
+            img.src = imageUrl;
             img.className = 'd-block mx-auto mb-3';
             img.alt = `Trang ${i} - Chương ${chapter.chapterNumber}`;
             img.style.maxWidth = '100%';
+            img.onerror = function() {
+                this.src = 'https://via.placeholder.com/300x500?text=Image+Not+Found';
+                this.alt = 'Hình ảnh không tải được';
+            };
+            contentContainer.appendChild(img);
+        }
+    } else if (chapter.imageFolder && chapter.imageCount > 0) {
+        // Xử lý imageFolder (đường dẫn thư mục GitHub)
+        // Ví dụ: https://github.com/chlorinebot/image-comic/tree/main/images/attackontitan/chapter1
+        let baseFolderLink = chapter.imageFolder;
+        if (baseFolderLink.includes('github.com') && baseFolderLink.includes('/tree/')) {
+            baseFolderLink = baseFolderLink
+                .replace('github.com', 'raw.githubusercontent.com')
+                .replace('/tree/', '/');
+        }
+
+        for (let i = 1; i <= chapter.imageCount; i++) {
+            const img = document.createElement('img');
+            img.src = `${baseFolderLink}/page (${i}).jpg`;
+            img.className = 'd-block mx-auto mb-3';
+            img.alt = `Trang ${i} - Chương ${chapter.chapterNumber}`;
+            img.style.maxWidth = '100%';
+            img.onerror = function() {
+                this.src = 'https://via.placeholder.com/300x500?text=Image+Not+Found';
+                this.alt = 'Hình ảnh không tải được';
+            };
             contentContainer.appendChild(img);
         }
     } else {
-        contentContainer.textContent = chapter.content;
+        // Nếu không có hình ảnh, hiển thị nội dung văn bản
+        contentContainer.textContent = chapter.content || 'Không có nội dung.';
     }
 
     const commentSection = document.createElement('div');
