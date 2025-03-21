@@ -1,4 +1,3 @@
-// models/chapterModel.js
 const { dbPool } = require('../data/dbConfig');
 
 const getAllChapters = async () => {

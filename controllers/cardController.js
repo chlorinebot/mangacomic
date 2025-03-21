@@ -31,4 +31,15 @@ const deleteCardData = async (req, res) => {
     }
 };
 
-module.exports = { getCards, saveCardData, deleteCardData };
+const updateCard = async (req, res) => {
+    try {
+        const { id, title, content, link } = req.body;
+        const result = await saveCards([{ id, title, content, link }]); // Sử dụng saveCards với ON DUPLICATE KEY UPDATE
+        res.json({ message: 'Cập nhật truyện thành công!', affectedRows: result.affectedRows });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật card:', err.stack);
+        res.status(500).json({ error: 'Lỗi server khi cập nhật card', details: err.message });
+    }
+};
+
+module.exports = { getCards, saveCardData, deleteCardData, updateCard };

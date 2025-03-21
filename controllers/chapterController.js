@@ -1,4 +1,3 @@
-// controllers/chapterController.js
 const { getAllChapters, saveChapters, deleteChapter } = require('../models/chapterModel');
 
 const getChapters = async (req, res) => {

@@ -1,9 +1,8 @@
-// server.js
 const express = require('express');
 const { dbPool, checkDbConnection, initializeDb } = require('./data/dbConfig');
-const { getCards, saveCardData, deleteCardData } = require('./controllers/cardController');
+const { getCards, saveCardData, deleteCardData, updateCard } = require('./controllers/cardController');
 const { getChapters, saveChapterData, deleteChapterData } = require('./controllers/chapterController');
-const { getUsers, deleteUserData } = require('./controllers/userController');
+const { getUsers, deleteUserData, updateUser: updateUserData } = require('./controllers/userController');
 const { register, login } = require('./controllers/authController');
 
 const app = express();
@@ -26,6 +25,7 @@ app.use((err, req, res, next) => {
 app.get('/api/cards', checkDbConnection, getCards);
 app.post('/api/cards', checkDbConnection, saveCardData);
 app.delete('/api/cards/:id', checkDbConnection, deleteCardData);
+app.put('/api/cards/:id', checkDbConnection, updateCard);
 
 app.get('/api/chapters', checkDbConnection, getChapters);
 app.post('/api/chapters', checkDbConnection, saveChapterData);
@@ -33,6 +33,7 @@ app.delete('/api/chapters', checkDbConnection, deleteChapterData);
 
 app.get('/api/users', checkDbConnection, getUsers);
 app.delete('/api/users/:id', checkDbConnection, deleteUserData);
+app.put('/api/users/:id', checkDbConnection, updateUserData);
 
 app.post('/api/register', checkDbConnection, register);
 app.post('/api/login', checkDbConnection, login);

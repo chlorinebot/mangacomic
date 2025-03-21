@@ -1,5 +1,5 @@
 // controllers/userController.js
-const { getAllUsers, deleteUser } = require('../models/userModel');
+const { getAllUsers, deleteUser, updateUser } = require('../models/userModel');
 
 const getUsers = async (req, res) => {
     try {
@@ -21,4 +21,16 @@ const deleteUserData = async (req, res) => {
     }
 };
 
-module.exports = { getUsers, deleteUserData };
+const updateUserData = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { username, email, password } = req.body;
+        const result = await updateUser(id, username, email, password);
+        res.json({ message: 'Cập nhật người dùng thành công!', affectedRows: result.affectedRows });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật user:', err.stack);
+        res.status(500).json({ error: 'Lỗi server khi cập nhật user', details: err.message });
+    }
+};
+
+module.exports = { getUsers, deleteUserData, updateUser: updateUserData };

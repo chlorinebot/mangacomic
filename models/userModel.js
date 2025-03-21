@@ -55,4 +55,22 @@ const deleteUser = async (id) => {
     }
 };
 
-module.exports = { getAllUsers, registerUser, loginUser, deleteUser };
+const updateUser = async (id, username, email, password) => {
+    const connection = await dbPool.getConnection();
+    try {
+        await connection.beginTransaction();
+        const [result] = await connection.query(
+            'UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?',
+            [username, email, password, id]
+        );
+        await connection.commit();
+        return result;
+    } catch (err) {
+        await connection.rollback();
+        throw err;
+    } finally {
+        connection.release();
+    }
+};
+
+module.exports = { getAllUsers, registerUser, loginUser, deleteUser, updateUser };
