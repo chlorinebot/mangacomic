@@ -14,7 +14,7 @@ const register = async (req, res) => {
         res.status(201).json({ message: 'Đăng ký thành công!', userId });
     } catch (err) {
         console.error('Lỗi khi đăng ký:', err.stack);
-        res.status(500).json({ error: 'Lỗi server khi đăng ký', details: err.message });
+        res.status(500).json({ error: 'Tên người dùng hoặc email đã tồn tại!', details: err.message });
     }
 };
 
