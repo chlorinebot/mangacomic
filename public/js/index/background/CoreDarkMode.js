@@ -35,6 +35,11 @@ document.addEventListener('DOMContentLoaded', function() {
         enableTextDarkMode();
         enableOffcanvasDarkMode();
         enableModalDarkMode();
+
+        // Gọi lại checkLoginStatus để cập nhật navbar
+        if (typeof checkLoginStatus === 'function') {
+            checkLoginStatus();
+        }
     }
 
     // Hàm tắt chế độ tối
@@ -53,5 +58,10 @@ document.addEventListener('DOMContentLoaded', function() {
         disableTextDarkMode();
         disableOffcanvasDarkMode();
         disableModalDarkMode();
+
+        // Gọi lại checkLoginStatus để cập nhật navbar
+        if (typeof checkLoginStatus === 'function') {
+            checkLoginStatus();
+        }
     }
 });
