@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     checkLoginStatus();
-    
+
     // Biến để lưu trữ dữ liệu gốc
     let originalComics = [];
     let originalUsers = [];
@@ -11,7 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hàm fetch dữ liệu truyện từ API
     async function fetchComics() {
         try {
-            const response = await fetch('/api/cards');
+            const token = localStorage.getItem('token');
+            const response = await fetch('/api/cards', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
             if (!response.ok) {
                 throw new Error('Lỗi khi lấy danh sách truyện: ' + response.statusText);
             }
@@ -27,6 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hàm hiển thị danh sách truyện
     function renderComics(comics) {
         const tableBody = document.getElementById('comicTableBody');
+        if (!tableBody) {
+            console.error('Không tìm thấy phần tử comicTableBody trong DOM');
+            return;
+        }
         tableBody.innerHTML = '';
         comics.forEach(comic => {
             const comicId = parseInt(comic.id, 10);
@@ -39,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${comicId}</td>
                     <td>${comic.title}</td>
                     <td>
-                        ${comic.image ? `<img src="${comic.image}" alt="${comic.title}" class="comic-image">` : 'N/A'}
+                        ${comic.image && comic.image.trim() !== '' ? `<img src="${comic.image}" alt="${comic.title}" class="comic-image">` : 'N/A'}
                     </td>
                     <td>${comic.content || 'N/A'}</td>
                     <td><a href="${comic.link || '#'}" target="_blank">${comic.link || 'N/A'}</a></td>
@@ -100,6 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hàm hiển thị danh sách người dùng
     function renderUsers(users) {
         const tableBody = document.getElementById('userTableBody');
+        if (!tableBody) {
+            console.error('Không tìm thấy phần tử userTableBody trong DOM');
+            return;
+        }
         tableBody.innerHTML = '';
         users.forEach(user => {
             const row = `
@@ -236,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Không tìm thấy phần tử chapterTableBody trong DOM');
             }
             chapterBody.innerHTML = '';
-            
+
             if (chapterList.length === 0) {
                 chapterBody.innerHTML = '<tr><td colspan="6" class="text-center">Không có chương nào cho truyện này.</td></tr>';
             } else {
@@ -272,7 +286,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 });
             }
-            
+
+            // Tính số chương lớn nhất và gán giá trị mặc định cho "Số Chương"
+            const maxChapterNumber = chapterList.length > 0 
+                ? Math.max(...chapterList.map(ch => parseInt(ch.chapterNumber))) 
+                : 0;
+            const defaultChapterNumber = maxChapterNumber + 1;
+
+            // Gán giá trị mặc định cho modal "Thêm Chương Mới"
+            document.getElementById('chapterCardId').value = cardId;
+            document.getElementById('chapterCardIdHidden').value = cardId;
+            document.getElementById('chapterNumber').value = defaultChapterNumber;
+            document.getElementById('chapterTitle').value = '';
+            document.getElementById('chapterContent').value = '';
+            document.getElementById('chapterImageFolder').value = '';
+            document.getElementById('chapterImageCount').value = 0;
+            document.getElementById('addChapterModalLabel').textContent = 'Thêm Chương Mới';
+            document.getElementById('chapterSubmitButton').textContent = 'Thêm';
+
             document.getElementById('chapterModalTitle').textContent = `Chương của truyện ID: ${cardId}`;
             const chapterModal = document.getElementById('chapterModal');
             if (!chapterModal) {
@@ -315,9 +346,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     originalComics = originalComics.filter(comic => comic.id != id);
                     renderComics(originalComics);
                 } else {
-                    const errorText = await response.text();
-                    console.error('Lỗi khi xóa truyện:', errorText);
-                    alert('Lỗi khi xóa truyện: ' + errorText);
+                    const errorData = await response.json();
+                    console.error('Lỗi khi xóa truyện:', errorData);
+                    throw new Error(errorData.error || 'Lỗi khi xóa truyện');
                 }
             } catch (error) {
                 console.error('Lỗi trong deleteComic:', error);
@@ -344,9 +375,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     button.closest('tr').remove();
                     console.log('Chương đã được xóa thành công');
                 } else {
-                    const errorText = await response.text();
-                    console.error('Lỗi khi xóa chương:', errorText);
-                    alert('Lỗi khi xóa chương: ' + errorText);
+                    const errorData = await response.json();
+                    console.error('Lỗi khi xóa chương:', errorData);
+                    throw new Error(errorData.error || 'Lỗi khi xóa chương');
                 }
             } catch (error) {
                 console.error('Lỗi trong deleteChapter:', error);
@@ -358,23 +389,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // Xóa người dùng
     async function deleteUser(button) {
         if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-            const row = button.closest('tr');
-            const id = row.dataset.id;
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/users/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+            try {
+                const row = button.closest('tr');
+                const id = row.dataset.id;
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/users/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    row.remove();
+                    // Cập nhật lại danh sách gốc sau khi xóa
+                    originalUsers = originalUsers.filter(user => user.id != id);
+                    renderUsers(originalUsers);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Lỗi khi xóa người dùng');
                 }
-            });
-            if (response.ok) {
-                row.remove();
-                // Cập nhật lại danh sách gốc sau khi xóa
-                originalUsers = originalUsers.filter(user => user.id != id);
-                renderUsers(originalUsers);
-            } else {
-                alert('Lỗi khi xóa người dùng!');
+            } catch (error) {
+                console.error('Lỗi khi xóa người dùng:', error);
+                alert('Lỗi khi xóa người dùng: ' + error.message);
             }
         }
     }
@@ -383,15 +420,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('addComicForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const id = document.getElementById('comicId').value;
-        const title = document.getElementById('comicTitle').value;
-        const image = document.getElementById('comicImage').value || null; // Lấy URL ảnh bìa, nếu rỗng thì gửi null
-        const content = document.getElementById('comicContent').value;
-        const link = document.getElementById('comicLink').value;
-    
+        const title = document.getElementById('comicTitle').value.trim();
+        const image = document.getElementById('comicImage').value.trim() || null; // Lấy URL ảnh bìa, nếu rỗng thì gửi null
+        const content = document.getElementById('comicContent').value.trim() || null;
+        const link = document.getElementById('comicLink').value.trim() || null;
+
+        // Validation
+        if (!title) {
+            alert('Vui lòng nhập tiêu đề truyện!');
+            return;
+        }
+
         const method = id ? 'PUT' : 'POST';
         const url = id ? `/api/cards/${id}` : '/api/cards';
         const body = id ? { id, title, image, content, link } : [{ title, image, content, link }];
-    
+
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(url, {
@@ -423,10 +466,24 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const cardId = document.getElementById('chapterCardId').value;
         const chapterNumber = document.getElementById('chapterNumber').value;
-        const chapterTitle = document.getElementById('chapterTitle').value;
-        const content = document.getElementById('chapterContent').value;
-        const imageFolder = document.getElementById('chapterImageFolder').value;
-        const imageCount = document.getElementById('chapterImageCount').value;
+        const chapterTitle = document.getElementById('chapterTitle').value.trim();
+        const content = document.getElementById('chapterContent').value.trim() || null;
+        const imageFolder = document.getElementById('chapterImageFolder').value.trim() || null;
+        const imageCount = parseInt(document.getElementById('chapterImageCount').value) || 0;
+
+        // Validation
+        if (!chapterNumber || isNaN(chapterNumber) || chapterNumber <= 0) {
+            alert('Số chương phải là một số dương!');
+            return;
+        }
+        if (!chapterTitle) {
+            alert('Vui lòng nhập tiêu đề chương!');
+            return;
+        }
+        if (imageCount < 0) {
+            alert('Số lượng hình ảnh không được nhỏ hơn 0!');
+            return;
+        }
 
         try {
             const token = localStorage.getItem('token');
@@ -447,7 +504,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
             if (!response.ok) {
-                throw new Error('Lỗi khi lưu chương: ' + response.statusText);
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Lỗi khi lưu chương');
             }
             this.reset();
             document.getElementById('chapterCardIdHidden').value = '';
@@ -465,9 +523,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('addUserForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const id = document.getElementById('userId').value;
-        const username = document.getElementById('userName').value;
-        const email = document.getElementById('userEmail').value;
+        const username = document.getElementById('userName').value.trim();
+        const email = document.getElementById('userEmail').value.trim();
         const password = document.getElementById('userPassword').value;
+
+        // Validation
+        if (!username) {
+            alert('Vui lòng nhập tên người dùng!');
+            return;
+        }
+        if (!email) {
+            alert('Vui lòng nhập email!');
+            return;
+        }
+        if (!password) {
+            alert('Vui lòng nhập mật khẩu!');
+            return;
+        }
 
         const method = id ? 'PUT' : 'POST';
         const url = id ? `/api/users/${id}` : '/api/register';
@@ -483,7 +555,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ username, email, password })
             });
             if (!response.ok) {
-                throw new Error('Lỗi khi lưu người dùng: ' + response.statusText);
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Lỗi khi lưu người dùng');
             }
             this.reset();
             document.getElementById('userId').value = '';
@@ -499,35 +572,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Chỉnh sửa truyện
     window.editComic = async function(id) {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/cards`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/api/cards`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Lỗi khi lấy danh sách truyện');
             }
-        });
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Lỗi khi lấy danh sách truyện');
+            const comics = await response.json();
+            const comic = comics.find(c => c.id == id);
+            if (comic) {
+                document.getElementById('comicId').value = comic.id;
+                document.getElementById('comicTitle').value = comic.title;
+                document.getElementById('comicImage').value = comic.image || '';
+                document.getElementById('comicContent').value = comic.content || '';
+                document.getElementById('comicLink').value = comic.link || '';
+                document.getElementById('addComicModalLabel').textContent = 'Chỉnh Sửa Truyện';
+                document.getElementById('comicSubmitButton').textContent = 'Cập Nhật';
+                new bootstrap.Modal(document.getElementById('addComicModal')).show();
+            }
+        } catch (error) {
+            console.error('Lỗi trong editComic:', error);
+            alert('Lỗi khi chỉnh sửa truyện: ' + error.message);
         }
-        const comics = await response.json();
-        const comic = comics.find(c => c.id == id);
-        if (comic) {
-            document.getElementById('comicId').value = comic.id;
-            document.getElementById('comicTitle').value = comic.title;
-            document.getElementById('comicImage').value = comic.image || ''; // Điền URL ảnh bìa
-            document.getElementById('comicContent').value = comic.content || '';
-            document.getElementById('comicLink').value = comic.link || '';
-            document.getElementById('addComicModalLabel').textContent = 'Chỉnh Sửa Truyện';
-            document.getElementById('comicSubmitButton').textContent = 'Cập Nhật';
-            new bootstrap.Modal(document.getElementById('addComicModal')).show();
-        }
-    } catch (error) {
-        console.error('Lỗi trong editComic:', error);
-        alert('Lỗi khi chỉnh sửa truyện: ' + error.message);
-    }
-};
+    };
 
     // Chỉnh sửa chương
     window.editChapter = async function(cardId, chapterNumber) {
@@ -540,7 +613,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             if (!response.ok) {
-                throw new Error('Lỗi khi lấy danh sách chương: ' + response.statusText);
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Lỗi khi lấy danh sách chương');
             }
             const chapters = await response.json();
             const chapter = (chapters[cardId] || []).find(ch => ch.chapterNumber == chapterNumber);
@@ -573,7 +647,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             if (!response.ok) {
-                throw new Error('Lỗi khi lấy danh sách người dùng: ' + response.statusText);
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Lỗi khi lấy danh sách người dùng');
             }
             const users = await response.json();
             const user = users.find(u => u.id == id);
