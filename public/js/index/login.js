@@ -2,6 +2,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const loginMessage = document.getElementById('loginMessage');
+    const changePasswordForm = document.getElementById('changePasswordForm');
+    const changePasswordMessage = document.getElementById('changePasswordMessage');
 
     // Check if user is already logged in
     checkLoginStatus();
@@ -69,7 +71,68 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add event listener for logout button and settings button
+    // Xử lý form đổi mật khẩu
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            const username = localStorage.getItem('username');
+            const token = localStorage.getItem('token');
+
+            // Validation
+            if (newPassword !== confirmNewPassword) {
+                changePasswordMessage.textContent = 'Mật khẩu mới và xác nhận mật khẩu không khớp!';
+                changePasswordMessage.className = 'mt-2 text-danger';
+                return;
+            }
+
+            if (newPassword.length < 8 || newPassword.length > 20 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[!@#$%^&*]/.test(newPassword)) {
+                changePasswordMessage.textContent = 'Mật khẩu mới phải dài 8-20 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!';
+                changePasswordMessage.className = 'mt-2 text-danger';
+                return;
+            }
+
+            try {
+                const response = await fetch('https://truyencuatuan.up.railway.app/api/users/change-password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        username,
+                        currentPassword,
+                        newPassword,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    changePasswordMessage.textContent = 'Đổi mật khẩu thành công!';
+                    changePasswordMessage.className = 'mt-2 text-success';
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                        if (modal) modal.hide();
+                        changePasswordForm.reset();
+                        changePasswordMessage.textContent = '';
+                    }, 1000);
+                } else {
+                    changePasswordMessage.textContent = data.error || 'Đổi mật khẩu thất bại!';
+                    changePasswordMessage.className = 'mt-2 text-danger';
+                }
+            } catch (error) {
+                changePasswordMessage.textContent = `Lỗi kết nối server: ${error.message}`;
+                changePasswordMessage.className = 'mt-2 text-danger';
+                console.error('Lỗi chi tiết:', error);
+            }
+        });
+    }
+
+    // Add event listener for logout button, settings button, and security button
     document.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'logoutButton') {
             logout();
@@ -77,6 +140,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mở modal Cài đặt
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
             settingsModal.show();
+        } else if (e.target && e.target.id === 'securityButton') {
+            // Mở modal Mật khẩu và bảo mật
+            const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
+            securityModal.show();
+        } else if (e.target && e.target.id === 'changePasswordButton') {
+            // Mở modal Đổi mật khẩu
+            const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+            changePasswordModal.show();
         }
     });
 });
