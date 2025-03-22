@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         const response = await fetch('https://truyencuatuan.up.railway.app/api/cards');
         if (!response.ok) throw new Error('Lỗi khi lấy dữ liệu từ API');
         cardData = await response.json();
-        console.log('Card data loaded:', cardData);
+        console.log('Card data loaded:', cardData); // Kiểm tra dữ liệu từ API
         if (cardData.length === 0) console.warn('Không có dữ liệu cards!');
     } catch (error) {
         console.error('Lỗi khi lấy cardData:', error);
@@ -145,6 +145,9 @@ function displayAllCards() {
 function openCardModal(data) {
     currentCardData = data;
 
+    // Debug: Kiểm tra dữ liệu data
+    console.log('Data passed to modal:', data);
+
     const modal = document.getElementById('card');
     const modalTitle = modal.querySelector('.modal-title');
     const modalBody = modal.querySelector('.modal-body');
@@ -164,7 +167,7 @@ function openCardModal(data) {
 
     const cardAuthor = modalBody.querySelector('#comicAuthor');
     if (cardAuthor) {
-        cardAuthor.textContent = `Tác giả: ${data.author || 'Isayama Hajime'}`; // Giá trị mặc định nếu không có
+        cardAuthor.textContent = `Tác giả: ${data.author || data.content || 'Isayama Hajime'}`; // Sử dụng data.content nếu không có data.author
     }
 
     const cardGenre = modalBody.querySelector('#comicGenre');
@@ -175,6 +178,7 @@ function openCardModal(data) {
     // Hiển thị hashtag trong modal
     const cardHashtags = modalBody.querySelector('#comicHashtagsContent');
     if (cardHashtags) {
+        console.log('Hashtags value:', data.hashtags); // Debug giá trị hashtags
         cardHashtags.textContent = data.hashtags || 'Chưa có hashtag';
     }
 
