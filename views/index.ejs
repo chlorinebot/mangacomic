@@ -109,6 +109,26 @@
         font-size: 0.6rem;
         padding: 0.25rem 0.4rem;
     }
+    /* Tùy chỉnh giao diện hashtag trong modal */
+    #comicHashtags {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #555;
+    }
+
+    #comicHashtagsContent {
+        color: #1b74e4; /* Màu xanh dương cho hashtag */
+    }
+
+    /* Nếu muốn hiển thị hashtag dưới dạng tag */
+    #comicHashtagsContent span {
+        display: inline-block;
+        background-color: #f0f0f0;
+        padding: 2px 8px;
+        margin-right: 5px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+    }
     </style>
 </head>
 <body>
@@ -463,6 +483,7 @@ Lưu ý cuối cùng:<br>
                                     <h5 class="card-title" id="comicTitle">Tên truyện</h5>
                                     <p class="card-text" id="comicAuthor">Tên tác giả.</p>
                                     <p class="card-text" id="comicGenre">Thể loại.</p>
+                                    <p class="card-text" id="comicHashtags">Hashtags: <span id="comicHashtagsContent"></span></p>
                                     <p class="card-text"><small class="text-body-secondary" id="comicContent">Nội dung truyện</small></p>
                                 </div>
                             </div>

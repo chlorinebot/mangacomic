@@ -172,6 +172,12 @@ function openCardModal(data) {
         cardGenre.textContent = `Thể loại: ${data.genre || 'Truyện tranh'}`;
     }
 
+    // Hiển thị hashtag trong modal
+    const cardHashtags = modalBody.querySelector('#comicHashtagsContent');
+    if (cardHashtags) {
+        cardHashtags.textContent = data.hashtags || 'Chưa có hashtag';
+    }
+
     const cardContent = modalBody.querySelector('#comicContent');
     if (cardContent) {
         cardContent.textContent = `Nội dung truyện: ${data.content || 'Chưa có nội dung.'}`;
