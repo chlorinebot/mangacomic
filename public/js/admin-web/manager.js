@@ -287,11 +287,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // Tính số chương lớn nhất và gán giá trị mặc định cho "Số Chương"
-            const maxChapterNumber = chapterList.length > 0 
-                ? Math.max(...chapterList.map(ch => parseInt(ch.chapterNumber))) 
-                : 0;
-            const defaultChapterNumber = maxChapterNumber + 1;
+            // Tính số chương lớn nhất hiện có của truyện
+            let defaultChapterNumber = 1; // Giá trị mặc định ban đầu
+            if (chapterList.length > 0) {
+                const chapterNumbers = chapterList.map(ch => parseInt(ch.chapterNumber)).filter(num => !isNaN(num));
+                if (chapterNumbers.length > 0) {
+                    const maxChapterNumber = Math.max(...chapterNumbers);
+                    defaultChapterNumber = maxChapterNumber + 1; // Tăng dần từ số lớn nhất
+                }
+            }
 
             // Gán giá trị mặc định cho modal "Thêm Chương Mới"
             document.getElementById('chapterCardId').value = cardId;
