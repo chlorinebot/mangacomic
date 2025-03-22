@@ -85,7 +85,7 @@
             padding: 16px;
         }
         /* CSS cho các nút Tin nhắn và Thông báo */
-    #userActions .nav-link {
+        #userActions .nav-link {
         background-color: #e4e6eb; /* Màu nền xám nhạt giống Facebook */
         border-radius: 50%; /* Hình tròn */
         width: 40px;
@@ -95,11 +95,15 @@
         justify-content: center;
         color: #000; /* Màu icon */
         font-size: 20px; /* Kích thước icon */
-        margin-right: 10px; /* Khoảng cách giữa các nút */
+        margin-left: 5px; /* Khoảng cách nhỏ giữa các nút */
         transition: background-color 0.2s;
     }
     #userActions .nav-link:hover {
         background-color: #d8dadf; /* Màu nền khi hover */
+    }
+    /* Đảm bảo user dropdown nằm sát vào userActions */
+    .nav-item.dropdown {
+        margin-left: 5px; /* Khoảng cách nhỏ giữa userActions và user dropdown */
     }
     </style>
 </head>
@@ -143,7 +147,7 @@
                     </button>
                 </form>
                 <!-- Thêm các nút Tin nhắn và Thông báo (ẩn ban đầu) -->
-                <ul class="navbar-nav me-2 mb-2 mb-lg-0 d-none" id="userActions">
+                <ul class="navbar-nav mb-2 mb-lg-0 d-none" id="userActions">
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="messagesButton">
                             <i class="bi bi-chat-dots"></i>
@@ -156,8 +160,8 @@
                     </li>
                 </ul>
                 <!-- User dropdown -->
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown ms-5">
+                <ul class="navbar-nav mb-2 mb-lg-0">
+                    <li class="nav-item dropdown"> <!-- Xóa class ms-5 để sát vào userActions -->
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
                                 <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
