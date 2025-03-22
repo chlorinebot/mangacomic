@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const changePasswordForm = document.getElementById('changePasswordForm');
     const changePasswordMessage = document.getElementById('changePasswordMessage');
 
+    // Biến để theo dõi trạng thái modal
+    let isOpeningModal = false;
+
     // Check if user is already logged in
     checkLoginStatus();
 
@@ -119,9 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (changePasswordModal) changePasswordModal.hide();
                         changePasswordForm.reset();
                         changePasswordMessage.textContent = '';
-                        // Mở lại modal Mật khẩu và bảo mật
-                        const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
-                        securityModal.show();
                     }, 1000);
                 } else {
                     changePasswordMessage.textContent = data.error || 'Đổi mật khẩu thất bại!';
@@ -140,21 +140,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target && e.target.id === 'logoutButton') {
             logout();
         } else if (e.target && e.target.id === 'settingsButton') {
-            // Mở modal Cài đặt
+            // Mở Modal 1 (Trung tâm tài khoản)
+            isOpeningModal = true;
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
             settingsModal.show();
         } else if (e.target && e.target.id === 'securityButton') {
-            // Đóng modal Cài đặt và mở modal Mật khẩu và bảo mật
+            // Đóng Modal 1 và mở Modal 2 (Mật khẩu và bảo mật)
+            isOpeningModal = true;
             const settingsModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
             if (settingsModal) settingsModal.hide();
-            const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
-            securityModal.show();
+            setTimeout(() => {
+                const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
+                securityModal.show();
+            }, 300); // Đợi Modal 1 đóng hoàn toàn
         } else if (e.target && e.target.id === 'changePasswordButton') {
-            // Đóng modal Mật khẩu và bảo mật và mở modal Đổi mật khẩu
+            // Đóng Modal 2 và mở Modal 3 (Đổi mật khẩu)
+            isOpeningModal = true;
             const securityModal = bootstrap.Modal.getInstance(document.getElementById('securityModal'));
             if (securityModal) securityModal.hide();
-            const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
-            changePasswordModal.show();
+            setTimeout(() => {
+                const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+                changePasswordModal.show();
+            }, 300); // Đợi Modal 2 đóng hoàn toàn
         }
     });
 
@@ -163,23 +170,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const securityModalEl = document.getElementById('securityModal');
     const changePasswordModalEl = document.getElementById('changePasswordModal');
 
-    // Khi đóng modal Đổi mật khẩu, mở lại modal Mật khẩu và bảo mật
+    // Khi đóng Modal 3 (Đổi mật khẩu), mở lại Modal 2 (Mật khẩu và bảo mật)
     changePasswordModalEl.addEventListener('hidden.bs.modal', () => {
-        // Chỉ mở lại nếu không phải đang đổi mật khẩu thành công (vì đã xử lý trong form submit)
-        if (changePasswordMessage.textContent !== 'Đổi mật khẩu thành công!') {
+        if (!isOpeningModal) {
             const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
             securityModal.show();
         }
+        isOpeningModal = false;
     });
 
-    // Khi đóng modal Mật khẩu và bảo mật, mở lại modal Trung tâm tài khoản
+    // Khi đóng Modal 2 (Mật khẩu và bảo mật), mở lại Modal 1 (Trung tâm tài khoản)
     securityModalEl.addEventListener('hidden.bs.modal', () => {
-        const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
-        settingsModal.show();
+        if (!isOpeningModal) {
+            const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
+            settingsModal.show();
+        }
+        isOpeningModal = false;
     });
 
-    // Khi đóng modal Trung tâm tài khoản, không mở lại modal nào khác
+    // Khi đóng Modal 1 (Trung tâm tài khoản), không mở lại modal nào
     settingsModalEl.addEventListener('hidden.bs.modal', () => {
+        isOpeningModal = false;
         // Không làm gì cả, để quay lại trang chủ
     });
 });
