@@ -11,50 +11,56 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchComics();
     fetchUsers();
 
-    // Gắn sự kiện cho các nút và form
-    document.querySelectorAll('.delete-comic-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            deleteComic(this);
-        });
-    });
+    // Sử dụng event delegation để xử lý các nút trong Quản Lý Truyện Tranh
+    document.getElementById('comicTableBody').addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
 
-    document.querySelectorAll('.show-chapters-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            showChapters(this.dataset.id).then(() => {
+        const comicId = target.dataset.id;
+        if (target.classList.contains('delete-comic-btn')) {
+            deleteComic(target);
+        } else if (target.classList.contains('show-chapters-btn')) {
+            showChapters(comicId).then(() => {
                 // Gắn sự kiện tìm kiếm chương sau khi modal được mở
-                document.getElementById('chapterSearch').oninput = () => searchChapters(this.dataset.id);
+                document.getElementById('chapterSearch').oninput = () => searchChapters(comicId);
             });
-        });
+        } else if (target.classList.contains('edit-comic-btn')) {
+            editComic(comicId);
+        }
     });
 
-    document.querySelectorAll('.edit-comic-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            editComic(this.dataset.id);
-        });
+    // Sử dụng event delegation để xử lý các nút trong Quản Lý Người Dùng
+    document.getElementById('userTableBody').addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const userId = target.dataset.id;
+        if (target.classList.contains('delete-user-btn')) {
+            deleteUser(target);
+        } else if (target.classList.contains('edit-user-btn')) {
+            editUser(userId);
+        } else if (target.classList.contains('toggle-password')) {
+            const row = target.closest('tr');
+            const mask = row.querySelector('.password-mask');
+            const text = row.querySelector('.password-text');
+            mask.classList.toggle('d-none');
+            text.classList.toggle('d-none');
+            target.innerHTML = text.classList.contains('d-none') ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+        }
     });
 
-    document.querySelectorAll('.delete-user-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            deleteUser(this);
-        });
-    });
+    // Sử dụng event delegation để xử lý các nút trong modal Chương
+    document.getElementById('chapterTableBody').addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
 
-    document.querySelectorAll('.edit-user-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            editUser(this.dataset.id);
-        });
-    });
-
-    document.querySelectorAll('.delete-chapter-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            deleteChapter(this.dataset.cardId, this.dataset.chapterNumber, this);
-        });
-    });
-
-    document.querySelectorAll('.edit-chapter-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            editChapter(this.dataset.cardId, this.dataset.chapterNumber);
-        });
+        const cardId = target.dataset.cardId;
+        const chapterNumber = target.dataset.chapterNumber;
+        if (target.classList.contains('delete-chapter-btn')) {
+            deleteChapter(cardId, chapterNumber, target);
+        } else if (target.classList.contains('edit-chapter-btn')) {
+            editChapter(cardId, chapterNumber);
+        }
     });
 
     // Tìm kiếm truyện tranh
