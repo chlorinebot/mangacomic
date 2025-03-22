@@ -28,8 +28,8 @@ function enableNavbarDarkMode() {
     const userActionLinks = document.querySelectorAll('#userActions .nav-link');
     if (userActionLinks.length > 0) {
         userActionLinks.forEach(link => {
-            link.style.backgroundColor = '#343a40'; // Màu nền đậm hơn trong chế độ tối
-            link.style.color = '#fff'; // Màu icon trắng
+            link.style.backgroundColor = '#343a40';
+            link.style.color = '#fff';
         });
     }
 }
@@ -58,12 +58,11 @@ function disableNavbarDarkMode() {
         });
     }
 
-    // Xử lý các nút Tin nhắn và Thông báo
     const userActionLinks = document.querySelectorAll('#userActions .nav-link');
     if (userActionLinks.length > 0) {
         userActionLinks.forEach(link => {
-            link.style.backgroundColor = '#e4e6eb'; // Màu nền sáng trong chế độ sáng
-            link.style.color = '#000'; // Màu icon đen
+            link.style.backgroundColor = '#e4e6eb';
+            link.style.color = '#000';
         });
     }
 }
