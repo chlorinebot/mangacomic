@@ -1,3 +1,4 @@
+<!-- index.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +13,49 @@
     
     <link rel="stylesheet" href="/css/cookie.css">
     <link rel="stylesheet" href="/css/warning.css">
+    <style>
+        /* CSS cho modal Cài đặt */
+        .settings-modal .modal-content {
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .settings-modal .modal-header {
+            border-bottom: none;
+            padding: 16px;
+        }
+        .settings-modal .modal-body {
+            padding: 0 16px 16px;
+        }
+        .settings-modal .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .settings-modal .list-group-item {
+            border: none;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .settings-modal .list-group-item:hover {
+            background-color: #f5f5f5;
+        }
+        .settings-modal .list-group-item i {
+            margin-right: 12px;
+            font-size: 20px;
+            color: #606770;
+        }
+        .settings-modal .list-group-item a {
+            color: #1b74e4;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 8px;
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar fixed-top bg-body-tertiary">
@@ -204,7 +248,7 @@
             </li>
             <li class="page-item"><a class="page-link" href="#">1</a></li>
             <li class="page-item active" aria-current="page">
-                <a class="page-link" href="#">2</a>
+                <a class="page-link" href="#">2</a></li>
             </li>
             <li class="page-item"><a class="page-link" href="#">3</a></li>
             <li class="page-item">
@@ -376,6 +420,39 @@ Lưu ý cuối cùng:<br>
             </div>
         </div>
     </div>
+
+    <!-- Modal Cài đặt -->
+    <div class="modal fade settings-modal" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Trung tâm tài khoản</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Quản lý phần cài đặt tài khoản và trạng nghiệm kết nối trên các công nghệ của MangaComic.</p>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="bi bi-person"></i> Thông tin cá nhân
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="bi bi-shield-lock"></i> Mật khẩu và bảo mật
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="bi bi-gear"></i> Tùy chọn quảng cáo
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="bi bi-check-circle"></i> Xác minh
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            Thêm trung tâm tài khoản
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <br>
 
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
