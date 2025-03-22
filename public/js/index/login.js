@@ -234,7 +234,7 @@ function updateNavbarForLoggedInUser(username, roleId) {
     const userDropdown = document.querySelector('.nav-item.dropdown.ms-5');
 
     if (userDropdown) {
-        // Nếu là người dùng thông thường (role_id = 2), hiển thị các mục "Thông tin tài khoản" và "Cài đặt"
+        // Nếu là người dùng thông thường (role_id = 2), hiển thị các mục "Thông tin tài khoản", "Cài đặt" và "Đăng xuất" với icon
         if (roleId === '2') {
             userDropdown.innerHTML = `
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -245,14 +245,26 @@ function updateNavbarForLoggedInUser(username, roleId) {
                     ${username}
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Thông tin tài khoản</a></li>
-                    <li><a class="dropdown-item" id="settingsButton" href="#">Cài đặt</a></li>
+                    <li>
+                        <a class="dropdown-item" href="#">
+                            <i class="bi bi-person me-2"></i> Thông tin tài khoản
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" id="settingsButton" href="#">
+                            <i class="bi bi-gear me-2"></i> Cài đặt
+                        </a>
+                    </li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><button id="logoutButton" class="dropdown-item text-danger">Đăng xuất</button></li>
+                    <li>
+                        <button id="logoutButton" class="dropdown-item text-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+                        </button>
+                    </li>
                 </ul>
             `;
         } else {
-            // Nếu là admin (role_id = 1), chỉ hiển thị "Đăng xuất"
+            // Nếu là admin (role_id = 1), chỉ hiển thị "Đăng xuất" với icon
             userDropdown.innerHTML = `
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -262,7 +274,11 @@ function updateNavbarForLoggedInUser(username, roleId) {
                     ${username}
                 </a>
                 <ul class="dropdown-menu">
-                    <li><button id="logoutButton" class="dropdown-item text-danger">Đăng xuất</button></li>
+                    <li>
+                        <button id="logoutButton" class="dropdown-item text-danger">
+                            <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+                        </button>
+                    </li>
                 </ul>
             `;
         }
