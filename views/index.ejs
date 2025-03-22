@@ -128,14 +128,24 @@
                 </form>
                 <!-- Thêm các nút Tin nhắn và Thông báo (ẩn ban đầu) -->
                 <ul class="navbar-nav me-2 mb-2 mb-lg-0 d-none" id="userActions">
-                    <li class="nav-item">
+                    <li class="nav-item position-relative">
                         <a class="nav-link" href="#" id="messagesButton">
                             <i class="bi bi-chat-dots"></i>
+                            <!-- Badge for unread messages -->
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="messagesBadge">
+                                0
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item position-relative">
                         <a class="nav-link" href="#" id="notificationsButton">
                             <i class="bi bi-bell"></i>
+                            <!-- Badge for unread notifications -->
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notificationsBadge">
+                                0
+                                <span class="visually-hidden">unread notifications</span>
+                            </span>
                         </a>
                     </li>
                 </ul>

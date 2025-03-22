@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Biến để theo dõi trạng thái modal
     let isOpeningModal = false;
 
-    // Check if user is already logged in
+    // Kiểm tra trạng thái đăng nhập ngay khi trang tải
     checkLoginStatus();
 
     if (loginForm) {
@@ -41,10 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('roleId', roleId);
 
                     // Giải mã token (sử dụng CDN)
-                    const decodedToken = jwt_decode(token); // Sử dụng jwt_decode từ CDN
+                    const decodedToken = jwt_decode(token);
                     console.log('Decoded token:', decodedToken);
 
-                    // Update the UI ngay lập tức
+                    // Cập nhật giao diện navbar ngay lập tức
                     updateNavbarForLoggedInUser(username, roleId);
 
                     // Kiểm tra role và chuyển hướng
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add event listener for logout button, settings button, security button, and change password button
+    // Thêm sự kiện click cho các nút logout, settings, security, change password, messages và notifications
     document.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'logoutButton') {
             logout();
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
                 securityModal.show();
-            }, 300); // Đợi Modal 1 đóng hoàn toàn
+            }, 300);
         } else if (e.target && e.target.id === 'changePasswordButton') {
             // Đóng Modal 2 và mở Modal 3 (Đổi mật khẩu)
             isOpeningModal = true;
@@ -161,7 +161,15 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
                 changePasswordModal.show();
-            }, 300); // Đợi Modal 2 đóng hoàn toàn
+            }, 300);
+        } else if (e.target.closest('#messagesButton')) {
+            // Xử lý khi nhấn nút Tin nhắn
+            console.log('Nút Tin nhắn được nhấn');
+            // Bạn có thể thêm logic để mở modal hoặc chuyển hướng tới trang tin nhắn
+        } else if (e.target.closest('#notificationsButton')) {
+            // Xử lý khi nhấn nút Thông báo
+            console.log('Nút Thông báo được nhấn');
+            // Bạn có thể thêm logic để mở modal hoặc chuyển hướng tới trang thông báo
         }
     });
 
@@ -191,15 +199,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Khi đóng Modal 1 (Trung tâm tài khoản), không mở lại modal nào
     settingsModalEl.addEventListener('hidden.bs.modal', () => {
         isOpeningModal = false;
-        // Không làm gì cả, để quay lại trang chủ
     });
 });
 
-// Function to check if user is already logged in
+// Hàm kiểm tra trạng thái đăng nhập
 function checkLoginStatus() {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
     const roleId = localStorage.getItem('roleId');
+    const userActions = document.getElementById('userActions'); // Lấy phần tử chứa nút Tin nhắn và Thông báo
 
     if (token && username) {
         updateNavbarForLoggedInUser(username, roleId);
@@ -226,15 +234,20 @@ function checkLoginStatus() {
                 </ul>
             `;
         }
+        // Đảm bảo các nút Tin nhắn và Thông báo bị ẩn
+        if (userActions) {
+            userActions.classList.add('d-none');
+        }
     }
 }
 
-// Function to update navbar for logged-in user
+// Hàm cập nhật navbar cho người dùng đã đăng nhập
 function updateNavbarForLoggedInUser(username, roleId) {
     const userDropdown = document.querySelector('.nav-item.dropdown.ms-5');
+    const userActions = document.getElementById('userActions'); // Lấy phần tử chứa nút Tin nhắn và Thông báo
 
     if (userDropdown) {
-        // Nếu là người dùng thông thường (role_id = 2), hiển thị các mục "Thông tin tài khoản", "Cài đặt" và "Đăng xuất" với icon
+        // Nếu là người dùng thông thường (role_id = 2), hiển thị các mục "Thông tin tài khoản", "Cài đặt" và "Đăng xuất"
         if (roleId === '2') {
             userDropdown.innerHTML = `
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -264,7 +277,7 @@ function updateNavbarForLoggedInUser(username, roleId) {
                 </ul>
             `;
         } else {
-            // Nếu là admin (role_id = 1), chỉ hiển thị "Đăng xuất" với icon
+            // Nếu là admin (role_id = 1), chỉ hiển thị "Đăng xuất"
             userDropdown.innerHTML = `
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -283,6 +296,11 @@ function updateNavbarForLoggedInUser(username, roleId) {
             `;
         }
 
+        // Hiển thị các nút Tin nhắn và Thông báo cho người dùng đã đăng nhập
+        if (userActions) {
+            userActions.classList.remove('d-none');
+        }
+
         // Cập nhật modal lịch sử nếu tồn tại
         const historyModal = document.getElementById('history');
         if (historyModal) {
@@ -298,13 +316,14 @@ function updateNavbarForLoggedInUser(username, roleId) {
     }
 }
 
-// Function to handle logout
+// Hàm xử lý đăng xuất
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('roleId');
 
     const userDropdown = document.querySelector('.nav-item.dropdown.ms-5');
+    const userActions = document.getElementById('userActions'); // Lấy phần tử chứa nút Tin nhắn và Thông báo
 
     if (userDropdown) {
         userDropdown.innerHTML = `
@@ -321,6 +340,11 @@ function logout() {
                 <button type="button" class="btn btn-outline-success ms-5" data-bs-toggle="modal" data-bs-target="#logup" style="width: 105px;">Đăng ký</button>
             </ul>
         `;
+
+        // Ẩn các nút Tin nhắn và Thông báo
+        if (userActions) {
+            userActions.classList.add('d-none');
+        }
 
         const historyModal = document.getElementById('history');
         if (historyModal) {
