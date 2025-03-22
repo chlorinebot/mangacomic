@@ -84,6 +84,23 @@
         .change-password-modal .modal-body {
             padding: 16px;
         }
+        /* CSS cho các nút Tin nhắn và Thông báo */
+    #userActions .nav-link {
+        background-color: #e4e6eb; /* Màu nền xám nhạt giống Facebook */
+        border-radius: 50%; /* Hình tròn */
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #000; /* Màu icon */
+        font-size: 20px; /* Kích thước icon */
+        margin-right: 10px; /* Khoảng cách giữa các nút */
+        transition: background-color 0.2s;
+    }
+    #userActions .nav-link:hover {
+        background-color: #d8dadf; /* Màu nền khi hover */
+    }
     </style>
 </head>
 <body>
@@ -125,6 +142,20 @@
                         </svg>
                     </button>
                 </form>
+                <!-- Thêm các nút Tin nhắn và Thông báo (ẩn ban đầu) -->
+                <ul class="navbar-nav me-2 mb-2 mb-lg-0 d-none" id="userActions">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="messagesButton">
+                            <i class="bi bi-chat-dots"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="notificationsButton">
+                            <i class="bi bi-bell"></i>
+                        </a>
+                    </li>
+                </ul>
+                <!-- User dropdown -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown ms-5">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

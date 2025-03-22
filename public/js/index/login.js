@@ -209,6 +209,11 @@ function checkLoginStatus() {
         }
     } else {
         // Nếu không có token, reset navbar
+        const userActions = document.getElementById('userActions');
+        if (userActions) {
+            userActions.classList.add('d-none'); // Ẩn các nút Tin nhắn và Thông báo
+        }
+
         const userDropdown = document.querySelector('.nav-item.dropdown.ms-5');
         if (userDropdown) {
             userDropdown.innerHTML = `
@@ -231,6 +236,12 @@ function checkLoginStatus() {
 
 // Function to update navbar for logged-in user
 function updateNavbarForLoggedInUser(username, roleId) {
+    // Hiển thị các nút Tin nhắn và Thông báo
+    const userActions = document.getElementById('userActions');
+    if (userActions) {
+        userActions.classList.remove('d-none'); // Hiển thị các nút
+    }
+
     const userDropdown = document.querySelector('.nav-item.dropdown.ms-5');
 
     if (userDropdown) {
@@ -303,6 +314,12 @@ function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('roleId');
+
+    // Ẩn các nút Tin nhắn và Thông báo
+    const userActions = document.getElementById('userActions');
+    if (userActions) {
+        userActions.classList.add('d-none');
+    }
 
     const userDropdown = document.querySelector('.nav-item.dropdown.ms-5');
 
