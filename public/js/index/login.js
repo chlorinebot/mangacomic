@@ -115,10 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     changePasswordMessage.textContent = 'Đổi mật khẩu thành công!';
                     changePasswordMessage.className = 'mt-2 text-success';
                     setTimeout(() => {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
-                        if (modal) modal.hide();
+                        const changePasswordModal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                        if (changePasswordModal) changePasswordModal.hide();
                         changePasswordForm.reset();
                         changePasswordMessage.textContent = '';
+                        // Mở lại modal Mật khẩu và bảo mật
+                        const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
+                        securityModal.show();
                     }, 1000);
                 } else {
                     changePasswordMessage.textContent = data.error || 'Đổi mật khẩu thất bại!';
@@ -132,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add event listener for logout button, settings button, and security button
+    // Add event listener for logout button, settings button, security button, and change password button
     document.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'logoutButton') {
             logout();
@@ -141,14 +144,43 @@ document.addEventListener('DOMContentLoaded', () => {
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
             settingsModal.show();
         } else if (e.target && e.target.id === 'securityButton') {
-            // Mở modal Mật khẩu và bảo mật
+            // Đóng modal Cài đặt và mở modal Mật khẩu và bảo mật
+            const settingsModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+            if (settingsModal) settingsModal.hide();
             const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
             securityModal.show();
         } else if (e.target && e.target.id === 'changePasswordButton') {
-            // Mở modal Đổi mật khẩu
+            // Đóng modal Mật khẩu và bảo mật và mở modal Đổi mật khẩu
+            const securityModal = bootstrap.Modal.getInstance(document.getElementById('securityModal'));
+            if (securityModal) securityModal.hide();
             const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
             changePasswordModal.show();
         }
+    });
+
+    // Xử lý khi modal đóng
+    const settingsModalEl = document.getElementById('settingsModal');
+    const securityModalEl = document.getElementById('securityModal');
+    const changePasswordModalEl = document.getElementById('changePasswordModal');
+
+    // Khi đóng modal Đổi mật khẩu, mở lại modal Mật khẩu và bảo mật
+    changePasswordModalEl.addEventListener('hidden.bs.modal', () => {
+        // Chỉ mở lại nếu không phải đang đổi mật khẩu thành công (vì đã xử lý trong form submit)
+        if (changePasswordMessage.textContent !== 'Đổi mật khẩu thành công!') {
+            const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
+            securityModal.show();
+        }
+    });
+
+    // Khi đóng modal Mật khẩu và bảo mật, mở lại modal Trung tâm tài khoản
+    securityModalEl.addEventListener('hidden.bs.modal', () => {
+        const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
+        settingsModal.show();
+    });
+
+    // Khi đóng modal Trung tâm tài khoản, không mở lại modal nào khác
+    settingsModalEl.addEventListener('hidden.bs.modal', () => {
+        // Không làm gì cả, để quay lại trang chủ
     });
 });
 
@@ -203,7 +235,7 @@ function updateNavbarForLoggedInUser(username, roleId) {
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="#">Thông tin tài khoản</a></li>
-                    <li><a class="dropdown-item" id="settingsButton" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">Cài đặt</a></li>
+                    <li><a class="dropdown-item" id="settingsButton" href="#">Cài đặt</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><button id="logoutButton" class="dropdown-item text-danger">Đăng xuất</button></li>
                 </ul>

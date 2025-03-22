@@ -450,111 +450,111 @@ Lưu ý cuối cùng:<br>
         </div>
     </div>
 
-    <!-- Modal Cài đặt -->
-    <div class="modal fade settings-modal" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="settingsModalLabel">Trung tâm tài khoản</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Quản lý phần cài đặt tài khoản và trạng nghiệm kết nối trên các công nghệ của MangaComic.</p>
-                    <div class="list-group">
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="bi bi-person"></i> Thông tin cá nhân
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action" id="securityButton" data-bs-toggle="modal" data-bs-target="#securityModal">
-                            <i class="bi bi-shield-lock"></i> Mật khẩu và bảo mật
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="bi bi-gear"></i> Tùy chọn quảng cáo
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="bi bi-check-circle"></i> Xác minh
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Thêm trung tâm tài khoản
-                        </a>
-                    </div>
+    <!-- Modal Cài đặt (Trung tâm tài khoản) -->
+<div class="modal fade settings-modal" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="settingsModalLabel">Trung tâm tài khoản</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Quản lý phần cài đặt tài khoản và trạng nghiệm kết nối trên các công nghệ của MangaComic.</p>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person"></i> Thông tin cá nhân
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" id="securityButton">
+                        <i class="bi bi-shield-lock"></i> Mật khẩu và bảo mật
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-gear"></i> Tùy chọn quảng cáo
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-check-circle"></i> Xác minh
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Thêm trung tâm tài khoản
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal Mật khẩu và bảo mật -->
-    <div class="modal fade security-modal" id="securityModal" tabindex="-1" aria-labelledby="securityModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="securityModalLabel">Mật khẩu và bảo mật</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Modal Mật khẩu và bảo mật -->
+<div class="modal fade security-modal" id="securityModal" tabindex="-1" aria-labelledby="securityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="securityModalLabel">Mật khẩu và bảo mật</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Quản lý mật khẩu, tùy chọn đăng nhập và phương thức khôi phục.</p>
+                <h6>Đăng nhập và khôi phục</h6>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action" id="changePasswordButton">
+                        Đổi mật khẩu
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Xác thực 2 yếu tố
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Thông tin đăng nhập đã lưu
+                    </a>
                 </div>
-                <div class="modal-body">
-                    <p>Quản lý mật khẩu, tùy chọn đăng nhập và phương thức khôi phục.</p>
-                    <h6>Đăng nhập và khôi phục</h6>
-                    <div class="list-group">
-                        <a href="#" class="list-group-item list-group-item-action" id="changePasswordButton" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
-                            Đổi mật khẩu
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Xác thực 2 yếu tố
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Thông tin đăng nhập đã lưu
-                        </a>
-                    </div>
-                    <h6 class="mt-4">Kiểm tra bảo mật</h6>
-                    <div class="list-group">
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Nơi bạn đang nhập
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Cảnh báo đăng nhập
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Email gắn đẩy
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Kiểm tra bảo mật
-                        </a>
-                    </div>
+                <h6 class="mt-4">Kiểm tra bảo mật</h6>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Nơi bạn đang nhập
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Cảnh báo đăng nhập
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Email gắn đẩy
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Kiểm tra bảo mật
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal Đổi mật khẩu -->
-    <div class="modal fade change-password-modal" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="changePasswordModalLabel">Đổi mật khẩu</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Mật khẩu của bạn hiện tại bao gồm các chi tiết như độ dài 6 ký tự, thông tin bao gồm cả chữ số, chữ cái và ký tự đặc biệt (%$#@).</p>
-                    <form id="changePasswordForm">
-                        <div class="mb-3">
-                            <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
-                            <input type="password" class="form-control" id="currentPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="newPassword" class="form-label">Mật khẩu mới</label>
-                            <input type="password" class="form-control" id="newPassword" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="confirmNewPassword" class="form-label">Nhập lại mật khẩu mới</label>
-                            <input type="password" class="form-control" id="confirmNewPassword" required>
-                        </div>
-                        <p>Bạn quên mật khẩu hiện tại? Hãy chọn mục này nếu nguồn khác đang đăng nhập tài khoản của bạn.</p>
-                        <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
-                        <div id="changePasswordMessage" class="mt-2 text-danger"></div>
-                    </form>
-                </div>
+<!-- Modal Đổi mật khẩu -->
+<div class="modal fade change-password-modal" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Đổi mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Mật khẩu của bạn hiện tại bao gồm các chi tiết như độ dài 6 ký tự, thông tin bao gồm cả chữ số, chữ cái và ký tự đặc biệt (%$#@).</p>
+                <form id="changePasswordForm">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmNewPassword" class="form-label">Nhập lại mật khẩu mới</label>
+                        <input type="password" class="form-control" id="confirmNewPassword" required>
+                    </div>
+                    <p>Bạn quên mật khẩu hiện tại? Hãy chọn mục này nếu nguồn khác đang đăng nhập tài khoản của bạn.</p>
+                    <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+                    <div id="changePasswordMessage" class="mt-2 text-danger"></div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
     <br>
 
