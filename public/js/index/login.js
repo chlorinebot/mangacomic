@@ -259,7 +259,7 @@ function updateNavbarForLoggedInUser(username, roleId) {
                 ${username}
             </a>
             <ul class="dropdown-menu">
-                ${roleId === '1' ? '<li><a class="dropdown-item" href="/admin-web">Admin Dashboard</a></li>' : ''}
+                ${roleId === '1' ? '<li><a class="dropdown-item" href="/admin-web">Admin Dashboard</a></li><li><hr class="dropdown-divider"></li>' : ''}
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Đổi mật khẩu</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" id="logoutButton">Đăng xuất</a></li>
