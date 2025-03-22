@@ -71,7 +71,7 @@
             </div>
         </div>
     </nav>
-    <!-- Offcanvas nơi hiện thị sau tìm kiếm -->
+    <!-- Offcanvas nơi hiển thị sau tìm kiếm -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="offcanvasRightLabel">Bạn đang tìm kiếm: </h5>
@@ -191,16 +191,8 @@
         <h1 class="w-100 text-center my-3">CHÀO MỪNG ĐẾN VỚI TRANG WEB TRUYỆN TRANH MANGA!</h1>
         <br>
         <!-- Phần card được tách riêng ra khỏi navbar -->
-        <div class="row row-cols-1 row-cols-md-6 g-4">
-            <div class="col">
-                <div class="card">
-                    <img src="..." class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">Card title</h5>
-                        <p class="card-text">Chưa có dữ liệu.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="row row-cols-1 row-cols-md-6 g-4" id="comicList">
+            <!-- Danh sách truyện sẽ được render động bởi card_title.js -->
         </div>
     </div>
     <br><br>
@@ -308,7 +300,7 @@ Lưu ý cuối cùng:<br>
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Tên chương</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Lịch sử xem</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -324,14 +316,13 @@ Lưu ý cuối cùng:<br>
                     <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập tại đây</button>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
     </div>      
                   
-    <!-- Modal card-->
+    <!-- Modal card -->
     <div class="modal fade" id="card" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
@@ -343,116 +334,42 @@ Lưu ý cuối cùng:<br>
                     <div class="card mb-3" style="max-width: 540px;">
                         <div class="row g-0">
                             <div class="col-md-4">
-                                <img src="..." class="img-fluid rounded-start" alt="...">
+                                <img src="..." class="img-fluid rounded-start" alt="..." id="comicImage">
                             </div>
                             <div class="col-md-8">
                                 <div class="card-body">
-                                    <h5 class="card-title">Tên truyện</h5>
-                                    <p class="card-text">Tên tác giả.</p>
-                                    <p class="card-text">Thể loại.</p>
-                                    <p class="card-text"><small class="text-body-secondary">Nội dung truyện</small></p>
+                                    <h5 class="card-title" id="comicTitle">Tên truyện</h5>
+                                    <p class="card-text" id="comicAuthor">Tên tác giả.</p>
+                                    <p class="card-text" id="comicGenre">Thể loại.</p>
+                                    <p class="card-text"><small class="text-body-secondary" id="comicContent">Nội dung truyện</small></p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <form class="d-flex" role="search" style="width: 600px;">
-                        <input class="form-control me-2" type="search" placeholder="Tìm chương truyện của bạn" aria-label="Search">
-                        <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button" style="width: 70px;">
+                    <form class="d-flex" role="search" style="width: 600px;" id="chapterSearchForm">
+                        <input class="form-control me-2" type="search" placeholder="Tìm chương truyện của bạn" aria-label="Search" id="chapterSearchInput">
+                        <button class="btn btn-outline-success" type="submit" style="width: 70px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
                             </svg>
                         </button>
                     </form>
-                </div>
-                <!-- Phần chương truyện -->
-                <div class="accordion" id="accordionExample">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                Chương 1
-                            </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doctruyen">
-                                    Đọc truyện
-                                </button>
-                                <strong>Tên chương.</strong> Nội dung của chương
-                            </div>
-                        </div>
+                    <!-- Phần chương truyện -->
+                    <div class="accordion" id="chapterAccordion">
+                        <!-- Danh sách chương sẽ được render động bởi chapter.js -->
                     </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                Chương 2
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doctruyen">
-                                    Đọc truyện
-                                </button>
-                                <strong>Tên chương.</strong> Nội dung của chương
+                    
+                    <!-- Modal đọc truyện -->
+                    <div class="modal fade" id="doctruyen" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-fullscreen">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Tên chương</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body"></div>
+                                <div class="modal-footer"></div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                Chương 3
-                            </button>
-                        </h2>
-                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doctruyen">
-                                    Đọc truyện
-                                </button>
-                                <strong>Tên chương.</strong> Nội dung của chương
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                Chương 4
-                            </button>
-                        </h2>
-                        <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doctruyen">
-                                    Đọc truyện
-                                </button>
-                                <strong>Tên chương.</strong> Nội dung của chương
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                                Chương 5
-                            </button>
-                        </h2>
-                        <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                            <div class="accordion-body">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#doctruyen">
-                                    Đọc truyện
-                                </button>
-                                <strong>Tên chương.</strong> Nội dung của chương
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Modal đọc truyện-->
-                <div class="modal fade" id="doctruyen" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-fullscreen">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Tên chương</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body"></div>
-                            <div class="modal-footer"></div>
                         </div>
                     </div>
                 </div>
@@ -468,8 +385,8 @@ Lưu ý cuối cùng:<br>
     <script src="/js/index/background.js"></script>
     <script src="/js/index/pagination.js"></script>
     <script src="/js/index/card_title.js"></script>
-    <script src="/js/index/login.js"></script> <!-- Thêm file login.js -->
-    <script src="/js/index/logup.js"></script> <!-- Thêm file logup.js -->
+    <script src="/js/index/login.js"></script>
+    <script src="/js/index/logup.js"></script>
     <script src="/js/index/chapter.js"></script>
     <script src="/js/index/chapter_scroll.js"></script>
     <script src="/js/index/anti-copy.js"></script>

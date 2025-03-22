@@ -1,6 +1,7 @@
 let chapterData = {}; // Khởi tạo rỗng, sẽ được cập nhật từ API
 let currentChapterData = null;
 let currentCardId = null;
+let originalChapters = []; // Lưu trữ danh sách chương gốc để tìm kiếm
 
 document.addEventListener('DOMContentLoaded', async function() {
     if (window.chapterInitialized) return;
@@ -22,17 +23,35 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const cardModal = document.getElementById('card');
     if (cardModal) {
-        cardModal.addEventListener('show.bs.modal', function() {
-            if (currentCardData && currentCardData.id) {
-                currentCardId = currentCardData.id;
-                displayChapters(currentCardId);
+        cardModal.addEventListener('show.bs.modal', function(event) {
+            const comicId = currentCardData ? currentCardData.id : null;
+            if (comicId) {
+                currentCardId = comicId;
+                originalChapters = chapterData[currentCardId] || [];
+                displayChapters(originalChapters);
             }
         });
         cardModal.addEventListener('hidden.bs.modal', function() {
             console.log("Modal #card đã đóng");
             resetModalState();
+            // Reset thanh tìm kiếm khi đóng modal
+            const searchInput = document.getElementById('chapterSearchInput');
+            if (searchInput) searchInput.value = '';
         });
     }
+
+    // Gắn sự kiện tìm kiếm
+    const chapterSearchForm = document.getElementById('chapterSearchForm');
+    if (chapterSearchForm) {
+        chapterSearchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            searchChapters();
+        });
+
+        // Tìm kiếm theo thời gian thực khi người dùng nhập
+        document.getElementById('chapterSearchInput').addEventListener('input', searchChapters);
+    }
+
     setupChapterModalBehavior();
 });
 
@@ -64,9 +83,8 @@ function resetModalState() {
 }
 
 // Hàm hiển thị danh sách chapters
-function displayChapters(cardId) {
-    const chapters = chapterData[cardId] || [];
-    const accordion = document.querySelector('#accordionExample');
+function displayChapters(chapters) {
+    const accordion = document.getElementById('chapterAccordion');
     if (!accordion) {
         console.error('Không tìm thấy accordion!');
         return;
@@ -74,50 +92,72 @@ function displayChapters(cardId) {
 
     accordion.innerHTML = '';
 
+    if (chapters.length === 0) {
+        accordion.innerHTML = '<p class="text-center">Không có chương nào cho truyện này.</p>';
+        return;
+    }
+
     chapters.forEach((chapter, index) => {
-        const accordionItem = document.createElement('div');
-        accordionItem.className = 'accordion-item';
+        const chapterId = `collapseChapter${chapter.chapterNumber}`;
+        const isFirst = index === 0 ? 'show' : ''; // Mở chương đầu tiên mặc định
+        const row = `
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${chapterId}" aria-expanded="${isFirst ? 'true' : 'false'}" aria-controls="${chapterId}">
+                        Chương ${chapter.chapterNumber}
+                    </button>
+                </h2>
+                <div id="${chapterId}" class="accordion-collapse collapse ${isFirst}" data-bs-parent="#chapterAccordion">
+                    <div class="accordion-body">
+                        <button type="button" class="btn btn-primary read-chapter-btn" data-chapter-number="${chapter.chapterNumber}" data-card-id="${currentCardId}">Đọc truyện</button>
+                        <strong>${chapter.chapterTitle || 'N/A'}</strong> ${chapter.content || 'N/A'}
+                    </div>
+                </div>
+            </div>
+        `;
+        accordion.insertAdjacentHTML('beforeend', row);
+    });
 
-        const accordionHeader = document.createElement('h2');
-        accordionHeader.className = 'accordion-header';
+    // Gắn sự kiện cho các nút "Đọc truyện"
+    document.querySelectorAll('.read-chapter-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const cardId = this.dataset.cardId;
+            const chapterNumber = this.dataset.chapterNumber;
+            openReadModal(chapterData[cardId].find(ch => ch.chapterNumber == chapterNumber));
+        });
+    });
+}
 
-        const accordionButton = document.createElement('button');
-        accordionButton.className = `accordion-button ${index === 0 ? '' : 'collapsed'}`;
-        accordionButton.type = 'button';
-        accordionButton.setAttribute('data-bs-toggle', 'collapse');
-        accordionButton.setAttribute('data-bs-target', `#collapseChapter${chapter.chapterNumber}`);
-        accordionButton.setAttribute('aria-expanded', index === 0 ? 'true' : 'false');
-        accordionButton.setAttribute('aria-controls', `collapseChapter${chapter.chapterNumber}`);
-        accordionButton.textContent = `Chương ${chapter.chapterNumber}`;
+// Hàm tìm kiếm chương
+function searchChapters() {
+    const searchTerm = document.getElementById('chapterSearchInput').value.trim().toLowerCase();
+    let filteredChapters = [];
 
-        const accordionCollapse = document.createElement('div');
-        accordionCollapse.id = `collapseChapter${chapter.chapterNumber}`;
-        accordionCollapse.className = `accordion-collapse collapse ${index === 0 ? 'show' : ''}`;
-        accordionCollapse.setAttribute('data-bs-parent', '#accordionExample');
-
-        const accordionBody = document.createElement('div');
-        accordionBody.className = 'accordion-body';
-
-        const readButton = document.createElement('button');
-        readButton.type = 'button';
-        readButton.className = 'btn btn-primary';
-        readButton.textContent = 'Đọc truyện';
-        readButton.addEventListener('click', function() {
-            console.log(`Chuẩn bị mở chương ${chapter.chapterNumber}`);
-            openReadModal(chapter);
+    if (searchTerm === '') {
+        filteredChapters = originalChapters; // Hiển thị tất cả nếu không có từ khóa
+    } else {
+        // Lọc các chương khớp với từ khóa (theo chapterNumber hoặc chapterTitle)
+        filteredChapters = originalChapters.filter(chapter => {
+            const chapterNumber = chapter.chapterNumber.toString().toLowerCase();
+            const chapterTitle = chapter.chapterTitle ? chapter.chapterTitle.toLowerCase() : '';
+            return chapterNumber.includes(searchTerm) || chapterTitle.includes(searchTerm);
         });
 
-        const chapterContent = document.createElement('p');
-        chapterContent.innerHTML = `<strong>${chapter.chapterTitle}</strong> ${chapter.content || ''}`;
+        // Sắp xếp: các mục khớp với từ khóa lên đầu
+        filteredChapters.sort((a, b) => {
+            const aNumber = a.chapterNumber.toString().toLowerCase();
+            const bNumber = b.chapterNumber.toString().toLowerCase();
+            const aTitle = a.chapterTitle ? a.chapterTitle.toLowerCase() : '';
+            const bTitle = b.chapterTitle ? b.chapterTitle.toLowerCase() : '';
+            const aMatch = aNumber.includes(searchTerm) || aTitle.includes(searchTerm);
+            const bMatch = bNumber.includes(searchTerm) || bTitle.includes(searchTerm);
+            if (aMatch && !bMatch) return -1;
+            if (!aMatch && bMatch) return 1;
+            return 0;
+        });
+    }
 
-        accordionBody.appendChild(readButton);
-        accordionBody.appendChild(chapterContent);
-        accordionCollapse.appendChild(accordionBody);
-        accordionHeader.appendChild(accordionButton);
-        accordionItem.appendChild(accordionHeader);
-        accordionItem.appendChild(accordionCollapse);
-        accordion.appendChild(accordionItem);
-    });
+    displayChapters(filteredChapters); // Hiển thị danh sách đã lọc
 }
 
 // Hàm mở modal đọc truyện
@@ -145,11 +185,7 @@ function openReadModal(chapter) {
 
     // Xử lý hiển thị ảnh từ imageLink hoặc imageFolder
     if (chapter.imageLink && chapter.imageCount > 0) {
-        // Xử lý imageLink (URL raw GitHub)
-        // Ví dụ: https://raw.githubusercontent.com/chlorinebot/image-comic/refs/heads/main/images/attackontitan/chapter1/page%20(1).jpg
         let baseImageLink = chapter.imageLink;
-
-        // Nếu không phải raw URL, chuyển từ blob sang raw (nếu cần)
         if (!baseImageLink.includes('raw.githubusercontent.com') && baseImageLink.includes('github.com') && baseImageLink.includes('/blob/')) {
             baseImageLink = baseImageLink
                 .replace('github.com', 'raw.githubusercontent.com')
@@ -170,8 +206,6 @@ function openReadModal(chapter) {
             contentContainer.appendChild(img);
         }
     } else if (chapter.imageFolder && chapter.imageCount > 0) {
-        // Xử lý imageFolder (đường dẫn thư mục GitHub)
-        // Ví dụ: https://github.com/chlorinebot/image-comic/tree/main/images/attackontitan/chapter1
         let baseFolderLink = chapter.imageFolder;
         if (baseFolderLink.includes('github.com') && baseFolderLink.includes('/tree/')) {
             baseFolderLink = baseFolderLink
@@ -192,7 +226,6 @@ function openReadModal(chapter) {
             contentContainer.appendChild(img);
         }
     } else {
-        // Nếu không có hình ảnh, hiển thị nội dung văn bản
         contentContainer.textContent = chapter.content || 'Không có nội dung.';
     }
 

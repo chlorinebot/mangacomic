@@ -1,4 +1,3 @@
-// frontend/js/card_title.js
 let cardData = []; // Khởi tạo rỗng, sẽ được cập nhật từ API
 let currentCardData = null;
 
@@ -61,7 +60,7 @@ function displayCardsForPage(pageNumber) {
 
         const img = document.createElement('img');
         img.className = 'card-img-top';
-        img.src = data.image || ''; // Xử lý nếu image rỗng
+        img.src = data.image || 'https://via.placeholder.com/150?text=No+Image'; // Hình ảnh mặc định nếu không có
         img.alt = data.title;
 
         const cardBody = document.createElement('div');
@@ -73,7 +72,7 @@ function displayCardsForPage(pageNumber) {
 
         const cardText = document.createElement('p');
         cardText.className = 'card-text';
-        cardText.textContent = data.content;
+        cardText.textContent = data.content || 'Chưa có nội dung.';
 
         cardBody.appendChild(cardTitle);
         cardBody.appendChild(cardText);
@@ -82,6 +81,7 @@ function displayCardsForPage(pageNumber) {
         cardDiv.appendChild(cardBody);
 
         cardDiv.style.cursor = 'pointer';
+        cardDiv.setAttribute('data-comic-id', data.id); // Thêm data-comic-id để truyền ID truyện
         cardDiv.addEventListener('click', function() {
             openCardModal(data);
         });
@@ -110,7 +110,7 @@ function displayAllCards() {
 
         const img = document.createElement('img');
         img.className = 'card-img-top';
-        img.src = data.image || '';
+        img.src = data.image || 'https://via.placeholder.com/150?text=No+Image';
         img.alt = data.title;
 
         const cardBody = document.createElement('div');
@@ -122,7 +122,7 @@ function displayAllCards() {
 
         const cardText = document.createElement('p');
         cardText.className = 'card-text';
-        cardText.textContent = data.content;
+        cardText.textContent = data.content || 'Chưa có nội dung.';
 
         cardBody.appendChild(cardTitle);
         cardBody.appendChild(cardText);
@@ -131,6 +131,7 @@ function displayAllCards() {
         cardDiv.appendChild(cardBody);
 
         cardDiv.style.cursor = 'pointer';
+        cardDiv.setAttribute('data-comic-id', data.id);
         cardDiv.addEventListener('click', function() {
             openCardModal(data);
         });
@@ -150,23 +151,34 @@ function openCardModal(data) {
 
     modalTitle.textContent = data.title;
 
-    const cardImg = modalBody.querySelector('.img-fluid') || modalBody.querySelector('.card img');
+    const cardImg = modalBody.querySelector('#comicImage');
     if (cardImg) {
-        cardImg.src = data.image || '';
+        cardImg.src = data.image || 'https://via.placeholder.com/150?text=No+Image';
         cardImg.alt = data.title;
     }
 
-    const cardTitle = modalBody.querySelector('.card-title');
+    const cardTitle = modalBody.querySelector('#comicTitle');
     if (cardTitle) {
         cardTitle.textContent = data.title;
     }
 
-    const cardTexts = modalBody.querySelectorAll('.card-text');
-    if (cardTexts.length > 0) {
-        cardTexts[0].textContent = data.content;
-        if (cardTexts.length > 1) cardTexts[1].textContent = "Thể loại: Truyện tranh";
-        if (cardTexts.length > 2) cardTexts[2].textContent = `Nội dung truyện: ${data.content}`;
+    const cardAuthor = modalBody.querySelector('#comicAuthor');
+    if (cardAuthor) {
+        cardAuthor.textContent = `Tác giả: ${data.author || 'Isayama Hajime'}`; // Giá trị mặc định nếu không có
     }
+
+    const cardGenre = modalBody.querySelector('#comicGenre');
+    if (cardGenre) {
+        cardGenre.textContent = `Thể loại: ${data.genre || 'Truyện tranh'}`;
+    }
+
+    const cardContent = modalBody.querySelector('#comicContent');
+    if (cardContent) {
+        cardContent.textContent = `Nội dung truyện: ${data.content || 'Chưa có nội dung.'}`;
+    }
+
+    // Gắn data-comic-id vào modal để sử dụng trong chapter.js
+    modal.setAttribute('data-comic-id', data.id);
 
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
