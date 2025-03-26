@@ -1,5 +1,7 @@
 // chapters.js
 let originalChapters = [];
+const ITEMS_PER_PAGE = 5; // Số lượng chương mỗi trang
+let currentPage = 1; // Trang hiện tại
 
 export async function showChapters(cardId) {
     console.log('showChapters được gọi với cardId:', cardId);
@@ -27,6 +29,7 @@ export async function showChapters(cardId) {
         const chapters = await response.json();
         console.log('Dữ liệu chương:', chapters);
         originalChapters = chapters[cardId] || []; // Lưu trữ danh sách chương gốc
+        currentPage = 1; // Reset về trang đầu tiên
         renderChapters(originalChapters, cardId);
 
         // Tính số chương lớn nhất hiện có của truyện
@@ -70,33 +73,93 @@ export async function showChapters(cardId) {
 
 export function renderChapters(chapterList, cardId) {
     const chapterBody = document.getElementById('chapterTableBody');
-    if (!chapterBody) {
-        console.error('Không tìm thấy phần tử chapterTableBody trong DOM');
+    const paginationContainer = document.getElementById('chapterPagination');
+    if (!chapterBody || !paginationContainer) {
+        console.error('Không tìm thấy phần tử chapterTableBody hoặc chapterPagination trong DOM');
         return;
     }
+
+    // Tính toán dữ liệu phân trang
+    const totalItems = chapterList.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedChapters = chapterList.slice(startIndex, endIndex);
+
+    // Hiển thị danh sách chương
     chapterBody.innerHTML = '';
-
-    if (chapterList.length === 0) {
+    if (paginatedChapters.length === 0) {
         chapterBody.innerHTML = '<tr><td colspan="6" class="text-center">Không có chương nào cho truyện này.</td></tr>';
-        return;
+    } else {
+        paginatedChapters.forEach(chapter => {
+            const row = `
+                <tr>
+                    <td>${chapter.chapterNumber}</td>
+                    <td>${chapter.chapterTitle || 'N/A'}</td>
+                    <td>${chapter.content || 'N/A'}</td>
+                    <td>${chapter.imageFolder || 'N/A'}</td>
+                    <td>${chapter.imageCount || 0}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm delete-chapter-btn" data-card-id="${cardId}" data-chapter-number="${chapter.chapterNumber}"><i class="bi bi-trash"></i> Xóa</button>
+                        <button class="btn btn-warning btn-sm edit-chapter-btn" data-card-id="${cardId}" data-chapter-number="${chapter.chapterNumber}"><i class="bi bi-pencil"></i> Sửa</button>
+                    </td>
+                </tr>
+            `;
+            chapterBody.insertAdjacentHTML('beforeend', row);
+        });
     }
 
-    chapterList.forEach(chapter => {
-        const row = `
-            <tr>
-                <td>${chapter.chapterNumber}</td>
-                <td>${chapter.chapterTitle || 'N/A'}</td>
-                <td>${chapter.content || 'N/A'}</td>
-                <td>${chapter.imageFolder || 'N/A'}</td>
-                <td>${chapter.imageCount || 0}</td>
-                <td>
-                    <button class="btn btn-danger btn-sm delete-chapter-btn" data-card-id="${cardId}" data-chapter-number="${chapter.chapterNumber}"><i class="bi bi-trash"></i> Xóa</button>
-                    <button class="btn btn-warning btn-sm edit-chapter-btn" data-card-id="${cardId}" data-chapter-number="${chapter.chapterNumber}"><i class="bi bi-pencil"></i> Sửa</button>
-                </td>
-            </tr>
-        `;
-        chapterBody.insertAdjacentHTML('beforeend', row);
+    // Hiển thị phân trang
+    renderPagination(paginationContainer, totalPages, currentPage, (page) => {
+        currentPage = page;
+        renderChapters(chapterList, cardId);
     });
+}
+
+function renderPagination(container, totalPages, currentPage, onPageChange) {
+    container.innerHTML = '';
+    if (totalPages <= 1) return; // Không cần phân trang nếu chỉ có 1 trang
+
+    const ul = document.createElement('ul');
+    ul.className = 'pagination';
+
+    // Nút Previous
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `<a class="page-link" href="#">Previous</a>`;
+    prevLi.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+            onPageChange(currentPage - 1);
+        }
+    });
+    ul.appendChild(prevLi);
+
+    // Các trang số
+    for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        li.addEventListener('click', (e) => {
+            e.preventDefault();
+            onPageChange(i);
+        });
+        ul.appendChild(li);
+    }
+
+    // Nút Next
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
+    nextLi.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage < totalPages) {
+            onPageChange(currentPage + 1);
+        }
+    });
+    ul.appendChild(nextLi);
+
+    container.appendChild(ul);
 }
 
 export async function deleteChapter(cardId, chapterNumber, button) {
@@ -191,5 +254,6 @@ export function searchChapters(cardId) {
         });
     }
 
+    currentPage = 1; // Reset về trang đầu tiên khi tìm kiếm
     renderChapters(filteredChapters, cardId); // Hiển thị danh sách đã lọc
 }

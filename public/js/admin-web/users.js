@@ -1,5 +1,7 @@
 // users.js
 let originalUsers = [];
+const ITEMS_PER_PAGE = 5; // Số lượng người dùng mỗi trang
+let currentPage = 1; // Trang hiện tại
 
 export async function fetchUsers() {
     try {
@@ -15,6 +17,7 @@ export async function fetchUsers() {
         }
         const users = await response.json();
         originalUsers = users; // Lưu trữ dữ liệu gốc
+        currentPage = 1; // Reset về trang đầu tiên
         renderUsers(users); // Hiển thị danh sách ban đầu
     } catch (error) {
         console.error('Lỗi trong fetchUsers:', error);
@@ -24,12 +27,22 @@ export async function fetchUsers() {
 
 export function renderUsers(users) {
     const tableBody = document.getElementById('userTableBody');
-    if (!tableBody) {
-        console.error('Không tìm thấy phần tử userTableBody trong DOM');
+    const paginationContainer = document.getElementById('userPagination');
+    if (!tableBody || !paginationContainer) {
+        console.error('Không tìm thấy phần tử userTableBody hoặc userPagination trong DOM');
         return;
     }
+
+    // Tính toán dữ liệu phân trang
+    const totalItems = users.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedUsers = users.slice(startIndex, endIndex);
+
+    // Hiển thị danh sách người dùng
     tableBody.innerHTML = '';
-    users.forEach(user => {
+    paginatedUsers.forEach(user => {
         const row = `
             <tr data-id="${user.id}">
                 <td>${user.id}</td>
@@ -49,6 +62,58 @@ export function renderUsers(users) {
         `;
         tableBody.insertAdjacentHTML('beforeend', row);
     });
+
+    // Hiển thị phân trang
+    renderPagination(paginationContainer, totalPages, currentPage, (page) => {
+        currentPage = page;
+        renderUsers(users);
+    });
+}
+
+function renderPagination(container, totalPages, currentPage, onPageChange) {
+    container.innerHTML = '';
+    if (totalPages <= 1) return; // Không cần phân trang nếu chỉ có 1 trang
+
+    const ul = document.createElement('ul');
+    ul.className = 'pagination';
+
+    // Nút Previous
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `<a class="page-link" href="#">Previous</a>`;
+    prevLi.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+            onPageChange(currentPage - 1);
+        }
+    });
+    ul.appendChild(prevLi);
+
+    // Các trang số
+    for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        li.addEventListener('click', (e) => {
+            e.preventDefault();
+            onPageChange(i);
+        });
+        ul.appendChild(li);
+    }
+
+    // Nút Next
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
+    nextLi.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage < totalPages) {
+            onPageChange(currentPage + 1);
+        }
+    });
+    ul.appendChild(nextLi);
+
+    container.appendChild(ul);
 }
 
 export async function deleteUser(button) {
@@ -135,5 +200,6 @@ export function searchUsers() {
         });
     }
 
+    currentPage = 1; // Reset về trang đầu tiên khi tìm kiếm
     renderUsers(filteredUsers); // Hiển thị danh sách đã lọc
 }

@@ -8,8 +8,32 @@ import { fetchUsers, renderUsers, deleteUser, editUser, searchUsers } from './us
 document.addEventListener('DOMContentLoaded', () => {
     if (!checkLoginStatus()) return;
 
+    // Tải dữ liệu ban đầu
     fetchComics();
     fetchUsers();
+
+    // Xử lý sự kiện chuyển tab
+    const tabLinks = document.querySelectorAll('.nav-link');
+    tabLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetTab = link.getAttribute('href'); // Ví dụ: "#comic-management" hoặc "#user-management"
+
+            // Ẩn tất cả các tab
+            document.querySelectorAll('.tab-pane').forEach(tab => {
+                tab.classList.remove('show', 'active');
+            });
+
+            // Hiển thị tab được chọn
+            document.querySelector(targetTab).classList.add('show', 'active');
+
+            // Cập nhật trạng thái active cho sidebar
+            tabLinks.forEach(tabLink => {
+                tabLink.classList.remove('active');
+            });
+            link.classList.add('active');
+        });
+    });
 
     // Sử dụng event delegation để xử lý các nút trong Quản Lý Truyện Tranh
     document.getElementById('comicTableBody').addEventListener('click', (e) => {

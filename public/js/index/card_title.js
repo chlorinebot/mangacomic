@@ -172,7 +172,7 @@ function openCardModal(data) {
 
     const cardGenre = modalBody.querySelector('#comicGenre');
     if (cardGenre) {
-        cardGenre.textContent = `Thể loại: ${data.genre || 'Truyện tranh'}`;
+        cardGenre.textContent = `Thể loại: ${data.genre_name || 'Truyện tranh'}`; // Sử dụng genre_name thay vì TheLoai
     }
 
     // Hiển thị hashtag trong modal

@@ -2,19 +2,21 @@
 const jwt = require('jsonwebtoken');
 const { registerUser, loginUser } = require('../models/userModel');
 
-const JWT_SECRET = 'your-secret-key';
+// Lấy JWT_SECRET từ biến môi trường, nếu không có thì dùng giá trị mặc định
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 const register = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, role_id } = req.body;
         if (!username || !email || !password) {
-            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin!' });
+            return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin (username, email, password)!' });
         }
-        const { userId } = await registerUser(username, email, password);
-        res.status(201).json({ message: 'Đăng ký thành công!', userId });
+
+        const { userId, user } = await registerUser(username, email, password, role_id);
+        res.status(201).json({ message: 'Đăng ký thành công!', userId, role_id: user.role_id });
     } catch (err) {
         console.error('Lỗi khi đăng ký:', err.stack);
-        res.status(500).json({ error: 'Tên người dùng hoặc email đã tồn tại!', details: err.message });
+        res.status(400).json({ error: 'Tên người dùng hoặc email đã tồn tại!', details: err.message });
     }
 };
 
@@ -24,14 +26,20 @@ const login = async (req, res) => {
         if (!username || !password) {
             return res.status(400).json({ error: 'Vui lòng cung cấp username và password!' });
         }
-        const user = await loginUser(username);
+
+        // Gọi hàm loginUser để kiểm tra thông tin đăng nhập
+        const user = await loginUser(username, password);
         if (!user) {
-            return res.status(401).json({ error: 'Tên người dùng không tồn tại!' });
+            return res.status(401).json({ error: 'Tên người dùng hoặc mật khẩu không đúng!' });
         }
-        if (password !== user.password) {
-            return res.status(401).json({ error: 'Mật khẩu không đúng!' });
-        }
-        const token = jwt.sign({ id: user.id, username: user.username, role_id: user.role_id }, JWT_SECRET, { expiresIn: '1h' });
+
+        // Tạo JWT token
+        const token = jwt.sign(
+            { id: user.id, username: user.username, role_id: user.role_id },
+            JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
         res.json({ message: 'Đăng nhập thành công!', token, role_id: user.role_id });
     } catch (err) {
         console.error('Lỗi khi đăng nhập:', err.stack);
