@@ -1,10 +1,8 @@
 // controllers/authController.js
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const { registerUser, loginUser } = require('../models/userModel');
 
 const JWT_SECRET = 'your-secret-key';
-const saltRounds = 10;
 
 const register = async (req, res) => {
     try {
@@ -30,9 +28,7 @@ const login = async (req, res) => {
         if (!user) {
             return res.status(401).json({ error: 'Tên người dùng không tồn tại!' });
         }
-        // Verify the password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
+        if (password !== user.password) {
             return res.status(401).json({ error: 'Mật khẩu không đúng!' });
         }
         const token = jwt.sign({ id: user.id, username: user.username, role_id: user.role_id }, JWT_SECRET, { expiresIn: '1h' });
