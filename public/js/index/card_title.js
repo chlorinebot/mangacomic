@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Lấy dữ liệu cards từ server
     try {
-        const response = await fetch('https://truyencuatuan.up.railway.app/api/cards');
+        const response = await fetch('http://localhost:3000/api/cards');
         if (!response.ok) throw new Error('Lỗi khi lấy dữ liệu từ API');
         cardData = await response.json();
         console.log('Card data loaded:', cardData); // Kiểm tra dữ liệu từ API

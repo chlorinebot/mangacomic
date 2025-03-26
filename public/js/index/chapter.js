@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Lấy dữ liệu chapters từ server
     try {
-        const response = await fetch('https://truyencuatuan.up.railway.app/api/chapters');
+        const response = await fetch('http://localhost:3000/api/chapters');
         if (!response.ok) throw new Error('Lỗi khi lấy dữ liệu từ API');
         chapterData = await response.json();
         console.log('Chapter data loaded:', chapterData);
