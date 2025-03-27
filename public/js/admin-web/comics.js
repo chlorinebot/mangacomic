@@ -57,6 +57,7 @@ export function renderComics(comics) {
                 </td>
                 <td>${comic.content || 'N/A'}</td>
                 <td><a href="${comic.link || '#'}" target="_blank">${comic.link || 'N/A'}</a></td>
+                <td>${comic.genre_name || 'N/A'}</td> <!-- Hiển thị tên thể loại -->
                 <td>
                     <button class="btn btn-danger btn-sm delete-comic-btn" data-id="${comicId}"><i class="bi bi-trash"></i> Xóa</button>
                     <button class="btn btn-info btn-sm show-chapters-btn" data-id="${comicId}"><i class="bi bi-book"></i> Chương</button>
@@ -175,6 +176,7 @@ export async function editComic(id) {
             document.getElementById('comicImage').value = comic.image || '';
             document.getElementById('comicContent').value = comic.content || '';
             document.getElementById('comicLink').value = comic.link || '';
+            document.getElementById('comicGenre').value = comic.TheLoai || ''; // Điền giá trị thể loại
             document.getElementById('addComicModalLabel').textContent = 'Chỉnh Sửa Truyện';
             document.getElementById('comicSubmitButton').textContent = 'Cập Nhật';
             new bootstrap.Modal(document.getElementById('addComicModal')).show();

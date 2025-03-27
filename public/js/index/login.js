@@ -5,10 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const changePasswordForm = document.getElementById('changePasswordForm');
     const changePasswordMessage = document.getElementById('changePasswordMessage');
 
-    // Biến để theo dõi trạng thái modal
     let isOpeningModal = false;
 
-    // Kiểm tra trạng thái đăng nhập ngay khi trang tải
+    // Kiểm tra trạng thái đăng nhập
     checkLoginStatus();
 
     if (loginForm) {
@@ -33,34 +32,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     loginMessage.textContent = data.message;
                     loginMessage.className = 'mt-2 text-success';
 
-                    // Lưu token và role_id vào localStorage
                     const token = data.token;
                     const roleId = data.role_id;
                     localStorage.setItem('token', token);
                     localStorage.setItem('username', username);
                     localStorage.setItem('roleId', roleId);
 
-                    // Giải mã token (sử dụng CDN)
+                    // Lưu token vào cookie
+                    document.cookie = `token=${token}; path=/; max-age=3600`;
+
                     const decodedToken = jwt_decode(token);
                     console.log('Decoded token:', decodedToken);
 
-                    // Cập nhật giao diện navbar ngay lập tức
                     updateNavbarForLoggedInUser(username, roleId);
 
-                    // Kiểm tra role và chuyển hướng
-                    if (roleId === '1') {
+                    if (roleId == '1') {
+                        console.log('User is admin, redirecting to /admin-web');
                         setTimeout(() => {
-                            window.location.href = '/admin-web'; // Chuyển hướng tới admin-web cho admin
+                            window.location.href = '/admin-web';
                         }, 1000);
                     } else {
-                        // Đóng modal cho người dùng thường (role_id = 2)
+                        console.log('User is not admin, closing login modal');
                         setTimeout(() => {
                             const modal = bootstrap.Modal.getInstance(document.getElementById('login'));
                             if (modal) modal.hide();
                         }, 1000);
                     }
 
-                    // Kiểm tra lại trạng thái đăng nhập sau khi cập nhật
                     checkLoginStatus();
                 } else {
                     loginMessage.textContent = data.error || 'Đăng nhập thất bại!';
@@ -74,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Xử lý form đổi mật khẩu
     if (changePasswordForm) {
         changePasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -85,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const username = localStorage.getItem('username');
             const token = localStorage.getItem('token');
 
-            // Validation
             if (newPassword !== confirmNewPassword) {
                 changePasswordMessage.textContent = 'Mật khẩu mới và xác nhận mật khẩu không khớp!';
                 changePasswordMessage.className = 'mt-2 text-danger';
@@ -135,17 +131,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Thêm sự kiện click cho các nút logout, settings, security, change password, messages và notifications
     document.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'logoutButton') {
             logout();
         } else if (e.target && e.target.id === 'settingsButton') {
-            // Mở Modal 1 (Trung tâm tài khoản)
             isOpeningModal = true;
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
             settingsModal.show();
         } else if (e.target && e.target.id === 'securityButton') {
-            // Đóng Modal 1 và mở Modal 2 (Mật khẩu và bảo mật)
             isOpeningModal = true;
             const settingsModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
             if (settingsModal) settingsModal.hide();
@@ -154,31 +147,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 securityModal.show();
             }, 300);
         } else if (e.target && e.target.id === 'changePasswordButton') {
-            // Đóng Modal 2 và mở Modal 3 (Đổi mật khẩu)
             isOpeningModal = true;
-            const securityModal = bootstrap.Modal.getInstance(document.getElementById('securityModal'));
+            const securityModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
             if (securityModal) securityModal.hide();
             setTimeout(() => {
                 const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
                 changePasswordModal.show();
             }, 300);
         } else if (e.target.closest('#messagesButton')) {
-            // Xử lý khi nhấn nút Tin nhắn
             console.log('Nút Tin nhắn được nhấn');
-            // Bạn có thể thêm logic để mở modal hoặc chuyển hướng tới trang tin nhắn
         } else if (e.target.closest('#notificationsButton')) {
-            // Xử lý khi nhấn nút Thông báo
             console.log('Nút Thông báo được nhấn');
-            // Bạn có thể thêm logic để mở modal hoặc chuyển hướng tới trang thông báo
         }
     });
 
-    // Xử lý khi modal đóng
     const settingsModalEl = document.getElementById('settingsModal');
     const securityModalEl = document.getElementById('securityModal');
     const changePasswordModalEl = document.getElementById('changePasswordModal');
 
-    // Khi đóng Modal 3 (Đổi mật khẩu), mở lại Modal 2 (Mật khẩu và bảo mật)
     changePasswordModalEl.addEventListener('hidden.bs.modal', () => {
         if (!isOpeningModal) {
             const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
@@ -187,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
         isOpeningModal = false;
     });
 
-    // Khi đóng Modal 2 (Mật khẩu và bảo mật), mở lại Modal 1 (Trung tâm tài khoản)
     securityModalEl.addEventListener('hidden.bs.modal', () => {
         if (!isOpeningModal) {
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
@@ -196,27 +181,39 @@ document.addEventListener('DOMContentLoaded', () => {
         isOpeningModal = false;
     });
 
-    // Khi đóng Modal 1 (Trung tâm tài khoản), không mở lại modal nào
     settingsModalEl.addEventListener('hidden.bs.modal', () => {
         isOpeningModal = false;
     });
 });
 
-// Hàm kiểm tra trạng thái đăng nhập
 function checkLoginStatus() {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
     const roleId = localStorage.getItem('roleId');
-    const userActions = document.getElementById('userActions'); // Lấy phần tử chứa nút Tin nhắn và Thông báo
+    const userActions = document.getElementById('userActions');
+
+    console.log('Checking login status...');
+    console.log('Token:', token);
+    console.log('Username:', username);
+    console.log('Role ID:', roleId);
 
     if (token && username) {
         updateNavbarForLoggedInUser(username, roleId);
-        // Nếu đã đăng nhập và là admin, tự động chuyển hướng từ index
-        if (roleId === '1' && window.location.pathname === '/') {
-            window.location.href = '/admin-web';
+        if (roleId == '1') {
+            if (window.location.pathname === '/') {
+                console.log('User is admin, redirecting from index to /admin-web');
+                window.location.href = '/admin-web';
+            } else if (window.location.pathname === '/admin-web') {
+                console.log('User is admin, already on /admin-web, no redirect needed');
+                // Backend sẽ xử lý render admin-web hoặc 401
+            }
+        } else {
+            // Nếu không phải admin, không cần điều hướng ở đây, để backend xử lý
+            console.log('User is not admin, letting backend handle /admin-web');
         }
     } else {
-        // Nếu không có token, reset navbar
+        // Nếu không có token, không điều hướng ở đây, để backend xử lý
+        console.log('No token, letting backend handle /admin-web');
         const userDropdown = document.querySelector('.nav-item.dropdown.ms-5');
         if (userDropdown) {
             userDropdown.innerHTML = `
@@ -234,21 +231,18 @@ function checkLoginStatus() {
                 </ul>
             `;
         }
-        // Đảm bảo các nút Tin nhắn và Thông báo bị ẩn
         if (userActions) {
             userActions.classList.add('d-none');
         }
     }
 }
 
-// Hàm cập nhật navbar cho người dùng đã đăng nhập
 function updateNavbarForLoggedInUser(username, roleId) {
     const userDropdown = document.querySelector('.nav-item.dropdown.ms-5');
-    const userActions = document.getElementById('userActions'); // Lấy phần tử chứa nút Tin nhắn và Thông báo
+    const userActions = document.getElementById('userActions');
 
     if (userDropdown) {
-        // Nếu là người dùng thông thường (role_id = 2), hiển thị các mục "Thông tin tài khoản", "Cài đặt" và "Đăng xuất"
-        if (roleId === '2') {
+        if (roleId == '2') {
             userDropdown.innerHTML = `
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -277,7 +271,6 @@ function updateNavbarForLoggedInUser(username, roleId) {
                 </ul>
             `;
         } else {
-            // Nếu là admin (role_id = 1), chỉ hiển thị "Đăng xuất"
             userDropdown.innerHTML = `
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -296,12 +289,10 @@ function updateNavbarForLoggedInUser(username, roleId) {
             `;
         }
 
-        // Hiển thị các nút Tin nhắn và Thông báo cho người dùng đã đăng nhập
         if (userActions) {
             userActions.classList.remove('d-none');
         }
 
-        // Cập nhật modal lịch sử nếu tồn tại
         const historyModal = document.getElementById('history');
         if (historyModal) {
             const loginMessage = historyModal.querySelector('h1');
@@ -316,14 +307,15 @@ function updateNavbarForLoggedInUser(username, roleId) {
     }
 }
 
-// Hàm xử lý đăng xuất
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('roleId');
 
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+
     const userDropdown = document.querySelector('.nav-item.dropdown.ms-5');
-    const userActions = document.getElementById('userActions'); // Lấy phần tử chứa nút Tin nhắn và Thông báo
+    const userActions = document.getElementById('userActions');
 
     if (userDropdown) {
         userDropdown.innerHTML = `
@@ -341,7 +333,6 @@ function logout() {
             </ul>
         `;
 
-        // Ẩn các nút Tin nhắn và Thông báo
         if (userActions) {
             userActions.classList.add('d-none');
         }
@@ -365,6 +356,6 @@ function logout() {
     }
 
     setTimeout(() => {
-        window.location.href = '/'; // Quay lại index.ejs
+        window.location.href = '/';
     }, 500);
 }

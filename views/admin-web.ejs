@@ -36,11 +36,6 @@
         </style>
     </head>
     <body class="sb-nav-fixed">
-        <div class="container">
-            <h1>Admin Dashboard</h1>
-            <p>Xin chào, <%= user.username %>! Bạn là admin (role_id: <%= user.role_id %>).</p>
-            <!-- Nội dung dashboard -->
-        </div>
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
             <!-- Navbar Brand-->
             <a class="navbar-brand ps-3" href="#">MangaComic Admin</a>
@@ -80,11 +75,15 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
                                 Quản Lý Người Dùng
                             </a>
+                            <a class="nav-link" href="#genre-management" data-bs-toggle="tab">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tags"></i></div>
+                                Quản Lý Thể Loại
+                            </a>
                         </div>
                     </div>
                     <div class="sb-sidenav-footer">
                         <div class="small">Logged in as:</div>
-                        Admin
+                        <p><%= user.username %> role: <%= user.role_id %>.</p>
                     </div>
                 </nav>
             </div>
@@ -114,6 +113,7 @@
                                                 <th>Ảnh Bìa</th>
                                                 <th>Tác Giả</th>
                                                 <th>Link</th>
+                                                <th>Thể Loại</th> <!-- Thêm cột Thể Loại -->
                                                 <th>Hành Động</th>
                                             </tr>
                                         </thead>
@@ -123,7 +123,7 @@
                                 <!-- Container cho Pagination -->
                                 <div id="comicPagination" class="d-flex justify-content-center mt-3"></div>
                             </div>
-                        
+
                             <!-- Quản Lý Người Dùng -->
                             <div class="tab-pane fade" id="user-management">
                                 <h2>Quản Lý Người Dùng</h2>
@@ -148,6 +148,29 @@
                                 </div>
                                 <!-- Container cho Pagination -->
                                 <div id="userPagination" class="d-flex justify-content-center mt-3"></div>
+                            </div>
+
+                            <!-- Quản Lý Thể Loại -->
+                            <div class="tab-pane fade" id="genre-management">
+                                <h2>Quản Lý Thể Loại</h2>
+                                <div class="search-container">
+                                    <input type="text" id="genreSearch" class="form-control" placeholder="Tìm kiếm thể loại...">
+                                </div>
+                                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addGenreModal"><i class="bi bi-plus"></i> Thêm Thể Loại</button>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Tên Thể Loại</th>
+                                                <th>Hành Động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="genreTableBody"></tbody>
+                                    </table>
+                                </div>
+                                <!-- Container cho Pagination -->
+                                <div id="genrePagination" class="d-flex justify-content-center mt-3"></div>
                             </div>
                         </div>
                     </div>
@@ -193,6 +216,14 @@
                             <div class="mb-3">
                                 <label for="comicLink" class="form-label">Link</label>
                                 <input type="url" class="form-control" id="comicLink">
+                            </div>
+                            <!-- Thêm dropdown chọn thể loại -->
+                            <div class="mb-3">
+                                <label for="comicGenre" class="form-label">Thể Loại</label>
+                                <select class="form-control" id="comicGenre" name="TheLoai">
+                                    <option value="">Chọn thể loại</option>
+                                    <!-- Danh sách thể loại sẽ được tải động -->
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-primary" id="comicSubmitButton">Thêm</button>
                         </form>
@@ -245,45 +276,45 @@
 
         <!-- Modal Hiển Thị Chương -->
         <div class="modal fade" id="chapterModal" tabindex="-1" aria-labelledby="chapterModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="chapterModalTitle">Danh Sách Chương</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Thanh tìm kiếm -->
-                <div class="search-container">
-                    <input type="text" id="chapterSearch" class="form-control" placeholder="Tìm kiếm theo ID chương hoặc tiêu đề...">
-                </div>
-                <div class="table-responsive">
-                    <div id="chapterTableBodyContainer">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Số Chương</th>
-                                    <th>Tiêu Đề</th>
-                                    <th>Nội Dung</th>
-                                    <th>Thư Mục Hình Ảnh</th>
-                                    <th>Số Lượng Hình Ảnh</th>
-                                    <th>Hành Động</th>
-                                </tr>
-                            </thead>
-                            <tbody id="chapterTableBody">
-                                <tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>
-                            </tbody>
-                        </table>
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="chapterModalTitle">Danh Sách Chương</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </div>
-                <!-- Container cho Pagination -->
-                <div id="chapterPagination" class="d-flex justify-content-center mt-3"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addChapterModal">Thêm Chương Mới</button>
+                    <div class="modal-body">
+                        <!-- Thanh tìm kiếm -->
+                        <div class="search-container">
+                            <input type="text" id="chapterSearch" class="form-control" placeholder="Tìm kiếm theo ID chương hoặc tiêu đề...">
+                        </div>
+                        <div class="table-responsive">
+                            <div id="chapterTableBodyContainer">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Số Chương</th>
+                                            <th>Tiêu Đề</th>
+                                            <th>Nội Dung</th>
+                                            <th>Thư Mục Hình Ảnh</th>
+                                            <th>Số Lượng Hình Ảnh</th>
+                                            <th>Hành Động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="chapterTableBody">
+                                        <tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- Container cho Pagination -->
+                        <div id="chapterPagination" class="d-flex justify-content-center mt-3"></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addChapterModal">Thêm Chương Mới</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
         <!-- Modal Thêm/Chỉnh Sửa Người Dùng -->
         <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
@@ -315,6 +346,28 @@
             </div>
         </div>
 
+        <!-- Modal Thêm/Chỉnh Sửa Thể Loại -->
+        <div class="modal fade" id="addGenreModal" tabindex="-1" aria-labelledby="addGenreModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addGenreModalLabel">Thêm Thể Loại Mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addGenreForm">
+                            <input type="hidden" id="genreId">
+                            <div class="mb-3">
+                                <label for="genreName" class="form-label">Tên Thể Loại</label>
+                                <input type="text" class="form-control" id="genreName" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="genreSubmitButton">Thêm</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="/js/scripts.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
@@ -324,5 +377,36 @@
         <script type="module" src="/js/admin-web/comics.js"></script>
         <script type="module" src="/js/admin-web/chapters.js"></script>
         <script type="module" src="/js/admin-web/users.js"></script>
+        <script type="module" src="/js/admin-web/genres.js"></script>
+        <script src="/js/index/login.js"></script>
+        <script>
+            // Tải danh sách thể loại vào dropdown khi modal được mở
+            document.getElementById('addComicModal').addEventListener('show.bs.modal', async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('/api/genres', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (!response.ok) {
+                        throw new Error('Lỗi khi lấy danh sách thể loại');
+                    }
+                    const genres = await response.json();
+                    const genreSelect = document.getElementById('comicGenre');
+                    genreSelect.innerHTML = '<option value="">Chọn thể loại</option>'; // Reset dropdown
+                    genres.forEach(genre => {
+                        const option = document.createElement('option');
+                        option.value = genre.genre_id;
+                        option.textContent = genre.genre_name;
+                        genreSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Lỗi khi tải danh sách thể loại:', error);
+                    alert('Lỗi khi tải danh sách thể loại: ' + error.message);
+                }
+            });
+            </script>
     </body>
 </html>

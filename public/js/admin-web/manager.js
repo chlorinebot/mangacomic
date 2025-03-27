@@ -3,6 +3,7 @@ import { checkLoginStatus, logout } from './auth.js';
 import { fetchComics, renderComics, deleteComic, editComic, searchComics } from './comics.js';
 import { showChapters, renderChapters, deleteChapter, editChapter, searchChapters } from './chapters.js';
 import { fetchUsers, renderUsers, deleteUser, editUser, searchUsers } from './users.js';
+import { fetchGenres, renderGenres, deleteGenre, editGenre, searchGenres } from './genres.js';
 
 // Khởi tạo khi DOM được tải
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tải dữ liệu ban đầu
     fetchComics();
     fetchUsers();
+    fetchGenres();
 
     // Xử lý sự kiện chuyển tab
     const tabLinks = document.querySelectorAll('.nav-link');
@@ -87,11 +89,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Sử dụng event delegation để xử lý các nút trong Quản Lý Thể Loại
+    document.getElementById('genreTableBody').addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const genreId = target.dataset.id;
+        if (target.classList.contains('delete-genre-btn')) {
+            deleteGenre(target);
+        } else if (target.classList.contains('edit-genre-btn')) {
+            editGenre(genreId);
+        }
+    });
+
     // Tìm kiếm truyện tranh
     document.getElementById('comicSearch').addEventListener('input', searchComics);
 
     // Tìm kiếm người dùng
     document.getElementById('userSearch').addEventListener('input', searchUsers);
+
+    // Tìm kiếm thể loại
+    document.getElementById('genreSearch').addEventListener('input', searchGenres);
 
     // Thêm hoặc cập nhật truyện
     document.getElementById('addComicForm').addEventListener('submit', async function (e) {
@@ -101,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const image = document.getElementById('comicImage').value.trim() || null;
         const content = document.getElementById('comicContent').value.trim() || null;
         const link = document.getElementById('comicLink').value.trim() || null;
+        const TheLoai = document.getElementById('comicGenre').value || null; // Lấy giá trị thể loại
 
         // Validation
         if (!title) {
@@ -110,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const method = id ? 'PUT' : 'POST';
         const url = id ? `/api/cards/${id}` : '/api/cards';
-        const body = id ? { id, title, image, content, link } : [{ title, image, content, link }];
+        const body = id ? { id, title, image, content, link, TheLoai } : [{ title, image, content, link, TheLoai }];
 
         try {
             const token = localStorage.getItem('token');
@@ -248,6 +267,47 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Lỗi khi lưu người dùng:', error);
             alert('Lỗi khi lưu người dùng: ' + error.message);
+        }
+    });
+
+    // Thêm hoặc cập nhật thể loại
+    document.getElementById('addGenreForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const id = document.getElementById('genreId').value;
+        const genreName = document.getElementById('genreName').value.trim();
+
+        // Validation
+        if (!genreName) {
+            alert('Vui lòng nhập tên thể loại!');
+            return;
+        }
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/api/genres/${id}` : '/api/genres';
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ genre_name: genreName })
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Lỗi khi lưu thể loại');
+            }
+            this.reset();
+            document.getElementById('genreId').value = '';
+            document.getElementById('addGenreModalLabel').textContent = 'Thêm Thể Loại Mới';
+            document.getElementById('genreSubmitButton').textContent = 'Thêm';
+            bootstrap.Modal.getInstance(document.getElementById('addGenreModal')).hide();
+            fetchGenres(); // Tải lại danh sách thể loại
+        } catch (error) {
+            console.error('Lỗi khi lưu thể loại:', error);
+            alert('Lỗi khi lưu thể loại: ' + error.message);
         }
     });
 
