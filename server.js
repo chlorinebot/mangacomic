@@ -4,6 +4,7 @@ const { getCards, saveCardData, deleteCardData, updateCard } = require('./contro
 const { getChapters, saveChapterData, deleteChapterData } = require('./controllers/chapterController');
 const { getUsers, deleteUserData, updateUser: updateUserData } = require('./controllers/userController');
 const { register, login } = require('./controllers/authController');
+const { checkAdminAuth } = require('./middleware/authMiddleware'); // Import middleware
 
 const app = express();
 const port = 3000;
@@ -38,7 +39,10 @@ app.put('/api/users/:id', checkDbConnection, updateUserData);
 app.post('/api/register', checkDbConnection, register);
 app.post('/api/login', checkDbConnection, login);
 
-app.get('/admin-web', checkDbConnection, (req, res) => res.render('admin-web'));
+// Route admin-web với middleware kiểm tra admin
+app.get('/admin-web', checkDbConnection, checkAdminAuth, (req, res) => {
+    res.render('admin-web');
+});
 
 app.get('/', checkDbConnection, async (req, res) => {
     const connection = await dbPool.getConnection();
