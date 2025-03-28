@@ -59,7 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // Tạo card element
       const cardDiv = document.createElement('div');
       cardDiv.className = 'card mb-3';
-      cardDiv.style.maxWidth = '540px'; // Giữ đồng bộ với giao diện mẫu
+      cardDiv.style.maxWidth = '540px';
+      cardDiv.style.maxHeight = '190px'; // Giữ đồng bộ với giao diện mẫu
       
       // Tạo nội dung bên trong
       cardDiv.innerHTML = `
