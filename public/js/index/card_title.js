@@ -1,20 +1,37 @@
-let cardData = []; // Khởi tạo rỗng, sẽ được cập nhật từ API
+// card_title.js
+let cardData = []; // Danh sách truyện
+let originalCardData = []; // Lưu trữ dữ liệu gốc để lọc
+let genres = []; // Danh sách thể loại
 let currentCardData = null;
 
 document.addEventListener('DOMContentLoaded', async function() {
     if (window.cardInitialized) return;
     window.cardInitialized = true;
 
-    // Lấy dữ liệu cards từ server
+    // Lấy danh sách thể loại từ API
     try {
-        const response = await fetch('http://localhost:3000/api/cards');
-        if (!response.ok) throw new Error('Lỗi khi lấy dữ liệu từ API');
-        cardData = await response.json();
-        console.log('Card data loaded:', cardData); // Kiểm tra dữ liệu từ API
-        if (cardData.length === 0) console.warn('Không có dữ liệu cards!');
+        const genreResponse = await fetch('http://localhost:3000/api/genres');
+        if (!genreResponse.ok) throw new Error('Lỗi khi lấy danh sách thể loại');
+        genres = await genreResponse.json();
+        console.log('Genres loaded:', genres);
+        populateGenreDropdown(); // Đổ danh sách thể loại vào dropdown
+    } catch (error) {
+        console.error('Lỗi khi lấy danh sách thể loại:', error);
+        genres = [];
+    }
+
+    // Lấy danh sách truyện từ API
+    try {
+        const cardResponse = await fetch('http://localhost:3000/api/cards');
+        if (!cardResponse.ok) throw new Error('Lỗi khi lấy danh sách truyện');
+        cardData = await cardResponse.json();
+        originalCardData = [...cardData]; // Lưu trữ dữ liệu gốc
+        console.log('Card data loaded:', cardData);
+        if (cardData.length === 0) console.warn('Không có dữ liệu truyện!');
     } catch (error) {
         console.error('Lỗi khi lấy cardData:', error);
-        cardData = []; // Đặt mặc định rỗng nếu lỗi
+        cardData = [];
+        originalCardData = [];
     }
 
     const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
@@ -26,18 +43,64 @@ document.addEventListener('DOMContentLoaded', async function() {
     const itemsPerPage = 24;
     const totalPages = Math.ceil(cardData.length / itemsPerPage);
 
-    if (document.querySelector('.pagination')) {
-        setupCardPagination();
-        displayCardsForPage(1);
-    } else {
-        displayAllCards();
-    }
+    setupCardPagination();
+    displayCardsForPage(1);
 
     setupCardModalBehavior();
 
     // Xử lý URL chia sẻ khi trang được tải
     handleShareLink();
 });
+
+// Hàm đổ danh sách thể loại vào dropdown
+function populateGenreDropdown() {
+    const genreDropdownMenu = document.getElementById('genreDropdownMenu');
+    if (!genreDropdownMenu) {
+        console.error('Không tìm thấy dropdown menu thể loại!');
+        return;
+    }
+
+    // Thêm tùy chọn "Thể loại" để hiển thị toàn bộ truyện
+    const defaultItem = document.createElement('li');
+    defaultItem.innerHTML = '<a class="dropdown-item" href="#" data-genre-id="all">Tất cả</a>';
+    genreDropdownMenu.appendChild(defaultItem);
+
+    // Thêm các thể loại từ API
+    genres.forEach(genre => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a class="dropdown-item" href="#" data-genre-id="${genre.genre_id}">${genre.genre_name}</a>`;
+        genreDropdownMenu.appendChild(li);
+    });
+
+    // Thêm sự kiện cho các mục trong dropdown
+    genreDropdownMenu.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = e.target;
+        if (target.classList.contains('dropdown-item')) {
+            const genreId = target.getAttribute('data-genre-id');
+            filterCardsByGenre(genreId);
+        }
+    });
+}
+
+// Hàm lọc truyện theo thể loại
+function filterCardsByGenre(genreId) {
+    if (genreId === 'all') {
+        cardData = [...originalCardData]; // Hiển thị tất cả truyện
+    } else {
+        cardData = originalCardData.filter(card => {
+            const genreNames = card.genre_names ? card.genre_names.split(',') : [];
+            const genre = genres.find(g => g.genre_id == genreId);
+            return genre && genreNames.includes(genre.genre_name);
+        });
+    }
+
+    // Cập nhật giao diện
+    const itemsPerPage = 24;
+    const totalPages = Math.ceil(cardData.length / itemsPerPage);
+    setupCardPagination();
+    displayCardsForPage(1);
+}
 
 // Hàm hiển thị card cho trang cụ thể
 function displayCardsForPage(pageNumber) {
@@ -63,7 +126,7 @@ function displayCardsForPage(pageNumber) {
 
         const img = document.createElement('img');
         img.className = 'card-img-top';
-        img.src = data.image || 'https://via.placeholder.com/150?text=No+Image'; // Hình ảnh mặc định nếu không có
+        img.src = data.image || 'https://via.placeholder.com/150?text=No+Image';
         img.alt = data.title;
 
         const cardBody = document.createElement('div');
@@ -84,7 +147,7 @@ function displayCardsForPage(pageNumber) {
         cardDiv.appendChild(cardBody);
 
         cardDiv.style.cursor = 'pointer';
-        cardDiv.setAttribute('data-comic-id', data.id); // Thêm data-comic-id để truyền ID truyện
+        cardDiv.setAttribute('data-comic-id', data.id);
         cardDiv.addEventListener('click', function() {
             openCardModal(data);
         });
@@ -148,7 +211,6 @@ function displayAllCards() {
 function openCardModal(data) {
     currentCardData = data;
 
-    // Cập nhật URL với comicId
     const newUrl = `${window.location.origin}/?comicId=${data.id}`;
     window.history.pushState({ comicId: data.id }, '', newUrl);
 
@@ -178,12 +240,14 @@ function openCardModal(data) {
 
     const cardGenre = modalBody.querySelector('#comicGenre');
     if (cardGenre) {
-        cardGenre.textContent = `Thể loại: ${data.genre_name || 'Truyện tranh'}`;
+        const genreNames = data.genre_names && data.genre_names.trim() !== '' ? data.genre_names : 'Chưa có thể loại';
+        cardGenre.textContent = `Thể loại: ${genreNames}`;
+    } else {
+        console.error('Không tìm thấy phần tử #comicGenre trong modal!');
     }
 
     const cardHashtags = modalBody.querySelector('#comicHashtagsContent');
     if (cardHashtags) {
-        console.log('Hashtags value:', data.hashtags);
         cardHashtags.textContent = data.hashtags || 'Chưa có hashtag';
     }
 
@@ -213,71 +277,84 @@ function openCardModal(data) {
 
 // Hàm thiết lập phân trang
 function setupCardPagination() {
-    const paginationContainer = document.querySelector('.pagination');
+    const paginationContainer = document.getElementById('paginationContainer');
     if (!paginationContainer) {
-        console.error('Không tìm thấy phần tử pagination!');
+        console.error('Không tìm thấy phần tử paginationContainer!');
         return;
     }
 
-    if (paginationContainer.hasCardPaginationSetup) return;
-    paginationContainer.hasCardPaginationSetup = true;
+    // Xóa phân trang cũ
+    paginationContainer.innerHTML = '';
+    const totalPages = Math.ceil(cardData.length / 24);
 
-    const paginationItems = paginationContainer.querySelectorAll('.page-item');
+    const ul = document.createElement('ul');
+    ul.className = 'pagination';
+
+    // Nút Previous
+    const prevLi = document.createElement('li');
+    prevLi.className = 'page-item';
+    prevLi.innerHTML = '<a class="page-link" href="#">Previous</a>';
+    ul.appendChild(prevLi);
+
+    // Các trang số
+    for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === 1 ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        ul.appendChild(li);
+    }
+
+    // Nút Next
+    const nextLi = document.createElement('li');
+    nextLi.className = 'page-item';
+    nextLi.innerHTML = '<a class="page-link" href="#">Next</a>';
+    ul.appendChild(nextLi);
+
+    paginationContainer.appendChild(ul);
+
+    // Thêm sự kiện cho các nút phân trang
+    const pageLinks = Array.from(paginationContainer.querySelectorAll('.page-item:not(:first-child):not(:last-child)'));
     const prevButton = paginationContainer.querySelector('.page-item:first-child');
     const nextButton = paginationContainer.querySelector('.page-item:last-child');
-    const pageLinks = Array.from(paginationContainer.querySelectorAll('.page-item:not(:first-child):not(:last-child)'));
-    const totalPages = Math.ceil(cardData.length / 24);
 
     pageLinks.forEach((item, index) => {
         const pageLink = item.querySelector('.page-link');
-        if (pageLink && !pageLink.hasCardClickEvent) {
-            pageLink.hasCardClickEvent = true;
-            pageLink.addEventListener('click', function(event) {
-                event.preventDefault();
-                pageLinks.forEach(pageItem => pageItem.classList.remove('active'));
-                item.classList.add('active');
-                displayCardsForPage(index + 1);
+        pageLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            pageLinks.forEach(pageItem => pageItem.classList.remove('active'));
+            item.classList.add('active');
+            displayCardsForPage(index + 1);
+            updateCardPrevNextState();
+        });
+    });
+
+    prevButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        if (!this.classList.contains('disabled')) {
+            const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
+            if (activeIndex > 0) {
+                pageLinks[activeIndex].classList.remove('active');
+                pageLinks[activeIndex - 1].classList.add('active');
+                displayCardsForPage(activeIndex);
                 updateCardPrevNextState();
-            });
+            }
         }
     });
 
-    if (prevButton && !prevButton.hasCardClickEvent) {
-        prevButton.hasCardClickEvent = true;
-        prevButton.addEventListener('click', function(event) {
-            event.preventDefault();
-            if (!this.classList.contains('disabled')) {
-                const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
-                if (activeIndex > 0) {
-                    pageLinks[activeIndex].classList.remove('active');
-                    pageLinks[activeIndex - 1].classList.add('active');
-                    displayCardsForPage(activeIndex);
-                    updateCardPrevNextState();
-                }
+    nextButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        if (!this.classList.contains('disabled')) {
+            const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
+            if (activeIndex < pageLinks.length - 1) {
+                pageLinks[activeIndex].classList.remove('active');
+                pageLinks[activeIndex + 1].classList.add('active');
+                displayCardsForPage(activeIndex + 2);
+                updateCardPrevNextState();
             }
-        });
-    }
+        }
+    });
 
-    if (nextButton && !nextButton.hasCardClickEvent) {
-        nextButton.hasCardClickEvent = true;
-        nextButton.addEventListener('click', function(event) {
-            event.preventDefault();
-            if (!this.classList.contains('disabled')) {
-                const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
-                if (activeIndex < pageLinks.length - 1) {
-                    pageLinks[activeIndex].classList.remove('active');
-                    pageLinks[activeIndex + 1].classList.add('active');
-                    displayCardsForPage(activeIndex + 2);
-                    updateCardPrevNextState();
-                }
-            }
-        });
-    }
-
-    if (pageLinks.length > 0) {
-        pageLinks[0].classList.add('active');
-        updateCardPrevNextState();
-    }
+    updateCardPrevNextState();
 
     function updateCardPrevNextState() {
         const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
@@ -304,7 +381,6 @@ function setupCardModalBehavior() {
     if (cardModal && !cardModal.hasCardCloseListener) {
         cardModal.hasCardCloseListener = true;
         cardModal.addEventListener('hidden.bs.modal', function() {
-            // Khi modal đóng, quay về URL gốc
             const homeUrl = `${window.location.origin}/`;
             window.history.pushState({}, '', homeUrl);
 
@@ -328,12 +404,11 @@ function handleShareLink() {
         if (comic) {
             openCardModal(comic);
 
-            // Nếu có chapterId, mở modal đọc truyện
             if (chapterId && window.chapterData && chapterData[comicId]) {
                 const chapter = chapterData[comicId].find(ch => ch.chapterNumber == chapterId);
                 if (chapter) {
-                    currentCardData = comic; // Đảm bảo currentCardData được thiết lập
-                    openReadModal(chapter); // Gọi hàm từ chapter.js
+                    currentCardData = comic;
+                    openReadModal(chapter);
                 } else {
                     console.error('Không tìm thấy chương với chapterId:', chapterId);
                     alert('Không tìm thấy chương với ID này!');
@@ -341,7 +416,6 @@ function handleShareLink() {
             }
         } else {
             console.error('Không tìm thấy truyện với ID:', comicId);
-            // Chuyển hướng đến trang 404
             window.location.href = '/404';
         }
     }

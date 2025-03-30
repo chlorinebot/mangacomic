@@ -1,94 +1,118 @@
-const { getAllCards, saveCards, deleteCard } = require('../service/cardService');
+// cardController.js
+const { dbPool } = require('../data/dbConfig');
 
-// Lấy danh sách tất cả truyện
-const getCards = async (req, res) => {
+// Lấy danh sách truyện
+exports.getCards = async (req, res) => {
+    const connection = await dbPool.getConnection();
     try {
-        const cards = await getAllCards();
-        res.status(200).json(cards);
+        // Lấy danh sách cards và các thể loại liên quan
+        const [cards] = await connection.query(`
+            SELECT c.*, GROUP_CONCAT(g.genre_name) as genre_names
+            FROM cards c
+            LEFT JOIN card_genres cg ON c.id = cg.card_id
+            LEFT JOIN genres g ON cg.genre_id = g.genre_id
+            GROUP BY c.id
+        `);
+        res.json(cards);
     } catch (err) {
-        console.error('Lỗi khi lấy cards:', err.stack);
-        res.status(500).json({ error: 'Lỗi server khi lấy danh sách truyện', details: err.message });
+        console.error('Lỗi khi lấy danh sách cards:', err);
+        res.status(500).json({ error: 'Lỗi khi lấy danh sách cards' });
+    } finally {
+        connection.release();
     }
 };
 
 // Thêm truyện mới
-const saveCardData = async (req, res) => {
+exports.saveCardData = async (req, res) => {
+    const { title, image, content, link, hashtags, genres } = req.body; // genres là mảng các genre_id
+    const connection = await dbPool.getConnection();
     try {
-        // Kiểm tra dữ liệu đầu vào
-        const cards = req.body;
-        if (!Array.isArray(cards) || cards.length === 0) {
-            return res.status(400).json({ error: 'Dữ liệu đầu vào phải là một mảng không rỗng!' });
+        await connection.beginTransaction();
+
+        // Thêm truyện mới vào bảng cards
+        const [result] = await connection.query(
+            'INSERT INTO cards (title, image, content, link, hashtags) VALUES (?, ?, ?, ?, ?)',
+            [title, image, content, link, hashtags]
+        );
+        const cardId = result.insertId;
+
+        // Thêm các thể loại vào bảng card_genres
+        if (genres && Array.isArray(genres) && genres.length > 0) {
+            const genreValues = genres.map(genreId => [cardId, genreId]);
+            await connection.query(
+                'INSERT INTO card_genres (card_id, genre_id) VALUES ?',
+                [genreValues]
+            );
         }
 
-        // Kiểm tra các trường bắt buộc
-        for (const card of cards) {
-            if (!card.title) {
-                return res.status(400).json({ error: 'Tiêu đề truyện là bắt buộc!' });
-            }
-        }
-
-        const result = await saveCards(cards);
-        res.status(201).json({ message: 'Thêm truyện thành công!', affectedRows: result.affectedRows });
+        await connection.commit();
+        res.status(201).json({ id: cardId, title, image, content, link, hashtags, genres });
     } catch (err) {
-        console.error('Lỗi khi lưu cards:', err.stack);
-        res.status(500).json({ error: 'Lỗi server khi thêm truyện', details: err.message });
+        await connection.rollback();
+        console.error('Lỗi khi lưu card:', err);
+        res.status(500).json({ error: 'Lỗi khi lưu card' });
+    } finally {
+        connection.release();
     }
 };
 
 // Xóa truyện
-const deleteCardData = async (req, res) => {
+exports.deleteCardData = async (req, res) => {
+    const { id } = req.params;
+    const connection = await dbPool.getConnection();
     try {
-        const { id } = req.params;
-        if (!id || isNaN(id)) {
-            return res.status(400).json({ error: 'ID truyện không hợp lệ!' });
-        }
-
-        const result = await deleteCard(id);
+        await connection.beginTransaction();
+        const [result] = await connection.query('DELETE FROM cards WHERE id = ?', [id]);
         if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Không tìm thấy truyện để xóa!' });
+            return res.status(404).json({ error: 'Truyện không tồn tại' });
         }
-
-        res.status(200).json({ message: 'Xóa truyện thành công!', affectedRows: result.affectedRows });
+        await connection.commit();
+        res.json({ message: 'Xóa truyện thành công' });
     } catch (err) {
-        console.error('Lỗi khi xóa card:', err.stack);
-        res.status(500).json({ error: 'Lỗi server khi xóa truyện', details: err.message });
+        await connection.rollback();
+        console.error('Lỗi khi xóa truyện:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa truyện' });
+    } finally {
+        connection.release();
     }
 };
 
 // Cập nhật truyện
-const updateCard = async (req, res) => {
+exports.updateCard = async (req, res) => {
+    const { id } = req.params;
+    const { title, image, content, link, hashtags, genres } = req.body;
+    const connection = await dbPool.getConnection();
     try {
-        const { id } = req.params; // Lấy ID từ params thay vì body
-        const { title, image, content, link } = req.body;
+        await connection.beginTransaction();
 
-        // Kiểm tra dữ liệu đầu vào
-        if (!id || isNaN(id)) {
-            return res.status(400).json({ error: 'ID truyện không hợp lệ!' });
-        }
-        if (!title) {
-            return res.status(400).json({ error: 'Tiêu đề truyện là bắt buộc!' });
-        }
-
-        // Chuẩn bị dữ liệu để cập nhật
-        const cardData = {
-            id: parseInt(id),
-            title,
-            image: image || null, // Nếu image không có, gửi null
-            content: content || null,
-            link: link || null
-        };
-
-        // Sử dụng saveCards với ON DUPLICATE KEY UPDATE
-        const result = await saveCards([cardData]);
+        // Cập nhật thông tin truyện
+        const [result] = await connection.query(
+            'UPDATE cards SET title = ?, image = ?, content = ?, link = ?, hashtags = ? WHERE id = ?',
+            [title, image, content, link, hashtags, id]
+        );
         if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Không tìm thấy truyện để cập nhật!' });
+            return res.status(404).json({ error: 'Truyện không tồn tại' });
         }
 
-        res.status(200).json({ message: 'Cập nhật truyện thành công!', affectedRows: result.affectedRows });
+        // Xóa các thể loại cũ
+        await connection.query('DELETE FROM card_genres WHERE card_id = ?', [id]);
+
+        // Thêm các thể loại mới
+        if (genres && Array.isArray(genres) && genres.length > 0) {
+            const genreValues = genres.map(genreId => [id, genreId]);
+            await connection.query(
+                'INSERT INTO card_genres (card_id, genre_id) VALUES ?',
+                [genreValues]
+            );
+        }
+
+        await connection.commit();
+        res.json({ id, title, image, content, link, hashtags, genres });
     } catch (err) {
-        console.error('Lỗi khi cập nhật card:', err.stack);
-        res.status(500).json({ error: 'Lỗi server khi cập nhật truyện', details: err.message });
+        await connection.rollback();
+        console.error('Lỗi khi cập nhật card:', err);
+        res.status(500).json({ error: 'Lỗi khi cập nhật card' });
+    } finally {
+        connection.release();
     }
 };
-
-module.exports = { getCards, saveCardData, deleteCardData, updateCard };

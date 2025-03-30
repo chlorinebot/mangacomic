@@ -119,17 +119,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const image = document.getElementById('comicImage').value.trim() || null;
         const content = document.getElementById('comicContent').value.trim() || null;
         const link = document.getElementById('comicLink').value.trim() || null;
-        const TheLoai = document.getElementById('comicGenre').value || null; // Lấy giá trị thể loại
+        const genres = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(checkbox => checkbox.value);
 
         // Validation
         if (!title) {
             alert('Vui lòng nhập tiêu đề truyện!');
             return;
         }
+        if (genres.length === 0) {
+            alert('Vui lòng chọn ít nhất một thể loại!');
+            return;
+        }
 
         const method = id ? 'PUT' : 'POST';
         const url = id ? `/api/cards/${id}` : '/api/cards';
-        const body = id ? { id, title, image, content, link, TheLoai } : [{ title, image, content, link, TheLoai }];
+        const body = { title, image, content, link, genres };
 
         try {
             const token = localStorage.getItem('token');

@@ -3,6 +3,7 @@ let originalComics = [];
 const ITEMS_PER_PAGE = 5; // Số lượng truyện mỗi trang
 let currentPage = 1; // Trang hiện tại
 
+// Hàm lấy danh sách truyện từ API
 export async function fetchComics() {
     try {
         const token = localStorage.getItem('token');
@@ -25,6 +26,7 @@ export async function fetchComics() {
     }
 }
 
+// Hàm hiển thị danh sách truyện
 export function renderComics(comics) {
     const tableBody = document.getElementById('comicTableBody');
     const paginationContainer = document.getElementById('comicPagination');
@@ -48,6 +50,8 @@ export function renderComics(comics) {
             console.error(`ID truyện không hợp lệ: ${comic.id}`);
             return;
         }
+        const genreNames = comic.genre_names ? comic.genre_names.split(',') : [];
+        const genreDisplay = genreNames.length > 0 ? genreNames.join(', ') : 'N/A';
         const row = `
             <tr data-id="${comicId}">
                 <td>${comicId}</td>
@@ -57,7 +61,7 @@ export function renderComics(comics) {
                 </td>
                 <td>${comic.content || 'N/A'}</td>
                 <td><a href="${comic.link || '#'}" target="_blank">${comic.link || 'N/A'}</a></td>
-                <td>${comic.genre_name || 'N/A'}</td> <!-- Hiển thị tên thể loại -->
+                <td>${genreDisplay}</td> <!-- Hiển thị danh sách thể loại -->
                 <td>
                     <button class="btn btn-danger btn-sm delete-comic-btn" data-id="${comicId}"><i class="bi bi-trash"></i> Xóa</button>
                     <button class="btn btn-info btn-sm show-chapters-btn" data-id="${comicId}"><i class="bi bi-book"></i> Chương</button>
@@ -75,6 +79,7 @@ export function renderComics(comics) {
     });
 }
 
+// Hàm render phân trang
 function renderPagination(container, totalPages, currentPage, onPageChange) {
     container.innerHTML = '';
     if (totalPages <= 1) return; // Không cần phân trang nếu chỉ có 1 trang
@@ -121,6 +126,7 @@ function renderPagination(container, totalPages, currentPage, onPageChange) {
     container.appendChild(ul);
 }
 
+// Hàm xóa truyện
 export async function deleteComic(button) {
     console.log('deleteComic được gọi');
     if (confirm('Bạn có chắc chắn muốn xóa truyện này?')) {
@@ -155,6 +161,7 @@ export async function deleteComic(button) {
     }
 }
 
+// Hàm chỉnh sửa truyện
 export async function editComic(id) {
     try {
         const token = localStorage.getItem('token');
@@ -176,7 +183,31 @@ export async function editComic(id) {
             document.getElementById('comicImage').value = comic.image || '';
             document.getElementById('comicContent').value = comic.content || '';
             document.getElementById('comicLink').value = comic.link || '';
-            document.getElementById('comicGenre').value = comic.TheLoai || ''; // Điền giá trị thể loại
+
+            // Lấy danh sách thể loại của truyện
+            const genreNames = comic.genre_names ? comic.genre_names.split(',') : [];
+            const genreResponse = await fetch('/api/genres', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const genres = await genreResponse.json();
+            const genreContainer = document.getElementById('genreCheckboxes');
+            genreContainer.innerHTML = '';
+            genres.forEach(genre => {
+                const div = document.createElement('div');
+                div.className = 'form-check';
+                const isChecked = genreNames.includes(genre.genre_name);
+                div.innerHTML = `
+                    <input class="form-check-input genre-checkbox" type="checkbox" value="${genre.genre_id}" id="genre_${genre.genre_id}" ${isChecked ? 'checked' : ''}>
+                    <label class="form-check-label" for="genre_${genre.genre_id}">
+                        ${genre.genre_name}
+                    </label>
+                `;
+                genreContainer.appendChild(div);
+            });
+
             document.getElementById('addComicModalLabel').textContent = 'Chỉnh Sửa Truyện';
             document.getElementById('comicSubmitButton').textContent = 'Cập Nhật';
             new bootstrap.Modal(document.getElementById('addComicModal')).show();
@@ -187,6 +218,7 @@ export async function editComic(id) {
     }
 }
 
+// Hàm tìm kiếm truyện
 export function searchComics() {
     const searchTerm = document.getElementById('comicSearch').value.trim().toLowerCase();
     let filteredComics = [];

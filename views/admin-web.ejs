@@ -217,13 +217,12 @@
                                 <label for="comicLink" class="form-label">Link</label>
                                 <input type="url" class="form-control" id="comicLink">
                             </div>
-                            <!-- Thêm dropdown chọn thể loại -->
+                            <!-- Checkbox chọn nhiều thể loại -->
                             <div class="mb-3">
-                                <label for="comicGenre" class="form-label">Thể Loại</label>
-                                <select class="form-control" id="comicGenre" name="TheLoai">
-                                    <option value="">Chọn thể loại</option>
-                                    <!-- Danh sách thể loại sẽ được tải động -->
-                                </select>
+                                <label class="form-label">Thể Loại</label>
+                                <div id="genreCheckboxes" class="form-check">
+                                    <!-- Danh sách checkbox sẽ được tải động -->
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-primary" id="comicSubmitButton">Thêm</button>
                         </form>
@@ -407,6 +406,40 @@
                     alert('Lỗi khi tải danh sách thể loại: ' + error.message);
                 }
             });
+            </script>
+            <script>
+                // Tải danh sách thể loại vào checkbox khi modal được mở
+                document.getElementById('addComicModal').addEventListener('show.bs.modal', async () => {
+                    try {
+                        const token = localStorage.getItem('token');
+                        const response = await fetch('/api/genres', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        if (!response.ok) {
+                            throw new Error('Lỗi khi lấy danh sách thể loại');
+                        }
+                        const genres = await response.json();
+                        const genreContainer = document.getElementById('genreCheckboxes');
+                        genreContainer.innerHTML = ''; // Reset danh sách checkbox
+                        genres.forEach(genre => {
+                            const div = document.createElement('div');
+                            div.className = 'form-check';
+                            div.innerHTML = `
+                                <input class="form-check-input genre-checkbox" type="checkbox" value="${genre.genre_id}" id="genre_${genre.genre_id}">
+                                <label class="form-check-label" for="genre_${genre.genre_id}">
+                                    ${genre.genre_name}
+                                </label>
+                            `;
+                            genreContainer.appendChild(div);
+                        });
+                    } catch (error) {
+                        console.error('Lỗi khi tải danh sách thể loại:', error);
+                        alert('Lỗi khi tải danh sách thể loại: ' + error.message);
+                    }
+                });
             </script>
     </body>
 </html>
