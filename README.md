@@ -1,1 +1,1 @@
-# hentaicomic
+# mangacomic
