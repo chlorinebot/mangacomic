@@ -1,4 +1,4 @@
-const { getAllChapters, saveChapters, deleteChapter } = require('../models/chapterModel');
+const { getAllChapters, saveChapters, deleteChapter } = require('../service/chapterService');
 
 const getChapters = async (req, res) => {
     try {

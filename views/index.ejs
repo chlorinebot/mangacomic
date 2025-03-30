@@ -590,6 +590,10 @@ Lưu ý cuối cùng:<br>
                                             <p class="card-text" id="comicGenre">Thể loại.</p>
                                             <p class="card-text" id="comicHashtags">Hashtags: <span id="comicHashtagsContent">Chưa có hashtag</span></p>
                                             <p class="card-text"><small class="text-body-secondary" id="comicContent">Nội dung truyện</small></p>
+                                            <!-- Nút Chia sẻ -->
+                                            <button type="button" class="btn btn-outline-primary mt-2" id="shareComicBtn">
+                                                <i class="bi bi-share"></i> Chia sẻ
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -598,6 +602,11 @@ Lưu ý cuối cùng:<br>
                         <!-- Bên phải: Thanh tìm kiếm và danh sách chương -->
                         <div class="col-md-8">
                             <h5>Danh sách chương</h5>
+                            <!-- Thêm hai nút Đọc từ đầu và Đọc chương mới nhất -->
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-primary me-2" id="readFromStartBtn">Đọc từ đầu</button>
+                                <button type="button" class="btn btn-primary" id="readLatestChapterBtn">Đọc chương mới nhất</button>
+                            </div>
                             <form class="d-flex mb-3" role="search" id="chapterSearchForm">
                                 <input class="form-control me-2" type="search" placeholder="Tìm chương truyện của bạn" aria-label="Search" id="chapterSearchInput">
                                 <button class="btn btn-outline-success" type="submit" style="width: 70px;">
@@ -611,7 +620,7 @@ Lưu ý cuối cùng:<br>
                             </div>
                         </div>
                     </div>
-    
+        
                     <!-- Modal đọc truyện -->
                     <div class="modal fade" id="doctruyen" tabindex="-1" aria-labelledby="doctruyenModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-fullscreen">

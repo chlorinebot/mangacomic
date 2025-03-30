@@ -1,4 +1,4 @@
-const { getAllCards, saveCards, deleteCard } = require('../models/cardModel');
+const { getAllCards, saveCards, deleteCard } = require('../service/cardService');
 
 // Lấy danh sách tất cả truyện
 const getCards = async (req, res) => {

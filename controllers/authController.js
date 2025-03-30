@@ -1,6 +1,6 @@
 // controllers/authController.js
 const jwt = require('jsonwebtoken');
-const { registerUser, loginUser } = require('../models/userModel');
+const { registerUser, loginUser } = require('../service/userService');
 
 // Lấy JWT_SECRET từ biến môi trường, nếu không có thì dùng giá trị mặc định
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';

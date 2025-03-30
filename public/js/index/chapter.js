@@ -29,6 +29,32 @@ document.addEventListener('DOMContentLoaded', async function() {
                 currentCardId = comicId;
                 originalChapters = chapterData[currentCardId] || [];
                 displayChapters(originalChapters);
+
+                // Thêm sự kiện cho nút "Đọc từ đầu"
+                const readFromStartBtn = document.getElementById('readFromStartBtn');
+                if (readFromStartBtn) {
+                    readFromStartBtn.addEventListener('click', function() {
+                        if (originalChapters.length > 0) {
+                            const firstChapter = originalChapters[0]; // Chương đầu tiên
+                            openReadModal(firstChapter);
+                        } else {
+                            alert('Không có chương nào để đọc!');
+                        }
+                    });
+                }
+
+                // Thêm sự kiện cho nút "Đọc chương mới nhất"
+                const readLatestChapterBtn = document.getElementById('readLatestChapterBtn');
+                if (readLatestChapterBtn) {
+                    readLatestChapterBtn.addEventListener('click', function() {
+                        if (originalChapters.length > 0) {
+                            const latestChapter = originalChapters[originalChapters.length - 1]; // Chương cuối cùng
+                            openReadModal(latestChapter);
+                        } else {
+                            alert('Không có chương nào để đọc!');
+                        }
+                    });
+                }
             }
         });
         cardModal.addEventListener('hidden.bs.modal', function() {
@@ -66,6 +92,10 @@ function setupChapterModalBehavior() {
             if (currentCardData) {
                 const cardBsModal = new bootstrap.Modal(cardModal);
                 cardBsModal.show();
+
+                // Cập nhật URL quay lại chỉ chứa comicId
+                const comicUrl = `${window.location.origin}/?comicId=${currentCardData.id}`;
+                window.history.pushState({ comicId: currentCardData.id }, '', comicUrl);
             }
             resetModalState();
         });
@@ -170,6 +200,10 @@ function openReadModal(chapter) {
         console.error('Không tìm thấy modal #doctruyen trong DOM!');
         return;
     }
+
+    // Cập nhật URL với comicId và chapterId
+    const newUrl = `${window.location.origin}/?comicId=${currentCardId}&chapterId=${chapter.chapterNumber}`;
+    window.history.pushState({ comicId: currentCardId, chapterId: chapter.chapterNumber }, '', newUrl);
 
     console.log("Modal #doctruyen tồn tại trong DOM");
 

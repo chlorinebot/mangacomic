@@ -34,6 +34,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     setupCardModalBehavior();
+
+    // Xử lý URL chia sẻ khi trang được tải
+    handleShareLink();
 });
 
 // Hàm hiển thị card cho trang cụ thể
@@ -145,7 +148,10 @@ function displayAllCards() {
 function openCardModal(data) {
     currentCardData = data;
 
-    // Debug: Kiểm tra dữ liệu data
+    // Cập nhật URL với comicId
+    const newUrl = `${window.location.origin}/?comicId=${data.id}`;
+    window.history.pushState({ comicId: data.id }, '', newUrl);
+
     console.log('Data passed to modal:', data);
 
     const modal = document.getElementById('card');
@@ -167,18 +173,17 @@ function openCardModal(data) {
 
     const cardAuthor = modalBody.querySelector('#comicAuthor');
     if (cardAuthor) {
-        cardAuthor.textContent = `Tác giả: ${data.author || data.content || 'Isayama Hajime'}`; // Sử dụng data.content nếu không có data.author
+        cardAuthor.textContent = `Tác giả: ${data.author || data.content || 'Isayama Hajime'}`;
     }
 
     const cardGenre = modalBody.querySelector('#comicGenre');
     if (cardGenre) {
-        cardGenre.textContent = `Thể loại: ${data.genre_name || 'Truyện tranh'}`; // Sử dụng genre_name thay vì TheLoai
+        cardGenre.textContent = `Thể loại: ${data.genre_name || 'Truyện tranh'}`;
     }
 
-    // Hiển thị hashtag trong modal
     const cardHashtags = modalBody.querySelector('#comicHashtagsContent');
     if (cardHashtags) {
-        console.log('Hashtags value:', data.hashtags); // Debug giá trị hashtags
+        console.log('Hashtags value:', data.hashtags);
         cardHashtags.textContent = data.hashtags || 'Chưa có hashtag';
     }
 
@@ -187,8 +192,20 @@ function openCardModal(data) {
         cardContent.textContent = `Nội dung truyện: ${data.content || 'Chưa có nội dung.'}`;
     }
 
-    // Gắn data-comic-id vào modal để sử dụng trong chapter.js
     modal.setAttribute('data-comic-id', data.id);
+
+    const shareButton = modalBody.querySelector('#shareComicBtn');
+    if (shareButton) {
+        shareButton.onclick = function() {
+            const shareUrl = `${window.location.origin}/?comicId=${data.id}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert('Link chia sẻ đã được sao chép: ' + shareUrl);
+            }).catch(err => {
+                console.error('Lỗi khi sao chép link:', err);
+                alert('Không thể sao chép link. Vui lòng thử lại!');
+            });
+        };
+    }
 
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
@@ -287,11 +304,45 @@ function setupCardModalBehavior() {
     if (cardModal && !cardModal.hasCardCloseListener) {
         cardModal.hasCardCloseListener = true;
         cardModal.addEventListener('hidden.bs.modal', function() {
+            // Khi modal đóng, quay về URL gốc
+            const homeUrl = `${window.location.origin}/`;
+            window.history.pushState({}, '', homeUrl);
+
             document.body.classList.remove('modal-open');
             const modalBackdrops = document.querySelectorAll('.modal-backdrop');
             modalBackdrops.forEach(backdrop => backdrop.remove());
             document.body.style.overflow = '';
             document.body.style.paddingRight = '';
         });
+    }
+}
+
+// Hàm xử lý URL chia sẻ
+function handleShareLink() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const comicId = urlParams.get('comicId');
+    const chapterId = urlParams.get('chapterId');
+
+    if (comicId) {
+        const comic = cardData.find(data => data.id == comicId);
+        if (comic) {
+            openCardModal(comic);
+
+            // Nếu có chapterId, mở modal đọc truyện
+            if (chapterId && window.chapterData && chapterData[comicId]) {
+                const chapter = chapterData[comicId].find(ch => ch.chapterNumber == chapterId);
+                if (chapter) {
+                    currentCardData = comic; // Đảm bảo currentCardData được thiết lập
+                    openReadModal(chapter); // Gọi hàm từ chapter.js
+                } else {
+                    console.error('Không tìm thấy chương với chapterId:', chapterId);
+                    alert('Không tìm thấy chương với ID này!');
+                }
+            }
+        } else {
+            console.error('Không tìm thấy truyện với ID:', comicId);
+            // Chuyển hướng đến trang 404
+            window.location.href = '/404';
+        }
     }
 }

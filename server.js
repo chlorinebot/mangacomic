@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const { dbPool, checkDbConnection, initializeDb } = require('./data/dbConfig');
 const { getCards, saveCardData, deleteCardData, updateCard } = require('./controllers/cardController');
@@ -16,6 +15,7 @@ app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
+// Middleware xử lý lỗi chung
 app.use((err, req, res, next) => {
     console.error('Lỗi không xử lý được:', err.stack);
     res.status(500).json({ error: 'Lỗi server nội bộ', details: err.message });
@@ -124,10 +124,16 @@ app.get('/admin-web', checkDbConnection, checkAdminAuth, (req, res) => {
     res.render('admin-web', { user: req.user });
 });
 
+// Route cho trang lỗi
 app.get('/401', (req, res) => {
     res.render('401', { error: 'Direct access to 401 page' });
 });
 
+app.get('/404', (req, res) => {
+    res.status(404).render('404'); // Render trang 404.ejs
+});
+
+// Route trang chủ
 app.get('/', checkDbConnection, async (req, res) => {
     const connection = await dbPool.getConnection();
     try {
@@ -141,11 +147,18 @@ app.get('/', checkDbConnection, async (req, res) => {
     }
 });
 
+// Xử lý 404 cho các route không xác định
+app.use((req, res, next) => {
+    res.status(404).render('404'); // Render 404 cho mọi route không khớp
+});
+
+// Khởi động server
 app.listen(port, async () => {
     await initializeDb();
     console.log(`Server chạy tại http://localhost:${port}`);
 });
 
+// Đóng pool kết nối khi server tắt
 process.on('SIGTERM', async () => {
     await dbPool.end();
     console.log('Đã đóng pool kết nối MySQL');

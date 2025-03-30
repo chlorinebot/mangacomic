@@ -1,5 +1,5 @@
 // controllers/userController.js
-const { getAllUsers, deleteUser, updateUser } = require('../models/userModel');
+const { getAllUsers, deleteUser, updateUser } = require('../service/userService');
 
 const getUsers = async (req, res) => {
     try {
