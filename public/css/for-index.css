@@ -194,22 +194,24 @@ justify-content: space-between;
 
 /* Giới hạn chiều cao của tiêu đề và nội dung */
 .card-title {
-font-size: 1.1rem;
-margin-bottom: 0.5rem;
-overflow: hidden;
-text-overflow: ellipsis;
-display: -webkit-box;
--webkit-line-clamp: 2; /* Giới hạn tiêu đề tối đa 2 dòng */
--webkit-box-orient: vertical;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Giới hạn tiêu đề tối đa 2 dòng */
+    -webkit-box-orient: vertical;
+    line-clamp: 2; /* Standard property for compatibility */
 }
 
 .card-text {
-font-size: 0.9rem;
-overflow: hidden;
-text-overflow: ellipsis;
-display: -webkit-box;
--webkit-line-clamp: 3; /* Giới hạn nội dung tối đa 3 dòng */
--webkit-box-orient: vertical;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Giới hạn nội dung tối đa 3 dòng */
+    -webkit-box-orient: vertical;
+    line-clamp: 3; /* Standard property for compatibility */
 }
 /* CSS cho danh sách chương trong modal */
 .chapter-scroll-container {
