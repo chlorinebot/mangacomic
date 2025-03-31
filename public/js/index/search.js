@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="card-body">
               <h5 class="card-title">${item.title}</h5>
               <p class="card-text">${item.content}</p>
-              <a href="${item.link}" class="btn btn-primary btn-sm">Xem chi tiết</a>
+              <a href="${item.link}" class="btn btn-primary btn-sm">Xem thông tin truyện</a>
             </div>
           </div>
         </div>

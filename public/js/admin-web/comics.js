@@ -1,4 +1,3 @@
-// comics.js
 let originalComics = [];
 const ITEMS_PER_PAGE = 5; // Số lượng truyện mỗi trang
 let currentPage = 1; // Trang hiện tại
@@ -18,11 +17,34 @@ export async function fetchComics() {
         }
         const comics = await response.json();
         originalComics = comics; // Lưu trữ dữ liệu gốc
+        window.originalComics = comics; // Lưu vào window scope
         currentPage = 1; // Reset về trang đầu tiên
         renderComics(originalComics); // Hiển thị danh sách ban đầu
     } catch (error) {
         console.error('Lỗi trong fetchComics:', error);
         alert('Đã xảy ra lỗi khi lấy danh sách truyện: ' + error.message);
+    }
+}
+
+// Hàm lấy thông tin thể loại
+async function fetchGenres() {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/genres', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Lỗi khi lấy danh sách thể loại');
+        }
+        const genres = await response.json();
+        window.allGenres = genres;
+        return genres;
+    } catch (error) {
+        console.error('Lỗi khi lấy danh sách thể loại:', error);
+        throw error;
     }
 }
 
@@ -45,27 +67,26 @@ export function renderComics(comics) {
     // Hiển thị danh sách truyện
     tableBody.innerHTML = '';
     paginatedComics.forEach(comic => {
-        const comicId = parseInt(comic.id, 10);
-        if (isNaN(comicId)) {
-            console.error(`ID truyện không hợp lệ: ${comic.id}`);
-            return;
-        }
-        const genreNames = comic.genre_names ? comic.genre_names.split(',') : [];
-        const genreDisplay = genreNames.length > 0 ? genreNames.join(', ') : 'N/A';
         const row = `
-            <tr data-id="${comicId}">
-                <td>${comicId}</td>
+            <tr data-id="${comic.id}">
+                <td>${comic.id}</td>
                 <td>${comic.title}</td>
                 <td>
                     ${comic.image && comic.image.trim() !== '' ? `<img src="${comic.image}" alt="${comic.title}" class="comic-image">` : 'N/A'}
                 </td>
                 <td>${comic.content || 'N/A'}</td>
                 <td><a href="${comic.link || '#'}" target="_blank">${comic.link || 'N/A'}</a></td>
-                <td>${genreDisplay}</td> <!-- Hiển thị danh sách thể loại -->
+                <td>${comic.genre_names || 'N/A'}</td>
                 <td>
-                    <button class="btn btn-danger btn-sm delete-comic-btn" data-id="${comicId}"><i class="bi bi-trash"></i> Xóa</button>
-                    <button class="btn btn-info btn-sm show-chapters-btn" data-id="${comicId}"><i class="bi bi-book"></i> Chương</button>
-                    <button class="btn btn-warning btn-sm edit-comic-btn" data-id="${comicId}"><i class="bi bi-pencil"></i> Sửa</button>
+                    <button class="btn btn-danger btn-sm delete-comic-btn" data-id="${comic.id}">
+                        <i class="bi bi-trash"></i> Xóa
+                    </button>
+                    <button class="btn btn-info btn-sm show-chapters-btn" data-id="${comic.id}">
+                        <i class="bi bi-book"></i> Chương
+                    </button>
+                    <button class="btn btn-warning btn-sm edit-comic-btn" data-id="${comic.id}">
+                        <i class="bi bi-pencil"></i> Sửa
+                    </button>
                 </td>
             </tr>
         `;
@@ -128,12 +149,10 @@ function renderPagination(container, totalPages, currentPage, onPageChange) {
 
 // Hàm xóa truyện
 export async function deleteComic(button) {
-    console.log('deleteComic được gọi');
     if (confirm('Bạn có chắc chắn muốn xóa truyện này?')) {
         try {
             const row = button.closest('tr');
             const id = row.dataset.id;
-            console.log('Xóa truyện với ID:', id);
             const token = localStorage.getItem('token');
             const response = await fetch(`/api/cards/${id}`, {
                 method: 'DELETE',
@@ -142,16 +161,12 @@ export async function deleteComic(button) {
                     'Content-Type': 'application/json'
                 }
             });
-            console.log('Phản hồi từ API /api/cards:', response);
             if (response.ok) {
                 row.remove();
-                console.log('Truyện đã được xóa thành công');
-                // Cập nhật lại danh sách gốc sau khi xóa
                 originalComics = originalComics.filter(comic => comic.id != id);
                 renderComics(originalComics);
             } else {
                 const errorData = await response.json();
-                console.error('Lỗi khi xóa truyện:', errorData);
                 throw new Error(errorData.error || 'Lỗi khi xóa truyện');
             }
         } catch (error) {
@@ -162,92 +177,103 @@ export async function deleteComic(button) {
 }
 
 // Hàm chỉnh sửa truyện
-export async function editComic(comicId) {
+export async function editComic(id) {
     try {
         const token = localStorage.getItem('token');
-        if (!token) {
-            throw new Error('Không tìm thấy token trong localStorage');
-        }
+        if (!token) throw new Error('Không tìm thấy token');
 
-        // Tìm truyện trong danh sách đã có
-        const comic = originalComics.find(c => c.id == comicId);
-        if (!comic) {
-            throw new Error('Không tìm thấy truyện với ID: ' + comicId);
-        }
+        // Tìm và xử lý thông tin truyện
+        const comic = originalComics.find(c => c.id.toString() === id.toString());
+        if (!comic) throw new Error('Không tìm thấy truyện trong danh sách');
 
-        // Thiết lập chế độ chỉnh sửa và cập nhật form
-        window.isEditMode = true;
-        window.editSelectedGenres = [];
-        window.currentComicGenres = [];
-
-        // Cập nhật form với thông tin truyện
-        document.getElementById('comicId').value = comic.id;
-        document.getElementById('comicTitle').value = comic.title;
-        document.getElementById('comicContent').value = comic.content || '';
-        document.getElementById('comicLink').value = comic.link || '';
-        document.getElementById('comicImage').value = comic.image || '';
-
-        // Lấy danh sách tất cả thể loại
-        const genresResponse = await fetch('/api/genres', {
+        // Lấy thông tin thể loại
+        const genresResponse = await fetch(`/api/cards/${id}/genres`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
 
-        if (!genresResponse.ok) {
-            throw new Error('Lỗi khi lấy danh sách thể loại: ' + genresResponse.statusText);
-        }
+        if (!genresResponse.ok) throw new Error('Không thể lấy thông tin thể loại');
+        const genres = await genresResponse.json();
 
-        const allGenres = await genresResponse.json();
-        
-        // Lấy danh sách thể loại của truyện từ genre_names
-        const genreNames = comic.genre_names ? comic.genre_names.split(',').map(name => name.trim()) : [];
-        
-        // Map tên thể loại sang ID
-        window.currentComicGenres = allGenres
-            .filter(genre => genreNames.includes(genre.genre_name))
-            .map(genre => genre.genre_id.toString());
-        window.editSelectedGenres = [...window.currentComicGenres];
+        // Cập nhật biến toàn cục
+        window.isEditMode = true;
+        window.editSelectedGenres = genres.map(g => g.genre_id.toString());
+        window.currentComicGenres = genres;
 
-        console.log('Current comic genres:', window.currentComicGenres);
-        console.log('Edit selected genres:', window.editSelectedGenres);
-
-        // Cập nhật tiêu đề và nút
+        // Cập nhật form
+        document.getElementById('comicId').value = comic.id;
+        document.getElementById('comicTitle').value = comic.title || '';
+        document.getElementById('comicImage').value = comic.image || '';
+        document.getElementById('comicContent').value = comic.content || '';
+        document.getElementById('comicLink').value = comic.link || '';
         document.getElementById('addComicModalLabel').textContent = 'Chỉnh Sửa Truyện';
         document.getElementById('comicSubmitButton').textContent = 'Cập Nhật';
 
-        // Hiển thị modal
-        const modal = new bootstrap.Modal(document.getElementById('addComicModal'));
+        // Khởi tạo và hiển thị modal
+        const modalElement = document.getElementById('addComicModal');
+        
+        // Đóng modal cũ nếu đang mở
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+
+        // Xóa tất cả backdrop cũ
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+
+        // Khởi tạo modal mới
+        const modal = new bootstrap.Modal(modalElement);
+
+        // Thêm event listener cho sự kiện đóng modal
+        modalElement.addEventListener('hidden.bs.modal', () => {
+            // Xóa backdrop và reset body
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            
+            // Reset các biến và form nếu cần
+            if (!window.isEditMode) {
+                window.selectedGenres = [];
+                document.getElementById('comicId').value = '';
+                document.getElementById('comicTitle').value = '';
+                document.getElementById('comicImage').value = '';
+                document.getElementById('comicContent').value = '';
+                document.getElementById('comicLink').value = '';
+                document.getElementById('addComicModalLabel').textContent = 'Thêm Truyện Mới';
+                document.getElementById('comicSubmitButton').textContent = 'Thêm';
+            }
+            document.getElementById('genreInput').value = '';
+            document.getElementById('genreSuggestions').style.display = 'none';
+            if (typeof window.updateSelectedGenresList === 'function') {
+                window.updateSelectedGenresList();
+            }
+        }, { once: true });
+        
+        // Đăng ký sự kiện shown.bs.modal một lần duy nhất
+        modalElement.addEventListener('shown.bs.modal', async () => {
+            try {
+                if (!window.allGenres || window.allGenres.length === 0) {
+                    await window.initializeGenreList();
+                }
+                if (typeof window.updateSelectedGenresList === 'function') {
+                    window.updateSelectedGenresList();
+                }
+            } catch (error) {
+                console.error('Lỗi khi khởi tạo danh sách thể loại:', error);
+            }
+        }, { once: true });
+
         modal.show();
 
-        // Đợi một chút để đảm bảo modal đã được hiển thị hoàn toàn
-        setTimeout(() => {
-            // Cập nhật danh sách thể loại đã chọn
-            const selectedGenresList = document.getElementById('selectedGenresList');
-            if (selectedGenresList) {
-                selectedGenresList.innerHTML = window.editSelectedGenres.map(genreId => {
-                    const genre = allGenres.find(g => g.genre_id.toString() === genreId.toString());
-                    if (!genre) return '';
-                    return `
-                        <span class="badge bg-primary me-2 mb-2" style="font-size: 14px;">
-                            ${genre.genre_name}
-                            <button type="button" class="btn-close btn-close-white" 
-                                    style="font-size: 0.5em;" 
-                                    onclick="removeGenre('${genreId}')"
-                                    aria-label="Remove"></button>
-                        </span>
-                    `;
-                }).join('');
-            }
-        }, 100);
-
     } catch (error) {
-        console.error('Lỗi trong quá trình chỉnh sửa truyện:', error);
-        alert('Lỗi trong quá trình chỉnh sửa truyện: ' + error.message);
-        window.isEditMode = false;
-        window.editSelectedGenres = [];
-        window.currentComicGenres = [];
+        console.error('Lỗi khi chỉnh sửa truyện:', error);
+        alert('Lỗi khi chỉnh sửa truyện: ' + error.message);
     }
 }
 
@@ -259,13 +285,11 @@ export function searchComics() {
     if (searchTerm === '') {
         filteredComics = originalComics; // Hiển thị tất cả nếu không có từ khóa
     } else {
-        // Lọc các truyện khớp với từ khóa
         filteredComics = originalComics.filter(comic => {
             const title = comic.title ? comic.title.toLowerCase() : '';
             return title.includes(searchTerm);
         });
 
-        // Sắp xếp: các mục khớp với từ khóa lên đầu
         filteredComics.sort((a, b) => {
             const aTitle = a.title ? a.title.toLowerCase() : '';
             const bTitle = b.title ? b.title.toLowerCase() : '';
@@ -280,3 +304,76 @@ export function searchComics() {
     currentPage = 1; // Reset về trang đầu tiên khi tìm kiếm
     renderComics(filteredComics); // Hiển thị danh sách đã lọc
 }
+
+// Khởi tạo sự kiện
+document.addEventListener('DOMContentLoaded', () => {
+    // Đăng ký hàm fetchComics vào window scope
+    window.fetchComics = fetchComics;
+
+    // Khởi tạo các biến toàn cục nếu chưa tồn tại
+    window.selectedGenres = window.selectedGenres || [];
+    window.editSelectedGenres = window.editSelectedGenres || [];
+    window.isEditMode = window.isEditMode || false;
+    window.currentComicGenres = window.currentComicGenres || [];
+    window.allGenres = window.allGenres || [];
+
+    // Khởi tạo sự kiện cho bảng truyện
+    const comicTableBody = document.getElementById('comicTableBody');
+    if (comicTableBody) {
+        // Xóa event listener cũ nếu có
+        const oldHandler = comicTableBody.onclick;
+        if (oldHandler) {
+            comicTableBody.removeEventListener('click', oldHandler);
+        }
+
+        // Thêm event listener mới
+        comicTableBody.onclick = async (e) => {
+            const target = e.target.closest('button');
+            if (!target) return;
+
+            const id = target.dataset.id;
+            if (!id) {
+                console.error('Không tìm thấy ID truyện');
+                return;
+            }
+
+            e.preventDefault(); // Ngăn chặn hành vi mặc định
+
+            try {
+                if (target.classList.contains('delete-comic-btn')) {
+                    await deleteComic(target);
+                } else if (target.classList.contains('show-chapters-btn')) {
+                    showChapters(id);
+                } else if (target.classList.contains('edit-comic-btn')) {
+                    // Đảm bảo modal và backdrop cũ được dọn dẹp
+                    const modalElement = document.getElementById('addComicModal');
+                    const existingModal = bootstrap.Modal.getInstance(modalElement);
+                    if (existingModal) {
+                        existingModal.dispose();
+                    }
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                    document.body.classList.remove('modal-open');
+                    
+                    // Sau đó mới gọi editComic
+                    await editComic(id);
+                }
+            } catch (error) {
+                console.error('Lỗi khi xử lý sự kiện:', error);
+                alert('Lỗi: ' + error.message);
+            }
+        };
+    }
+
+    // Khởi tạo sự kiện tìm kiếm
+    const searchInput = document.getElementById('comicSearch');
+    if (searchInput) {
+        const oldHandler = searchInput.oninput;
+        if (oldHandler) {
+            searchInput.removeEventListener('input', oldHandler);
+        }
+        searchInput.oninput = searchComics;
+    }
+
+    // Tải danh sách truyện ban đầu
+    fetchComics();
+});

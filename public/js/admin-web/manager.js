@@ -1,4 +1,3 @@
-// manager.js
 import { checkLoginStatus, logout } from './auth.js';
 import { fetchComics, renderComics, deleteComic, editComic, searchComics } from './comics.js';
 import { showChapters, renderChapters, deleteChapter, editChapter, searchChapters } from './chapters.js';
@@ -112,83 +111,101 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('genreSearch').addEventListener('input', searchGenres);
 
     // Thêm hoặc cập nhật truyện
-    document.getElementById('addComicForm').addEventListener('submit', async function (e) {
+    document.getElementById('addComicForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const id = document.getElementById('comicId').value;
-        const title = document.getElementById('comicTitle').value.trim();
-        const image = document.getElementById('comicImage').value.trim() || null;
-        const content = document.getElementById('comicContent').value.trim() || null;
-        const link = document.getElementById('comicLink').value.trim() || null;
-        
-        // Lấy danh sách thể loại đã chọn dựa vào chế độ
-        const genres = window.isEditMode ? window.editSelectedGenres : window.selectedGenres;
-        
-        console.log('Current mode:', window.isEditMode ? 'Edit' : 'Add');
-        console.log('Selected genres:', genres);
-        console.log('Edit selected genres:', window.editSelectedGenres);
-        console.log('Current comic genres:', window.currentComicGenres);
-
-        // Validation
-        if (!title) {
-            alert('Vui lòng nhập tiêu đề truyện!');
-            return;
-        }
-        if (genres.length === 0) {
-            alert('Vui lòng chọn ít nhất một thể loại!');
-            return;
-        }
-
-        const method = id ? 'PUT' : 'POST';
-        const url = id ? `/api/cards/${id}` : '/api/cards';
-        
-        // Chuyển đổi ID thể loại sang số nguyên và tạo object mới
-        const body = {
-            title,
-            image,
-            content,
-            link,
-            genres: genres.map(g => parseInt(g))
-        };
-
-        console.log('Request URL:', url);
-        console.log('Request method:', method);
-        console.log('Request body:', JSON.stringify(body, null, 2));
-
         try {
             const token = localStorage.getItem('token');
-            
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
+            if (!token) throw new Error('Không tìm thấy token');
 
-            console.log('Response status:', response.status);
-            const responseData = await response.json();
-            console.log('Response data:', JSON.stringify(responseData, null, 2));
+            const comicId = document.getElementById('comicId').value;
+            const isEdit = comicId !== '';
+            const genres = isEdit ? window.editSelectedGenres : window.selectedGenres;
 
-            if (!response.ok) {
-                throw new Error(responseData.error || 'Lỗi khi lưu truyện');
+            if (!genres || genres.length === 0) {
+                throw new Error('Vui lòng chọn ít nhất một thể loại!');
             }
+
+            // Chuẩn bị dữ liệu cơ bản của truyện
+            const comicData = {
+                title: document.getElementById('comicTitle').value,
+                image: document.getElementById('comicImage').value,
+                content: document.getElementById('comicContent').value,
+                link: document.getElementById('comicLink').value
+            };
+
+            let response;
             
-            // Reset form và các biến liên quan
+            if (isEdit) {
+                // Cập nhật thông tin cơ bản của truyện
+                response = await fetch(`/api/cards/${comicId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(comicData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Lỗi khi cập nhật thông tin truyện');
+                }
+
+                // Cập nhật thể loại của truyện
+                const genreResponse = await fetch(`/api/cards/${comicId}/genres`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        genres: genres.map(g => parseInt(g))
+                    })
+                });
+
+                if (!genreResponse.ok) {
+                    const errorData = await genreResponse.json();
+                    throw new Error(errorData.error || 'Lỗi khi cập nhật thể loại');
+                }
+
+            } else {
+                // Thêm truyện mới
+                response = await fetch('/api/cards', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...comicData,
+                        genres: genres.map(g => parseInt(g))
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Lỗi khi thêm truyện mới');
+                }
+            }
+
+            // Reset form và đóng modal
             this.reset();
-            document.getElementById('comicId').value = '';
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addComicModal'));
+            modal.hide();
+
+            // Reset các biến toàn cục
             window.selectedGenres = [];
             window.editSelectedGenres = [];
             window.isEditMode = false;
-            document.getElementById('addComicModalLabel').textContent = 'Thêm Truyện Mới';
-            document.getElementById('comicSubmitButton').textContent = 'Thêm';
-            
-            // Đóng modal và tải lại danh sách
-            bootstrap.Modal.getInstance(document.getElementById('addComicModal')).hide();
-            await fetchComics(); // Đợi tải lại danh sách
+            window.currentComicGenres = [];
+
+            // Tải lại danh sách truyện
+            await fetchComics();
+            alert(isEdit ? 'Cập nhật truyện thành công!' : 'Thêm truyện thành công!');
+
         } catch (error) {
-            console.error('Lỗi khi lưu truyện:', error);
-            alert('Lỗi khi lưu truyện: ' + error.message);
+            console.error('Lỗi khi xử lý form:', error);
+            alert(error.message);
         }
     });
 

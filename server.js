@@ -27,6 +27,54 @@ app.post('/api/cards', checkDbConnection, saveCardData);
 app.delete('/api/cards/:id', checkDbConnection, deleteCardData);
 app.put('/api/cards/:id', checkDbConnection, updateCard);
 
+// API lấy thể loại của một truyện
+app.get('/api/cards/:id/genres', checkDbConnection, async (req, res) => {
+    const { id } = req.params;
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query(
+            'SELECT g.genre_id, g.genre_name FROM genres g ' +
+            'JOIN card_genres cg ON g.genre_id = cg.genre_id ' +
+            'WHERE cg.card_id = ?',
+            [id]
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error('Lỗi khi lấy thể loại của truyện:', err);
+        res.status(500).json({ error: 'Lỗi khi lấy thể loại của truyện' });
+    } finally {
+        connection.release();
+    }
+});
+
+// API cập nhật thể loại của một truyện
+app.put('/api/cards/:id/genres', checkDbConnection, async (req, res) => {
+    const { id } = req.params;
+    const { genres } = req.body;
+    const connection = await dbPool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // Xóa các thể loại hiện tại của truyện
+        await connection.query('DELETE FROM card_genres WHERE card_id = ?', [id]);
+
+        // Thêm các thể loại mới
+        if (genres && genres.length > 0) {
+            const values = genres.map(genreId => [id, genreId]);
+            await connection.query('INSERT INTO card_genres (card_id, genre_id) VALUES ?', [values]);
+        }
+
+        await connection.commit();
+        res.json({ message: 'Cập nhật thể loại thành công' });
+    } catch (err) {
+        await connection.rollback();
+        console.error('Lỗi khi cập nhật thể loại:', err);
+        res.status(500).json({ error: 'Lỗi khi cập nhật thể loại' });
+    } finally {
+        connection.release();
+    }
+});
+
 // API cho chapters
 app.get('/api/chapters', checkDbConnection, getChapters);
 app.post('/api/chapters', checkDbConnection, saveChapterData);
@@ -130,7 +178,7 @@ app.get('/401', (req, res) => {
 });
 
 app.get('/404', (req, res) => {
-    res.status(404).render('404'); // Render trang 404.ejs
+    res.status(404).render('404');
 });
 
 // Route trang chủ
@@ -149,7 +197,7 @@ app.get('/', checkDbConnection, async (req, res) => {
 
 // Xử lý 404 cho các route không xác định
 app.use((req, res, next) => {
-    res.status(404).render('404'); // Render 404 cho mọi route không khớp
+    res.status(404).render('404');
 });
 
 // Khởi động server
