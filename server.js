@@ -163,6 +163,62 @@ app.delete('/api/genres/:id', checkDbConnection, async (req, res) => {
     }
 });
 
+// API đếm số lượng truyện
+app.get('/api/cards/count', [checkDbConnection, checkAdminAuth], async (req, res) => {
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query('SELECT COUNT(*) as count FROM cards');
+        res.json({ count: rows[0].count });
+    } catch (err) {
+        console.error('Lỗi khi đếm số lượng truyện:', err);
+        res.status(500).json({ error: 'Lỗi khi đếm số lượng truyện' });
+    } finally {
+        connection.release();
+    }
+});
+
+// API đếm số lượng người dùng
+app.get('/api/users/count', [checkDbConnection, checkAdminAuth], async (req, res) => {
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query('SELECT COUNT(*) as count FROM users');
+        res.json({ count: rows[0].count });
+    } catch (err) {
+        console.error('Lỗi khi đếm số lượng người dùng:', err);
+        res.status(500).json({ error: 'Lỗi khi đếm số lượng người dùng' });
+    } finally {
+        connection.release();
+    }
+});
+
+// API đếm số lượng thể loại
+app.get('/api/genres/count', [checkDbConnection, checkAdminAuth], async (req, res) => {
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query('SELECT COUNT(*) as count FROM genres');
+        res.json({ count: rows[0].count });
+    } catch (err) {
+        console.error('Lỗi khi đếm số lượng thể loại:', err);
+        res.status(500).json({ error: 'Lỗi khi đếm số lượng thể loại' });
+    } finally {
+        connection.release();
+    }
+});
+
+// API đếm số lượng chương
+app.get('/api/chapters/count', [checkDbConnection, checkAdminAuth], async (req, res) => {
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query('SELECT COUNT(*) as count FROM chapters');
+        res.json({ count: rows[0].count });
+    } catch (err) {
+        console.error('Lỗi khi đếm số lượng chương:', err);
+        res.status(500).json({ error: 'Lỗi khi đếm số lượng chương' });
+    } finally {
+        connection.release();
+    }
+});
+
 // API đăng ký và đăng nhập
 app.post('/api/register', checkDbConnection, register);
 app.post('/api/login', checkDbConnection, login);

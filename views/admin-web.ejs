@@ -33,6 +33,30 @@
                 padding: 0.25rem 0.5rem;
                 font-size: 0.875rem;
             }
+            /* Thêm CSS cho bảng quản lý truyện */
+            .table td {
+                max-width: 200px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            /* Điều chỉnh độ rộng cụ thể cho từng cột */
+            .table td.title-column {
+                max-width: 250px;
+            }
+            .table td.author-column {
+                max-width: 150px;
+            }
+            .table td.link-column {
+                max-width: 200px;
+            }
+            .table td.genre-column {
+                max-width: 180px;
+            }
+            /* Thêm tooltip khi hover */
+            .table td[title] {
+                cursor: pointer;
+            }
         </style>
     </head>
     <body class="sb-nav-fixed">
@@ -95,6 +119,86 @@
                             <li class="breadcrumb-item active">Dashboard</li>
                         </ol>
 
+                        <!-- Thêm phần thống kê -->
+                        <div class="row">
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card bg-primary text-white mb-4">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <div class="small text-white">Tổng số truyện</div>
+                                                <div class="display-6 text-white" id="totalComics">0</div>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-book fa-2x text-white"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        <a class="small text-white text-decoration-none" href="#comic-management">Xem chi tiết</a>
+                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card bg-success text-white mb-4">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <div class="small text-white">Tổng số người dùng</div>
+                                                <div class="display-6 text-white" id="totalUsers">0</div>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-users fa-2x text-white"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        <a class="small text-white text-decoration-none" href="#user-management">Xem chi tiết</a>
+                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card bg-warning mb-4">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <div class="small text-white">Tổng số thể loại</div>
+                                                <div class="display-6 text-white" id="totalGenres">0</div>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-tags fa-2x text-white"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        <a class="small text-white text-decoration-none" href="#genre-management">Xem chi tiết</a>
+                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card bg-danger text-white mb-4">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <div class="small text-white">Tổng số chương</div>
+                                                <div class="display-6 text-white" id="totalChapters">0</div>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-book-open fa-2x text-white"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-flex align-items-center justify-content-between">
+                                        <a class="small text-white text-decoration-none" href="#chapter-management">Xem chi tiết</a>
+                                        <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="tab-content">
                             <!-- Quản Lý Truyện Tranh -->
                             <div class="tab-pane fade show active" id="comic-management">
@@ -113,7 +217,7 @@
                                                 <th>Ảnh Bìa</th>
                                                 <th>Tác Giả</th>
                                                 <th>Link</th>
-                                                <th>Thể Loại</th> <!-- Thêm cột Thể Loại -->
+                                                <th>Thể Loại</th>
                                                 <th>Hành Động</th>
                                             </tr>
                                         </thead>
@@ -382,6 +486,7 @@
         <script type="module" src="/js/admin-web/chapters.js"></script>
         <script type="module" src="/js/admin-web/users.js"></script>
         <script type="module" src="/js/admin-web/genres.js"></script>
+        <script type="module" src="/js/admin-web/dashboard.js"></script>
         <script src="/js/index/login.js"></script>
         <script>
             // Khai báo các biến toàn cục

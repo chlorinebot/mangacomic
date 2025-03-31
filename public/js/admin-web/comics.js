@@ -70,13 +70,13 @@ export function renderComics(comics) {
         const row = `
             <tr data-id="${comic.id}">
                 <td>${comic.id}</td>
-                <td>${comic.title}</td>
+                <td class="title-column" title="${comic.title}">${comic.title}</td>
                 <td>
                     ${comic.image && comic.image.trim() !== '' ? `<img src="${comic.image}" alt="${comic.title}" class="comic-image">` : 'N/A'}
                 </td>
-                <td>${comic.content || 'N/A'}</td>
-                <td><a href="${comic.link || '#'}" target="_blank">${comic.link || 'N/A'}</a></td>
-                <td>${comic.genre_names || 'N/A'}</td>
+                <td class="author-column" title="${comic.content || 'N/A'}">${comic.content || 'N/A'}</td>
+                <td class="link-column" title="${comic.link || 'N/A'}"><a href="${comic.link || '#'}" target="_blank">${comic.link || 'N/A'}</a></td>
+                <td class="genre-column" title="${comic.genre_names || 'N/A'}">${comic.genre_names || 'N/A'}</td>
                 <td>
                     <button class="btn btn-danger btn-sm delete-comic-btn" data-id="${comic.id}">
                         <i class="bi bi-trash"></i> Xóa
