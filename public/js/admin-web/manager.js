@@ -122,6 +122,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Lấy danh sách thể loại đã chọn dựa vào chế độ
         const genres = window.isEditMode ? window.editSelectedGenres : window.selectedGenres;
+        
+        console.log('Current mode:', window.isEditMode ? 'Edit' : 'Add');
+        console.log('Selected genres:', genres);
+        console.log('Edit selected genres:', window.editSelectedGenres);
+        console.log('Current comic genres:', window.currentComicGenres);
 
         // Validation
         if (!title) {
@@ -135,17 +140,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const method = id ? 'PUT' : 'POST';
         const url = id ? `/api/cards/${id}` : '/api/cards';
-        const body = { 
-            title, 
-            image, 
-            content, 
-            link, 
-            genres: genres.map(g => parseInt(g)) // Chuyển đổi sang số nguyên
+        
+        // Chuyển đổi ID thể loại sang số nguyên và tạo object mới
+        const body = {
+            title,
+            image,
+            content,
+            link,
+            genres: genres.map(g => parseInt(g))
         };
+
+        console.log('Request URL:', url);
+        console.log('Request method:', method);
+        console.log('Request body:', JSON.stringify(body, null, 2));
 
         try {
             const token = localStorage.getItem('token');
-            console.log('Sending data:', body); // Log dữ liệu gửi đi
+            
             const response = await fetch(url, {
                 method,
                 headers: {
@@ -155,13 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(body)
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Lỗi khi lưu truyện');
-            }
-
+            console.log('Response status:', response.status);
             const responseData = await response.json();
-            console.log('Server response:', responseData); // Log phản hồi từ server
+            console.log('Response data:', JSON.stringify(responseData, null, 2));
+
+            if (!response.ok) {
+                throw new Error(responseData.error || 'Lỗi khi lưu truyện');
+            }
             
             // Reset form và các biến liên quan
             this.reset();
@@ -174,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Đóng modal và tải lại danh sách
             bootstrap.Modal.getInstance(document.getElementById('addComicModal')).hide();
-            fetchComics();
+            await fetchComics(); // Đợi tải lại danh sách
         } catch (error) {
             console.error('Lỗi khi lưu truyện:', error);
             alert('Lỗi khi lưu truyện: ' + error.message);

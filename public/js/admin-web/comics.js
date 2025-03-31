@@ -187,10 +187,7 @@ export async function editComic(comicId) {
         document.getElementById('comicLink').value = comic.link || '';
         document.getElementById('comicImage').value = comic.image || '';
 
-        // Lấy danh sách thể loại của truyện
-        const genreNames = comic.genre_names ? comic.genre_names.split(',').map(name => name.trim()) : [];
-        
-        // Lấy danh sách tất cả thể loại để map ID
+        // Lấy danh sách tất cả thể loại
         const genresResponse = await fetch('/api/genres', {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -204,7 +201,10 @@ export async function editComic(comicId) {
 
         const allGenres = await genresResponse.json();
         
-        // Map tên thể loại sang ID và cập nhật biến toàn cục
+        // Lấy danh sách thể loại của truyện từ genre_names
+        const genreNames = comic.genre_names ? comic.genre_names.split(',').map(name => name.trim()) : [];
+        
+        // Map tên thể loại sang ID
         window.currentComicGenres = allGenres
             .filter(genre => genreNames.includes(genre.genre_name))
             .map(genre => genre.genre_id.toString());
