@@ -119,7 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const image = document.getElementById('comicImage').value.trim() || null;
         const content = document.getElementById('comicContent').value.trim() || null;
         const link = document.getElementById('comicLink').value.trim() || null;
-        const genres = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(checkbox => checkbox.value);
+        
+        // Lấy danh sách thể loại đã chọn dựa vào chế độ
+        const genres = window.isEditMode ? window.editSelectedGenres : window.selectedGenres;
 
         // Validation
         if (!title) {
@@ -133,10 +135,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const method = id ? 'PUT' : 'POST';
         const url = id ? `/api/cards/${id}` : '/api/cards';
-        const body = { title, image, content, link, genres };
+        const body = { 
+            title, 
+            image, 
+            content, 
+            link, 
+            genres: genres.map(g => parseInt(g)) // Chuyển đổi sang số nguyên
+        };
 
         try {
             const token = localStorage.getItem('token');
+            console.log('Sending data:', body); // Log dữ liệu gửi đi
             const response = await fetch(url, {
                 method,
                 headers: {
@@ -145,16 +154,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify(body)
             });
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Lỗi khi lưu truyện');
             }
+
+            const responseData = await response.json();
+            console.log('Server response:', responseData); // Log phản hồi từ server
+            
+            // Reset form và các biến liên quan
             this.reset();
             document.getElementById('comicId').value = '';
+            window.selectedGenres = [];
+            window.editSelectedGenres = [];
+            window.isEditMode = false;
             document.getElementById('addComicModalLabel').textContent = 'Thêm Truyện Mới';
             document.getElementById('comicSubmitButton').textContent = 'Thêm';
+            
+            // Đóng modal và tải lại danh sách
             bootstrap.Modal.getInstance(document.getElementById('addComicModal')).hide();
-            fetchComics(); // Tải lại danh sách
+            fetchComics();
         } catch (error) {
             console.error('Lỗi khi lưu truyện:', error);
             alert('Lỗi khi lưu truyện: ' + error.message);

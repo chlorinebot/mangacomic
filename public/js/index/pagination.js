@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const totalPages = Math.ceil(cardData.length / 24); // Tính số trang dựa trên 24 card/trang
   
   // Số lượng card trên mỗi trang
-  const itemsPerPage = 24; // Thay đổi từ 8 thành 24
+  const itemsPerPage = 8; // Số lượng 8 cho mỗi trangs
   
   // Hiển thị cards cho trang hiện tại
   function displayCardsForPage(pageNumber) {

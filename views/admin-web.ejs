@@ -217,11 +217,16 @@
                                 <label for="comicLink" class="form-label">Link</label>
                                 <input type="url" class="form-control" id="comicLink">
                             </div>
-                            <!-- Checkbox chọn nhiều thể loại -->
+                            <!-- Thay thế phần checkbox bằng input thể loại -->
                             <div class="mb-3">
                                 <label class="form-label">Thể Loại</label>
-                                <div id="genreCheckboxes" class="form-check">
-                                    <!-- Danh sách checkbox sẽ được tải động -->
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="genreInput" placeholder="Nhập tên thể loại...">
+                                    <button class="btn btn-outline-secondary" type="button" id="addGenreToList">Thêm</button>
+                                </div>
+                                <div id="genreSuggestions" class="list-group mt-2" style="display: none; position: absolute; z-index: 1000; width: 94%;"></div>
+                                <div id="selectedGenresList" class="mt-2">
+                                    <!-- Danh sách thể loại đã chọn sẽ hiển thị ở đây -->
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary" id="comicSubmitButton">Thêm</button>
@@ -379,67 +384,167 @@
         <script type="module" src="/js/admin-web/genres.js"></script>
         <script src="/js/index/login.js"></script>
         <script>
-            // Tải danh sách thể loại vào dropdown khi modal được mở
-            document.getElementById('addComicModal').addEventListener('show.bs.modal', async () => {
+            let selectedGenres = [];
+            let editSelectedGenres = [];
+            let isEditMode = false;
+            let currentComicGenres = [];
+            let allGenres = []; // Lưu trữ tất cả thể loại
+
+            // Hàm khởi tạo danh sách thể loại
+            async function initializeGenreList() {
                 try {
                     const token = localStorage.getItem('token');
+                    if (!token) throw new Error('Không tìm thấy token');
+
                     const response = await fetch('/api/genres', {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
                         }
                     });
-                    if (!response.ok) {
-                        throw new Error('Lỗi khi lấy danh sách thể loại');
-                    }
-                    const genres = await response.json();
-                    const genreSelect = document.getElementById('comicGenre');
-                    genreSelect.innerHTML = '<option value="">Chọn thể loại</option>'; // Reset dropdown
-                    genres.forEach(genre => {
-                        const option = document.createElement('option');
-                        option.value = genre.genre_id;
-                        option.textContent = genre.genre_name;
-                        genreSelect.appendChild(option);
-                    });
+
+                    if (!response.ok) throw new Error('Lỗi khi lấy danh sách thể loại');
+
+                    allGenres = await response.json();
+                    setupGenreAutocomplete();
+                    updateSelectedGenresList();
                 } catch (error) {
-                    console.error('Lỗi khi tải danh sách thể loại:', error);
-                    alert('Lỗi khi tải danh sách thể loại: ' + error.message);
+                    console.error('Lỗi:', error);
+                    alert(error.message);
                 }
-            });
-            </script>
-            <script>
-                // Tải danh sách thể loại vào checkbox khi modal được mở
-                document.getElementById('addComicModal').addEventListener('show.bs.modal', async () => {
-                    try {
-                        const token = localStorage.getItem('token');
-                        const response = await fetch('/api/genres', {
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        if (!response.ok) {
-                            throw new Error('Lỗi khi lấy danh sách thể loại');
-                        }
-                        const genres = await response.json();
-                        const genreContainer = document.getElementById('genreCheckboxes');
-                        genreContainer.innerHTML = ''; // Reset danh sách checkbox
-                        genres.forEach(genre => {
-                            const div = document.createElement('div');
-                            div.className = 'form-check';
-                            div.innerHTML = `
-                                <input class="form-check-input genre-checkbox" type="checkbox" value="${genre.genre_id}" id="genre_${genre.genre_id}">
-                                <label class="form-check-label" for="genre_${genre.genre_id}">
-                                    ${genre.genre_name}
-                                </label>
-                            `;
-                            genreContainer.appendChild(div);
-                        });
-                    } catch (error) {
-                        console.error('Lỗi khi tải danh sách thể loại:', error);
-                        alert('Lỗi khi tải danh sách thể loại: ' + error.message);
+            }
+
+            // Hàm thiết lập autocomplete cho input thể loại
+            function setupGenreAutocomplete() {
+                const genreInput = document.getElementById('genreInput');
+                const suggestionsList = document.getElementById('genreSuggestions');
+                
+                genreInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    if (searchTerm.length < 1) {
+                        suggestionsList.style.display = 'none';
+                        return;
+                    }
+
+                    const matches = allGenres.filter(genre => 
+                        genre.genre_name.toLowerCase().includes(searchTerm)
+                    );
+
+                    if (matches.length > 0) {
+                        suggestionsList.innerHTML = matches.map(genre => `
+                            <a href="#" class="list-group-item list-group-item-action" 
+                               data-genre-id="${genre.genre_id}" 
+                               data-genre-name="${genre.genre_name}">
+                                ${genre.genre_name}
+                            </a>
+                        `).join('');
+                        suggestionsList.style.display = 'block';
+                    } else {
+                        suggestionsList.style.display = 'none';
                     }
                 });
-            </script>
+
+                // Xử lý khi click vào gợi ý
+                suggestionsList.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (e.target.tagName === 'A') {
+                        const genreId = e.target.dataset.genreId;
+                        const genreName = e.target.dataset.genreName;
+                        addGenreToSelection(genreId, genreName);
+                        genreInput.value = '';
+                        suggestionsList.style.display = 'none';
+                    }
+                });
+
+                // Ẩn gợi ý khi click ra ngoài
+                document.addEventListener('click', function(e) {
+                    if (!genreInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+                        suggestionsList.style.display = 'none';
+                    }
+                });
+
+                // Xử lý nút thêm thể loại
+                document.getElementById('addGenreToList').addEventListener('click', function() {
+                    const genreInput = document.getElementById('genreInput');
+                    const searchTerm = genreInput.value.toLowerCase();
+                    const matchedGenre = allGenres.find(genre => 
+                        genre.genre_name.toLowerCase() === searchTerm
+                    );
+                    if (matchedGenre) {
+                        addGenreToSelection(matchedGenre.genre_id, matchedGenre.genre_name);
+                        genreInput.value = '';
+                    }
+                });
+            }
+
+            // Hàm thêm thể loại vào danh sách đã chọn
+            function addGenreToSelection(genreId, genreName) {
+                const targetArray = isEditMode ? editSelectedGenres : selectedGenres;
+                if (!targetArray.includes(genreId)) {
+                    targetArray.push(genreId);
+                    updateSelectedGenresList();
+                }
+            }
+
+            // Hàm cập nhật hiển thị danh sách thể loại đã chọn
+            function updateSelectedGenresList() {
+                const selectedGenresList = document.getElementById('selectedGenresList');
+                const targetArray = isEditMode ? editSelectedGenres : selectedGenres;
+                
+                selectedGenresList.innerHTML = targetArray.map(genreId => {
+                    const genre = allGenres.find(g => g.genre_id.toString() === genreId.toString());
+                    if (!genre) return '';
+                    return `
+                        <span class="badge bg-primary me-2 mb-2" style="font-size: 14px;">
+                            ${genre.genre_name}
+                            <button type="button" class="btn-close btn-close-white" 
+                                    style="font-size: 0.5em;" 
+                                    onclick="removeGenre('${genreId}')"
+                                    aria-label="Remove"></button>
+                        </span>
+                    `;
+                }).join('');
+            }
+
+            // Hàm xóa thể loại khỏi danh sách đã chọn
+            window.removeGenre = function(genreId) {
+                const targetArray = isEditMode ? editSelectedGenres : selectedGenres;
+                const index = targetArray.indexOf(genreId);
+                if (index > -1) {
+                    targetArray.splice(index, 1);
+                    updateSelectedGenresList();
+                }
+            };
+
+            // Khởi tạo modal events
+            const comicModal = document.getElementById('addComicModal');
+            
+            comicModal.addEventListener('show.bs.modal', async () => {
+                console.log('Modal opening, isEditMode:', isEditMode);
+                await initializeGenreList();
+            });
+
+            comicModal.addEventListener('hidden.bs.modal', () => {
+                if (!isEditMode) {
+                    selectedGenres = [];
+                    document.getElementById('comicId').value = '';
+                    document.getElementById('comicTitle').value = '';
+                    document.getElementById('comicImage').value = '';
+                    document.getElementById('comicContent').value = '';
+                    document.getElementById('comicLink').value = '';
+                    document.getElementById('addComicModalLabel').textContent = 'Thêm Truyện Mới';
+                    document.getElementById('comicSubmitButton').textContent = 'Thêm';
+                }
+                document.getElementById('genreInput').value = '';
+                document.getElementById('genreSuggestions').style.display = 'none';
+                updateSelectedGenresList();
+            });
+
+            // Export các biến và hàm cần thiết
+            window.selectedGenres = selectedGenres;
+            window.editSelectedGenres = editSelectedGenres;
+            window.isEditMode = isEditMode;
+            window.currentComicGenres = currentComicGenres;
+        </script>
     </body>
 </html>

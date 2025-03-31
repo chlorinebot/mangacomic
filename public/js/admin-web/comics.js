@@ -162,59 +162,92 @@ export async function deleteComic(button) {
 }
 
 // Hàm chỉnh sửa truyện
-export async function editComic(id) {
+export async function editComic(comicId) {
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`/api/cards`, {
+        if (!token) {
+            throw new Error('Không tìm thấy token trong localStorage');
+        }
+
+        // Tìm truyện trong danh sách đã có
+        const comic = originalComics.find(c => c.id == comicId);
+        if (!comic) {
+            throw new Error('Không tìm thấy truyện với ID: ' + comicId);
+        }
+
+        // Thiết lập chế độ chỉnh sửa và cập nhật form
+        window.isEditMode = true;
+        window.editSelectedGenres = [];
+        window.currentComicGenres = [];
+
+        // Cập nhật form với thông tin truyện
+        document.getElementById('comicId').value = comic.id;
+        document.getElementById('comicTitle').value = comic.title;
+        document.getElementById('comicContent').value = comic.content || '';
+        document.getElementById('comicLink').value = comic.link || '';
+        document.getElementById('comicImage').value = comic.image || '';
+
+        // Lấy danh sách thể loại của truyện
+        const genreNames = comic.genre_names ? comic.genre_names.split(',').map(name => name.trim()) : [];
+        
+        // Lấy danh sách tất cả thể loại để map ID
+        const genresResponse = await fetch('/api/genres', {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Lỗi khi lấy danh sách truyện');
-        }
-        const comics = await response.json();
-        const comic = comics.find(c => c.id == id);
-        if (comic) {
-            document.getElementById('comicId').value = comic.id;
-            document.getElementById('comicTitle').value = comic.title;
-            document.getElementById('comicImage').value = comic.image || '';
-            document.getElementById('comicContent').value = comic.content || '';
-            document.getElementById('comicLink').value = comic.link || '';
 
-            // Lấy danh sách thể loại của truyện
-            const genreNames = comic.genre_names ? comic.genre_names.split(',') : [];
-            const genreResponse = await fetch('/api/genres', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            const genres = await genreResponse.json();
-            const genreContainer = document.getElementById('genreCheckboxes');
-            genreContainer.innerHTML = '';
-            genres.forEach(genre => {
-                const div = document.createElement('div');
-                div.className = 'form-check';
-                const isChecked = genreNames.includes(genre.genre_name);
-                div.innerHTML = `
-                    <input class="form-check-input genre-checkbox" type="checkbox" value="${genre.genre_id}" id="genre_${genre.genre_id}" ${isChecked ? 'checked' : ''}>
-                    <label class="form-check-label" for="genre_${genre.genre_id}">
-                        ${genre.genre_name}
-                    </label>
-                `;
-                genreContainer.appendChild(div);
-            });
-
-            document.getElementById('addComicModalLabel').textContent = 'Chỉnh Sửa Truyện';
-            document.getElementById('comicSubmitButton').textContent = 'Cập Nhật';
-            new bootstrap.Modal(document.getElementById('addComicModal')).show();
+        if (!genresResponse.ok) {
+            throw new Error('Lỗi khi lấy danh sách thể loại: ' + genresResponse.statusText);
         }
+
+        const allGenres = await genresResponse.json();
+        
+        // Map tên thể loại sang ID và cập nhật biến toàn cục
+        window.currentComicGenres = allGenres
+            .filter(genre => genreNames.includes(genre.genre_name))
+            .map(genre => genre.genre_id.toString());
+        window.editSelectedGenres = [...window.currentComicGenres];
+
+        console.log('Current comic genres:', window.currentComicGenres);
+        console.log('Edit selected genres:', window.editSelectedGenres);
+
+        // Cập nhật tiêu đề và nút
+        document.getElementById('addComicModalLabel').textContent = 'Chỉnh Sửa Truyện';
+        document.getElementById('comicSubmitButton').textContent = 'Cập Nhật';
+
+        // Hiển thị modal
+        const modal = new bootstrap.Modal(document.getElementById('addComicModal'));
+        modal.show();
+
+        // Đợi một chút để đảm bảo modal đã được hiển thị hoàn toàn
+        setTimeout(() => {
+            // Cập nhật danh sách thể loại đã chọn
+            const selectedGenresList = document.getElementById('selectedGenresList');
+            if (selectedGenresList) {
+                selectedGenresList.innerHTML = window.editSelectedGenres.map(genreId => {
+                    const genre = allGenres.find(g => g.genre_id.toString() === genreId.toString());
+                    if (!genre) return '';
+                    return `
+                        <span class="badge bg-primary me-2 mb-2" style="font-size: 14px;">
+                            ${genre.genre_name}
+                            <button type="button" class="btn-close btn-close-white" 
+                                    style="font-size: 0.5em;" 
+                                    onclick="removeGenre('${genreId}')"
+                                    aria-label="Remove"></button>
+                        </span>
+                    `;
+                }).join('');
+            }
+        }, 100);
+
     } catch (error) {
-        console.error('Lỗi trong editComic:', error);
-        alert('Lỗi khi chỉnh sửa truyện: ' + error.message);
+        console.error('Lỗi trong quá trình chỉnh sửa truyện:', error);
+        alert('Lỗi trong quá trình chỉnh sửa truyện: ' + error.message);
+        window.isEditMode = false;
+        window.editSelectedGenres = [];
+        window.currentComicGenres = [];
     }
 }
 
