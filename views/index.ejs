@@ -206,7 +206,7 @@
                             <!-- Hiển thị sau khi đăng nhập (ẩn ban đầu) -->
                             <div class="logged-in-menu d-none">
                                 <li>
-                                    <a class="dropdown-item" href="#" id="userProfileLink">
+                                    <a class="dropdown-item" href="#">
                                         <i class="bi bi-person me-2"></i>Thông tin tài khoản
                                     </a>
                                 </li>
@@ -1032,9 +1032,6 @@ Lưu ý cuối cùng:<br>
                                     <a href="#comments-tab" class="list-group-item list-group-item-action" id="comments-tab-btn" data-bs-toggle="list">
                                         <i class="bi bi-chat-square-text me-2"></i>Bình luận của tôi
                                     </a>
-                                    <a href="#settings-tab" class="list-group-item list-group-item-action" id="settings-tab-btn" data-bs-toggle="list">
-                                        <i class="bi bi-gear me-2"></i>Cài đặt tài khoản
-                                    </a>
                                 </div>
                             </div>
                             
@@ -1218,67 +1215,6 @@ Lưu ý cuối cùng:<br>
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <!-- Tab Cài đặt tài khoản -->
-                                    <div class="tab-pane fade" id="settings-tab">
-                                        <h4 class="border-bottom pb-2"><i class="bi bi-gear me-2"></i>Cài đặt tài khoản</h4>
-                                        <form class="mt-4" id="accountSettingsForm">
-                                            <div class="mb-3">
-                                                <label for="userDisplayNameInput" class="form-label">Tên hiển thị</label>
-                                                <input type="text" class="form-control" id="userDisplayNameInput" value="Tên Người Dùng">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="userEmailInput" class="form-label">Email</label>
-                                                <input type="email" class="form-control" id="userEmailInput" value="user@example.com">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="userLanguageSelect" class="form-label">Ngôn ngữ</label>
-                                                <select class="form-select" id="userLanguageSelect">
-                                                    <option value="vi" selected>Tiếng Việt</option>
-                                                    <option value="en">English</option>
-                                                    <option value="jp">日本語</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label d-block">Tùy chọn thông báo</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="newChapterNotify" checked>
-                                                    <label class="form-check-label" for="newChapterNotify">Thông báo chương mới</label>
-                                                </div>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="commentReplyNotify" checked>
-                                                    <label class="form-check-label" for="commentReplyNotify">Thông báo phản hồi bình luận</label>
-                                                </div>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" id="newsletterNotify">
-                                                    <label class="form-check-label" for="newsletterNotify">Nhận bản tin hàng tuần</label>
-                                                </div>
-                                            </div>
-                                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                                <button type="button" class="btn btn-secondary">Hủy</button>
-                                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                                            </div>
-                                        </form>
-                                        
-                                        <h5 class="border-bottom pb-2 mt-5 text-danger">Vùng nguy hiểm</h5>
-                                        <div class="mt-3">
-                                            <button class="btn btn-outline-danger" data-bs-toggle="collapse" data-bs-target="#deleteAccountSection">
-                                                <i class="bi bi-exclamation-triangle me-2"></i>Xóa tài khoản
-                                            </button>
-                                            <div class="collapse mt-3" id="deleteAccountSection">
-                                                <div class="card card-body border-danger">
-                                                    <p class="text-danger">Cảnh báo: Hành động này không thể hoàn tác. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn.</p>
-                                                    <div class="form-check mb-3">
-                                                        <input class="form-check-input" type="checkbox" id="confirmDeleteAccount">
-                                                        <label class="form-check-label" for="confirmDeleteAccount">
-                                                            Tôi hiểu rằng tài khoản của tôi sẽ bị xóa vĩnh viễn
-                                                        </label>
-                                                    </div>
-                                                    <button class="btn btn-danger" id="deleteAccountBtn" disabled>Xóa tài khoản của tôi</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1337,6 +1273,22 @@ Lưu ý cuối cùng:<br>
     <!-- Cập nhật JavaScript để xử lý các modal và trạng thái đăng nhập -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Thiết lập hàm dọn dẹp modal backdrops
+        function cleanupModalBackdrops() {
+            // Kiểm tra và xóa lớp phủ dư thừa
+            const visibleModals = $('.modal.show').length;
+            if (visibleModals === 0) {
+                // Nếu không có modal nào đang hiển thị, xóa tất cả backdrops
+                $('.modal-backdrop').remove();
+            } else {
+                // Nếu chỉ có một modal đang hiển thị, giữ lại một backdrop
+                const extraBackdrops = $('.modal-backdrop').length - visibleModals;
+                if (extraBackdrops > 0) {
+                    $('.modal-backdrop').slice(0, extraBackdrops).remove();
+                }
+            }
+        }
+        
         // Xử lý modals lồng nhau
         $('.modal').on('show.bs.modal', function () {
             var zIndex = 1050 + (10 * $('.modal:visible').length);
@@ -1344,6 +1296,12 @@ Lưu ý cuối cùng:<br>
             setTimeout(function() {
                 $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
             }, 0);
+        });
+        
+        // Thêm sự kiện cho việc đóng modal
+        $('.modal').on('hidden.bs.modal', function() {
+            // Dọn dẹp các backdrop khi modal đóng
+            cleanupModalBackdrops();
         });
         
         // Thiết lập riêng cho Thông tin tài khoản - đảm bảo modal hiển thị khi click từ dropdown
@@ -1370,10 +1328,19 @@ Lưu ý cuối cùng:<br>
         // Mở modal bảo mật khi nhấn vào nút bảo mật
         document.getElementById('securityButton')?.addEventListener('click', function(e) {
             e.preventDefault();
-            $('#settingsModal').modal('hide');
+            // Đóng modal hiện tại một cách rõ ràng
+            const settingsModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+            settingsModal.hide();
+            
+            // Đợi modal hiện tại đóng hoàn toàn trước khi mở modal mới
             setTimeout(function() {
-                $('#securityModal').modal('show');
-            }, 500);
+                // Xóa bất kỳ lớp phủ nào bị dư thừa
+                cleanupModalBackdrops();
+                
+                // Mở modal bảo mật
+                const securityModal = new bootstrap.Modal(document.getElementById('securityModal'));
+                securityModal.show();
+            }, 300);
         });
         
         // Thiết lập xác nhận xóa tài khoản
@@ -1414,7 +1381,13 @@ Lưu ý cuối cùng:<br>
                 // Mô phỏng đăng nhập thành công
                 $('.logged-out-menu').addClass('d-none');
                 $('.logged-in-menu').removeClass('d-none');
-                $('#login').modal('hide');
+                
+                // Đóng modal đăng nhập đúng cách
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('login'));
+                loginModal.hide();
+                
+                // Dọn dẹp backdrops
+                setTimeout(cleanupModalBackdrops, 300);
                 
                 // Cập nhật tên người dùng trong dropdown
                 const username = document.getElementById('loginUsername').value;
@@ -1441,6 +1414,141 @@ Lưu ý cuối cùng:<br>
                 document.getElementById('userActions').classList.add('d-none');
             });
         }
+        
+        // Thêm xử lý cho nút đổi mật khẩu trong modal thông tin cá nhân
+        document.querySelectorAll('[data-bs-target="#changePasswordModal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                // Đóng modal hiện tại trước khi mở modal đổi mật khẩu
+                const currentOpenModal = document.querySelector('.modal.show');
+                if (currentOpenModal) {
+                    const modalInstance = bootstrap.Modal.getInstance(currentOpenModal);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                }
+                
+                // Mở modal đổi mật khẩu sau một khoảng thời gian ngắn
+                setTimeout(function() {
+                    // Xóa bất kỳ lớp phủ nào bị dư thừa
+                    cleanupModalBackdrops();
+                    
+                    const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+                    changePasswordModal.show();
+                }, 300);
+            });
+        });
+        
+        // Xử lý tất cả các sự kiện mở modal để đảm bảo không có lớp phủ dư thừa
+        $('button[data-bs-toggle="modal"], a[data-bs-toggle="modal"]').on('click', function() {
+            setTimeout(cleanupModalBackdrops, 300);
+        });
+        
+        // Xử lý trường hợp người dùng đóng trang với modal đang mở
+        $(window).on('beforeunload', function() {
+            $('.modal-backdrop').remove();
+        });
+    });
+    </script>
+
+    <!-- Thêm đoạn code JavaScript này vào cuối file hoặc trong thẻ <script> riêng -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Lắng nghe sự kiện click cho tất cả các phần tử có class 'dropdown-item'
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            if (item.textContent.trim() === 'Thông tin tài khoản') {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Đóng dropdown menu
+                    const dropdownMenu = this.closest('.dropdown-menu');
+                    if (dropdownMenu) {
+                        const dropdownToggle = document.querySelector('[data-bs-toggle="dropdown"]');
+                        const dropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
+                        if (dropdown) {
+                            dropdown.hide();
+                        }
+                    }
+                    
+                    // Mở modal thông tin tài khoản
+                    const userProfileModal = new bootstrap.Modal(document.getElementById('userProfileModal'));
+                    userProfileModal.show();
+                });
+            }
+        });
+        
+        // Xử lý form đổi mật khẩu
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+                const messageElement = document.getElementById('changePasswordMessage');
+                
+                // Kiểm tra mật khẩu hiện tại (đây chỉ là demo, trong thực tế cần xác thực với server)
+                if (!currentPassword) {
+                    messageElement.textContent = 'Vui lòng nhập mật khẩu hiện tại';
+                    return;
+                }
+                
+                // Kiểm tra mật khẩu mới
+                if (newPassword.length < 6) {
+                    messageElement.textContent = 'Mật khẩu mới phải có ít nhất 6 ký tự';
+                    return;
+                }
+                
+                // Kiểm tra tính phức tạp của mật khẩu
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{6,}$/;
+                if (!passwordRegex.test(newPassword)) {
+                    messageElement.textContent = 'Mật khẩu mới phải chứa ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt';
+                    return;
+                }
+                
+                // Kiểm tra mật khẩu xác nhận
+                if (newPassword !== confirmNewPassword) {
+                    messageElement.textContent = 'Mật khẩu xác nhận không khớp với mật khẩu mới';
+                    return;
+                }
+                
+                // Mô phỏng đổi mật khẩu thành công
+                messageElement.textContent = 'Đổi mật khẩu thành công!';
+                messageElement.classList.remove('text-danger');
+                messageElement.classList.add('text-success');
+                
+                // Reset form sau 2 giây
+                setTimeout(function() {
+                    changePasswordForm.reset();
+                    messageElement.textContent = '';
+                    // Đóng modal sau khi thành công
+                    $('#changePasswordModal').modal('hide');
+                }, 2000);
+            });
+        }
+        
+        // Thêm xử lý cho nút đổi mật khẩu trong modal thông tin cá nhân
+        document.querySelectorAll('[data-bs-target="#changePasswordModal"]').forEach(button => {
+            button.addEventListener('click', function() {
+                // Đóng modal hiện tại trước khi mở modal đổi mật khẩu
+                const currentOpenModal = document.querySelector('.modal.show');
+                if (currentOpenModal) {
+                    const modalInstance = bootstrap.Modal.getInstance(currentOpenModal);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                }
+                
+                // Mở modal đổi mật khẩu sau một khoảng thời gian ngắn
+                setTimeout(function() {
+                    // Xóa bất kỳ lớp phủ nào bị dư thừa
+                    cleanupModalBackdrops();
+                    
+                    const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+                    changePasswordModal.show();
+                }, 300);
+            });
+        });
     });
     </script>
 </body>
