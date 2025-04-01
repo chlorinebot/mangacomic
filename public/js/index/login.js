@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const response = await fetch('http://localhost:3000/api/users/change-password', {
+                const response = await fetch('https://truyencuatuan.up.railway.app/api/users/change-password', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
