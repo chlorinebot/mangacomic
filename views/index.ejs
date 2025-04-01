@@ -57,6 +57,33 @@
           fill: currentColor;
         }
   
+        /* Hiệu ứng cho các biểu tượng trong navbar */
+        .navbar .nav-link:hover .bi {
+          transform: scale(1.2);
+          transition: transform 0.3s ease;
+        }
+        
+        .navbar-brand:hover .bi {
+          transform: rotate(10deg);
+          transition: transform 0.3s ease;
+        }
+        
+        .navbar .btn:hover .bi {
+          animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.2);
+          }
+          100% {
+            transform: scale(1);
+          }
+        }
+  
         .nav-scroller {
           position: relative;
           z-index: 2;
@@ -104,34 +131,35 @@
 <body class="d-flex flex-column h-100">
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar fixed-top bg-body-tertiary">
         <div class="container-xl">
-            <a class="navbar-brand ms-5" href="#">MANGA COMIC</a>
+            <a class="navbar-brand ms-5" href="#"><i class="bi bi-book-half text-primary me-2"></i>MANGA COMIC</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href=".">Trang chủ</a>
+                        <a class="nav-link active" aria-current="page" href="."><i class="bi bi-house-door-fill me-1"></i>Trang chủ</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="genreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Thể loại
+                            <i class="bi bi-grid-3x3-gap-fill me-1"></i>Thể loại
                         </a>
                         <ul class="dropdown-menu" id="genreDropdownMenu" aria-labelledby="genreDropdown">
                             <!-- Danh sách thể loại sẽ được đổ động bằng JavaScript -->
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="modal" data-bs-target="#history" href="#" aria-disabled="true">Lịch sử</a>
+                        <a class="nav-link" data-bs-toggle="modal" data-bs-target="#history" href="#" aria-disabled="true"><i class="bi bi-clock-history me-1"></i>Lịch sử</a>
                     </li> 
                 </ul>
                 <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button" style="width: 70px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                        </svg>
-                    </button>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-filter"></i></span>
+                        <input class="form-control border-start-0" type="search" placeholder="Tìm kiếm truyện..." aria-label="Search">
+                        <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
                 </form>
                 <!-- Thêm các nút Tin nhắn và Thông báo (ẩn ban đầu) -->
                 <ul class="navbar-nav me-2 mb-2 mb-lg-0 d-none ms-5" id="userActions">
@@ -160,16 +188,17 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item dropdown ms-5">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-                            </svg>
+                            <i class="bi bi-person-circle fs-4 me-1"></i>
                             Đăng nhập/Đăng ký
                         </a>
                         <ul class="dropdown-menu">
-                            <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập</button>
+                            <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập
+                            </button>
                             <li><hr class="dropdown-divider"></li>
-                            <button type="button" class="btn btn-outline-success ms-5" data-bs-toggle="modal" data-bs-target="#logup" style="width: 105px;">Đăng ký</button>
+                            <button type="button" class="btn btn-outline-success ms-5" data-bs-toggle="modal" data-bs-target="#logup" style="width: 105px;">
+                                <i class="bi bi-person-plus me-1"></i>Đăng ký
+                            </button>
                         </ul>
                     </li>
                 </ul>
@@ -179,8 +208,8 @@
     <!-- Offcanvas nơi hiển thị sau tìm kiếm -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasRightLabel">Bạn đang tìm kiếm: </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <h5 class="offcanvas-title" id="offcanvasRightLabel"><i class="bi bi-search-heart text-primary me-2"></i>Bạn đang tìm kiếm: </h5>
+            <button type="button" class="btn-close text-danger" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <div class="card mb-3" style="max-width: 540px;">
