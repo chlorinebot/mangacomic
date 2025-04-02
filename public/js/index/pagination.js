@@ -1,16 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Lấy phần tử pagination
   const paginationContainer = document.querySelector('.pagination');
-  const paginationItems = paginationContainer.querySelectorAll('.page-item');
-  const prevButton = paginationContainer.querySelector('.page-item:first-child');
-  const nextButton = paginationContainer.querySelector('.page-item:last-child');
-  const pageLinks = Array.from(paginationContainer.querySelectorAll('.page-item:not(:first-child):not(:last-child)'));
-  
-  // Số trang tối đa (từ số lượng nút phân trang hoặc tính toán từ dữ liệu)
-  const totalPages = Math.ceil(cardData.length / 24); // Tính số trang dựa trên 24 card/trang
+  if (!paginationContainer) {
+    console.error('Không tìm thấy phần tử pagination!');
+    return;
+  }
   
   // Số lượng card trên mỗi trang
-  const itemsPerPage = 8; // Số lượng 8 cho mỗi trangs
+  const itemsPerPage = 12; // Số lượng 12 cho mỗi trang
+  
+  // Số trang tối đa (từ số lượng nút phân trang hoặc tính toán từ dữ liệu)
+  const totalPages = Math.ceil(cardData.length / itemsPerPage); 
   
   // Hiển thị cards cho trang hiện tại
   function displayCardsForPage(pageNumber) {
@@ -67,112 +67,119 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Hàm cập nhật trạng thái active cho các nút
-  function updatePaginationState(currentPage) {
-    pageLinks.forEach((item, index) => {
-      if (index + 1 === currentPage) {
-        item.classList.add('active');
-        item.setAttribute('aria-current', 'page');
-      } else {
-        item.classList.remove('active');
-        item.removeAttribute('aria-current');
+  // Tạo mới phần tử phân trang giống với mẫu trong ảnh
+  function createPagination(currentPage) {
+    paginationContainer.innerHTML = '';
+    
+    // Tạo phần tử nút Previous
+    const prevItem = document.createElement('li');
+    prevItem.className = `page-item ${currentPage <= 1 ? 'disabled' : ''}`;
+    
+    const prevLink = document.createElement('a');
+    prevLink.className = 'page-link';
+    prevLink.href = '#';
+    prevLink.textContent = 'Previous';
+    
+    prevItem.appendChild(prevLink);
+    paginationContainer.appendChild(prevItem);
+    
+    // Xác định số lượng trang hiển thị
+    const maxVisiblePages = 3; // Hiển thị tối đa 3 trang số
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Điều chỉnh nếu không đủ số trang hiển thị
+    if (endPage - startPage + 1 < maxVisiblePages && startPage > 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // Tạo các nút số trang
+    for (let i = startPage; i <= endPage; i++) {
+      const pageItem = document.createElement('li');
+      pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+      
+      const pageLink = document.createElement('a');
+      pageLink.className = 'page-link';
+      pageLink.href = '#';
+      pageLink.textContent = i;
+      
+      pageItem.appendChild(pageLink);
+      paginationContainer.appendChild(pageItem);
+      
+      // Thêm sự kiện click
+      pageItem.addEventListener('click', function(e) {
+        e.preventDefault();
+        goToPage(i);
+      });
+    }
+    
+    // Tạo nút Next
+    const nextItem = document.createElement('li');
+    nextItem.className = `page-item ${currentPage >= totalPages ? 'disabled' : ''}`;
+    
+    const nextLink = document.createElement('a');
+    nextLink.className = 'page-link';
+    nextLink.href = '#';
+    nextLink.textContent = 'Next';
+    
+    nextItem.appendChild(nextLink);
+    paginationContainer.appendChild(nextItem);
+    
+    // Thêm sự kiện click cho nút Previous
+    prevItem.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (currentPage > 1) {
+        goToPage(currentPage - 1);
       }
     });
     
-    if (currentPage === 1) {
-      prevButton.classList.add('disabled');
-      prevButton.querySelector('a').setAttribute('tabindex', '-1');
-    } else {
-      prevButton.classList.remove('disabled');
-      prevButton.querySelector('a').removeAttribute('tabindex');
-    }
-    
-    if (currentPage === totalPages) {
-      nextButton.classList.add('disabled');
-      nextButton.querySelector('a').setAttribute('tabindex', '-1');
-    } else {
-      nextButton.classList.remove('disabled');
-      nextButton.querySelector('a').removeAttribute('tabindex');
-    }
-    
-    applyCurrentTheme();
-  }
-  
-  // Hàm áp dụng theme hiện tại (sáng/tối) cho phân trang
-  function applyCurrentTheme() {
-    const currentTheme = localStorage.getItem('darkMode');
-    const allPageLinks = document.querySelectorAll('.page-link');
-    const allPageItems = document.querySelectorAll('.page-item');
-    
-    if (currentTheme === 'enabled') {
-      allPageLinks.forEach(link => {
-        link.style.backgroundColor = '#333';
-        link.style.color = '#fff';
-        link.style.borderColor = '#444';
-      });
-      
-      allPageItems.forEach(item => {
-        if (item.classList.contains('active')) {
-          const activeLink = item.querySelector('.page-link');
-          if (activeLink) {
-            activeLink.style.backgroundColor = '#0d6efd';
-            activeLink.style.borderColor = '#0d6efd';
-            activeLink.style.color = '#fff';
-          }
-        }
-        if (item.classList.contains('disabled')) {
-          const disabledLink = item.querySelector('.page-link');
-          if (disabledLink) {
-            disabledLink.style.backgroundColor = '#222';
-            disabledLink.style.color = '#666';
-            disabledLink.style.borderColor = '#333';
-          }
-        }
-      });
-    } else {
-      allPageLinks.forEach(link => {
-        link.style.backgroundColor = '';
-        link.style.color = '';
-        link.style.borderColor = '';
-      });
-    }
+    // Thêm sự kiện click cho nút Next
+    nextItem.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (currentPage < totalPages) {
+        goToPage(currentPage + 1);
+      }
+    });
   }
   
   // Hàm chuyển đến trang được chọn
   function goToPage(pageNumber) {
-    updatePaginationState(pageNumber);
     displayCardsForPage(pageNumber);
+    createPagination(pageNumber);
     sessionStorage.setItem('currentPage', pageNumber);
-    console.log(`Đã chuyển đến trang ${pageNumber}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   
-  // Xử lý sự kiện click cho các nút số trang
-  pageLinks.forEach((item, index) => {
-    item.addEventListener('click', function(event) {
-      event.preventDefault();
-      goToPage(index + 1);
+  // Cập nhật style cho các nút phân trang hiện có
+  function updatePaginationStyles() {
+    const allPageLinks = document.querySelectorAll('.page-link');
+    allPageLinks.forEach(link => {
+      if (!link.style.backgroundColor) {
+        if (link.parentElement.classList.contains('active')) {
+          link.style.backgroundColor = '#0d6efd';
+        } else if (link.parentElement.classList.contains('disabled')) {
+          link.style.backgroundColor = '#343a40';
+          link.style.color = '#6c757d';
+        } else {
+          link.style.backgroundColor = '#343a40';
+        }
+        link.style.color = '#fff';
+        link.style.border = 'none';
+      }
     });
-  });
+  }
   
-  // Xử lý sự kiện click cho nút Previous
-  prevButton.addEventListener('click', function(event) {
-    event.preventDefault();
-    if (!this.classList.contains('disabled')) {
-      const currentPage = parseInt(sessionStorage.getItem('currentPage') || 1);
-      goToPage(currentPage - 1);
-    }
-  });
+  // Lắng nghe sự kiện thay đổi theme
+  const darkModeToggle = document.getElementById('darkmode-toggle');
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener('change', function() {
+      setTimeout(() => {
+        // Cho darkmode thời gian để áp dụng, sau đó cập nhật lại style
+        updatePaginationStyles();
+      }, 100);
+    });
+  }
   
-  // Xử lý sự kiện click cho nút Next
-  nextButton.addEventListener('click', function(event) {
-    event.preventDefault();
-    if (!this.classList.contains('disabled')) {
-      const currentPage = parseInt(sessionStorage.getItem('currentPage') || 1);
-      goToPage(currentPage + 1);
-    }
-  });
-  
-  // Khởi tạo trạng thái ban đầu
-  const initialPage = parseInt(sessionStorage.getItem('currentPage')) || 1;
-  goToPage(initialPage);
+  // Áp dụng style ngay khi trang tải xong
+  updatePaginationStyles();
 });

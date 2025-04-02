@@ -302,8 +302,8 @@
     </div>
     <br><br>
     <!-- Footer -->
-    <nav aria-label="..." class="d-flex justify-content-center">
-        <ul class="pagination">
+    <nav aria-label="Page navigation" class="d-flex justify-content-center">
+        <ul class="pagination" id="paginationContainer">
             <li class="page-item disabled">
                 <a class="page-link">Previous</a>
             </li>
@@ -318,7 +318,28 @@
         </ul>
     </nav>
     
-    <footer class="footer mt-auto py-3 bg-light fixed-bottom bg-body-tertiary">
+    <!-- CSS cho phân trang -->
+    <style>
+        .pagination .page-link {
+            background-color: #343a40;
+            color: #fff;
+            border: none;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            color: #fff;
+            border: none;
+        }
+        
+        .pagination .page-item.disabled .page-link {
+            background-color: #343a40;
+            color: #6c757d;
+            border: none;
+        }
+    </style>
+    
+    <footer class="footer mt-auto py-3 bg-light bg-body-tertiary">
         <div class="container">
             <div class="text-center">
                 <p class="mb-0">© Copyright 2025 by KimTuan. All Rights Reserved. <a href="#" data-bs-toggle="modal" data-bs-target="#dieukhoandv">Điều khoản dịch vụ</a> & <a href="#" data-bs-toggle="modal" data-bs-target="#quyenriengtu">Quyền riêng tư</a>.</p>

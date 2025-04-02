@@ -379,3 +379,56 @@ overflow-y: auto;
   .bd-mode-toggle .dropdown-menu .active .bi {
     display: block !important;
   }
+
+/* CSS cho phân trang cố định */
+.pagination-wrapper {
+    position: fixed;
+    bottom: 60px; /* Để tránh bị che bởi footer */
+    left: 0;
+    right: 0;
+    background-color: var(--bs-body-bg);
+    padding: 15px 0;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Điều chỉnh margin cho container chính */
+.container-fluid {
+    margin-bottom: 120px; /* Để tránh nội dung bị che bởi phân trang */
+}
+
+/* Tùy chỉnh style cho phân trang */
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-link {
+    padding: 8px 16px;
+    font-size: 16px;
+}
+
+/* Tùy chỉnh màu sắc cho dark mode */
+[data-bs-theme="dark"] .pagination-wrapper {
+    background-color: var(--bs-dark);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .page-link {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+    color: var(--bs-light);
+}
+
+[data-bs-theme="dark"] .page-item.active .page-link {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: var(--bs-light);
+}
+
+[data-bs-theme="dark"] .page-item.disabled .page-link {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-border-color);
+    color: var(--bs-secondary);
+}

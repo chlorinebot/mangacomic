@@ -10,7 +10,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Lấy danh sách thể loại từ API
     try {
-        genres = await ApiService.getGenres();
+        const genreResponse = await fetch('http://localhost:3000/api/genres');
+        if (!genreResponse.ok) throw new Error('Lỗi khi lấy danh sách thể loại');
+        genres = await genreResponse.json();
         console.log('Genres loaded:', genres);
         populateGenreDropdown(); // Đổ danh sách thể loại vào dropdown
     } catch (error) {
@@ -20,7 +22,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Lấy danh sách truyện từ API
     try {
-        cardData = await ApiService.getCards();
+        const cardResponse = await fetch('http://localhost:3000/api/cards');
+        if (!cardResponse.ok) throw new Error('Lỗi khi lấy danh sách truyện');
+        cardData = await cardResponse.json();
         originalCardData = [...cardData]; // Lưu trữ dữ liệu gốc
         console.log('Card data loaded:', cardData);
         if (cardData.length === 0) console.warn('Không có dữ liệu truyện!');
@@ -36,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
-    const itemsPerPage = 24;
+    const itemsPerPage = 12;
     const totalPages = Math.ceil(cardData.length / itemsPerPage);
 
     setupCardPagination();
@@ -92,7 +96,7 @@ function filterCardsByGenre(genreId) {
     }
 
     // Cập nhật giao diện
-    const itemsPerPage = 24;
+    const itemsPerPage = 12;
     const totalPages = Math.ceil(cardData.length / itemsPerPage);
     setupCardPagination();
     displayCardsForPage(1);
@@ -100,7 +104,7 @@ function filterCardsByGenre(genreId) {
 
 // Hàm hiển thị card cho trang cụ thể
 function displayCardsForPage(pageNumber) {
-    const itemsPerPage = 24;
+    const itemsPerPage = 12;
     const startIndex = (pageNumber - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentPageData = cardData.slice(startIndex, endIndex);
@@ -379,43 +383,14 @@ function setupCardModalBehavior() {
         cardModal.addEventListener('hidden.bs.modal', function() {
             const homeUrl = `${window.location.origin}/`;
             window.history.pushState({}, '', homeUrl);
-            resetModalState();
+
+            document.body.classList.remove('modal-open');
+            const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+            modalBackdrops.forEach(backdrop => backdrop.remove());
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         });
     }
-}
-
-// Hàm reset trạng thái modal
-function resetModalState() {
-    console.log("Reset trạng thái modal");
-    // Đếm số lượng modal hiển thị
-    const visibleModals = document.querySelectorAll('.modal.show').length;
-    
-    if (visibleModals === 0) {
-        // Nếu không còn modal nào hiển thị, xóa tất cả backdrop và reset body
-        document.body.classList.remove('modal-open');
-        const modalBackdrops = document.querySelectorAll('.modal-backdrop');
-        modalBackdrops.forEach(backdrop => backdrop.remove());
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        document.body.removeAttribute('style');
-    } else if (document.querySelectorAll('.modal-backdrop').length > visibleModals) {
-        // Nếu có nhiều backdrop hơn modal đang hiển thị, chỉ giữ lại số lượng backdrop cần thiết
-        const extraBackdrops = document.querySelectorAll('.modal-backdrop').length - visibleModals;
-        const allBackdrops = Array.from(document.querySelectorAll('.modal-backdrop'));
-        allBackdrops.slice(0, extraBackdrops).forEach(backdrop => backdrop.remove());
-    }
-    
-    // Đảm bảo z-index chính xác cho modal và backdrop còn lại
-    document.querySelectorAll('.modal.show').forEach((modal, index) => {
-        const zIndex = 1050 + (10 * index);
-        modal.style.zIndex = zIndex;
-        
-        // Nếu có backdrop tương ứng, cập nhật z-index của nó
-        if (document.querySelectorAll('.modal-backdrop').length > index) {
-            const backdrop = document.querySelectorAll('.modal-backdrop')[index];
-            backdrop.style.zIndex = zIndex - 1;
-        }
-    });
 }
 
 // Hàm xử lý URL chia sẻ
