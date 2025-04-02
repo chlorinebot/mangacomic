@@ -81,19 +81,62 @@ const deleteUser = async (id) => {
     }
 };
 
-const updateUser = async (id, username, email, password) => {
+const updateUser = async (id, userData) => {
     const connection = await dbPool.getConnection();
     try {
         await connection.beginTransaction();
 
-        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+        // Kiểm tra xem người dùng có tồn tại không
+        const [existingUser] = await connection.query('SELECT * FROM users WHERE id = ?', [id]);
+        if (existingUser.length === 0) {
+            throw new Error('Người dùng không tồn tại');
+        }
 
-        const [result] = await connection.query(
-            'UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?',
-            [username, email, hashedPassword, id]
-        );
+        // Chuẩn bị truy vấn và các tham số
+        let query = 'UPDATE users SET ';
+        const queryParams = [];
+        const updateFields = [];
+
+        // Xử lý username nếu có
+        if (userData.username) {
+            updateFields.push('username = ?');
+            queryParams.push(userData.username);
+        }
+
+        // Xử lý email nếu có
+        if (userData.email) {
+            updateFields.push('email = ?');
+            queryParams.push(userData.email);
+        }
+
+        // Xử lý password nếu có
+        if (userData.password) {
+            const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
+            updateFields.push('password = ?');
+            queryParams.push(hashedPassword);
+        }
+
+        // Xử lý role_id nếu có
+        if (userData.role_id) {
+            updateFields.push('role_id = ?');
+            queryParams.push(userData.role_id);
+        }
+
+        // Nếu không có trường nào cần cập nhật
+        if (updateFields.length === 0) {
+            throw new Error('Không có dữ liệu cần cập nhật');
+        }
+
+        // Hoàn thiện câu truy vấn
+        query += updateFields.join(', ') + ' WHERE id = ?';
+        queryParams.push(id);
+
+        const [result] = await connection.query(query, queryParams);
         await connection.commit();
-        return result;
+        return { 
+            affectedRows: result.affectedRows,
+            message: 'Cập nhật người dùng thành công'
+        };
     } catch (err) {
         await connection.rollback();
         throw err;
@@ -102,4 +145,18 @@ const updateUser = async (id, username, email, password) => {
     }
 };
 
-module.exports = { getAllUsers, registerUser, loginUser, deleteUser, updateUser };
+// Đếm số lượng người dùng
+const countUsers = async () => {
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query('SELECT COUNT(*) as count FROM users');
+        return { count: rows[0].count };
+    } catch (err) {
+        console.error('Lỗi khi đếm số lượng người dùng:', err);
+        throw new Error('Không thể đếm số lượng người dùng');
+    } finally {
+        connection.release();
+    }
+};
+
+module.exports = { getAllUsers, registerUser, loginUser, deleteUser, updateUser, countUsers };

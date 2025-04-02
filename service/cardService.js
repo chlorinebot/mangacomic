@@ -5,9 +5,11 @@ const getAllCards = async () => {
     const connection = await dbPool.getConnection();
     try {
         const [rows] = await connection.query(`
-            SELECT c.id, c.title, c.image, c.content, c.link, c.TheLoai, g.genre_name 
+            SELECT c.*, GROUP_CONCAT(g.genre_name) as genre_names
             FROM cards c
-            LEFT JOIN genres g ON c.TheLoai = g.genre_id
+            LEFT JOIN card_genres cg ON c.id = cg.card_id
+            LEFT JOIN genres g ON cg.genre_id = g.genre_id
+            GROUP BY c.id
         `);
         return rows;
     } finally {
@@ -49,17 +51,39 @@ const saveCards = async (cards) => {
     }
 };
 
-// Xóa card theo id
-const deleteCard = async (id) => {
+// Thêm truyện mới
+const saveCard = async (cardData) => {
+    const { title, image, content, link, hashtags, genres } = cardData;
     const connection = await dbPool.getConnection();
     try {
         await connection.beginTransaction();
-        // Xóa các chapters liên quan trước
-        await connection.query('DELETE FROM chapters WHERE card_id = ?', [id]);
-        // Xóa card
-        const [result] = await connection.query('DELETE FROM cards WHERE id = ?', [id]);
+
+        // Thêm truyện mới vào bảng cards
+        const [result] = await connection.query(
+            'INSERT INTO cards (title, image, content, link, hashtags) VALUES (?, ?, ?, ?, ?)',
+            [title, image, content, link, hashtags]
+        );
+        const cardId = result.insertId;
+
+        // Thêm các thể loại vào bảng card_genres
+        if (genres && Array.isArray(genres) && genres.length > 0) {
+            const genreValues = genres.map(genreId => [cardId, genreId]);
+            await connection.query(
+                'INSERT INTO card_genres (card_id, genre_id) VALUES ?',
+                [genreValues]
+            );
+        }
+
         await connection.commit();
-        return result;
+        return { 
+            id: cardId, 
+            title, 
+            image, 
+            content, 
+            link, 
+            hashtags, 
+            genres 
+        };
     } catch (err) {
         await connection.rollback();
         throw err;
@@ -68,4 +92,102 @@ const deleteCard = async (id) => {
     }
 };
 
-module.exports = { getAllCards, saveCards, deleteCard };
+// Cập nhật truyện
+const updateCard = async (id, cardData) => {
+    const { title, image, content, link, hashtags, genres } = cardData;
+    const connection = await dbPool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // Cập nhật thông tin truyện
+        const [result] = await connection.query(
+            'UPDATE cards SET title = ?, image = ?, content = ?, link = ?, hashtags = ? WHERE id = ?',
+            [title, image, content, link, hashtags, id]
+        );
+        
+        if (result.affectedRows === 0) {
+            throw new Error('Truyện không tồn tại');
+        }
+
+        // Xóa các thể loại cũ
+        await connection.query('DELETE FROM card_genres WHERE card_id = ?', [id]);
+
+        // Thêm các thể loại mới
+        if (genres && Array.isArray(genres) && genres.length > 0) {
+            const genreValues = genres.map(genreId => [id, genreId]);
+            await connection.query(
+                'INSERT INTO card_genres (card_id, genre_id) VALUES ?',
+                [genreValues]
+            );
+        }
+
+        await connection.commit();
+        return { 
+            id, 
+            title, 
+            image, 
+            content, 
+            link, 
+            hashtags, 
+            genres,
+            message: 'Cập nhật truyện thành công'
+        };
+    } catch (err) {
+        await connection.rollback();
+        throw err;
+    } finally {
+        connection.release();
+    }
+};
+
+// Xóa card theo id
+const deleteCard = async (id) => {
+    const connection = await dbPool.getConnection();
+    try {
+        await connection.beginTransaction();
+        // Xóa các chapters liên quan trước
+        await connection.query('DELETE FROM chapters WHERE card_id = ?', [id]);
+        // Xóa các genre liên quan
+        await connection.query('DELETE FROM card_genres WHERE card_id = ?', [id]);
+        // Xóa card
+        const [result] = await connection.query('DELETE FROM cards WHERE id = ?', [id]);
+        
+        if (result.affectedRows === 0) {
+            throw new Error('Truyện không tồn tại');
+        }
+        
+        await connection.commit();
+        return { 
+            affectedRows: result.affectedRows,
+            message: 'Xóa truyện thành công'
+        };
+    } catch (err) {
+        await connection.rollback();
+        throw err;
+    } finally {
+        connection.release();
+    }
+};
+
+// Đếm số lượng truyện
+const countCards = async () => {
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query('SELECT COUNT(*) as count FROM cards');
+        return { count: rows[0].count };
+    } catch (err) {
+        console.error('Lỗi khi đếm số lượng truyện:', err);
+        throw new Error('Không thể đếm số lượng truyện');
+    } finally {
+        connection.release();
+    }
+};
+
+module.exports = { 
+    getAllCards, 
+    saveCards, 
+    deleteCard,
+    saveCard,
+    updateCard,
+    countCards
+};

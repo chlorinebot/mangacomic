@@ -67,4 +67,23 @@ const deleteChapter = async (card_id, chapter_number) => {
     }
 };
 
-module.exports = { getAllChapters, saveChapters, deleteChapter };
+// Đếm số lượng chương
+const countChapters = async () => {
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query('SELECT COUNT(*) as count FROM chapters');
+        return { count: rows[0].count };
+    } catch (err) {
+        console.error('Lỗi khi đếm số lượng chương:', err);
+        throw new Error('Không thể đếm số lượng chương');
+    } finally {
+        connection.release();
+    }
+};
+
+module.exports = { 
+    getAllChapters, 
+    saveChapters, 
+    deleteChapter,
+    countChapters
+};

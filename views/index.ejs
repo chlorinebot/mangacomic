@@ -317,6 +317,7 @@
             </li>
         </ul>
     </nav>
+    
     <footer class="footer mt-auto py-3 bg-light fixed-bottom bg-body-tertiary">
         <div class="container">
             <div class="text-center">
@@ -339,8 +340,7 @@
         }
         
         .footer {
-            position: absolute;
-            bottom: 0;
+            
             width: 100%;
             height: 60px; /* Chiều cao của footer */
         }
@@ -889,24 +889,26 @@ Lưu ý cuối cùng:<br>
 
     <br>
 
-    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- Load jwt-decode via CDN -->
+    <!-- Script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"></script>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
-    <!-- API Service - Quản lý tập trung các API endpoints -->
+
+    <!-- Custom scripts -->
+    <script src="/js/index/modal-backdrop-fix.js"></script>
     <script src="/js/index/api-service.js"></script>
     <script src="/js/index/search.js"></script>
-    
     <script src="/js/index/pagination.js"></script>
+    <script src="/js/index/chapter_scroll.js"></script>
+    <script src="/js/index/cookie-optimization.js"></script>
+    <script src="/js/index/chapter.js"></script>
     <script src="/js/index/card_title.js"></script>
     <script src="/js/index/login.js"></script>
     <script src="/js/index/logup.js"></script>
-    <script src="/js/index/chapter.js"></script>
-    <script src="/js/index/chapter_scroll.js"></script>
+    <script src="/js/index/genre.js"></script>
     <script src="/js/index/anti-copy.js"></script>
     <script src="/js/index/block-devtools.js"></script>
-    <script src="/js/index/cookie-optimization.js"></script>
-    <script src="/js/index/genre.js"></script>
-    <script src="/js/index/modal-backdrop-fix.js"></script>
     <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
 </body>
 </html>
