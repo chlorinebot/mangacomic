@@ -130,32 +130,64 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const response = await fetch('http://localhost:3000/api/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, email, password }),
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    registerMessage.textContent = data.message;
-                    registerMessage.className = 'mt-2 text-success';
-                    setTimeout(() => {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('logup'));
-                        modal.hide();
-                    }, 1000);
-                } else {
-                    registerMessage.textContent = data.error;
-                    registerMessage.className = 'mt-2 text-danger';
-                }
+                // Sử dụng ApiService thay vì gọi fetch trực tiếp
+                const data = await ApiService.register({ username, email, password });
+                
+                registerMessage.textContent = data.message;
+                registerMessage.className = 'mt-2 text-success';
+                setTimeout(() => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('logup'));
+                    modal.hide();
+                    resetModalState(); // Gọi hàm reset modal state khi đóng modal
+                }, 1000);
             } catch (error) {
-                registerMessage.textContent = 'Lỗi kết nối server!';
+                registerMessage.textContent = error.message || 'Lỗi đăng ký!';
                 registerMessage.className = 'mt-2 text-danger';
                 console.error('Lỗi:', error);
             }
         });
     }
+
+    // Thêm sự kiện khi modal được ẩn để reset trạng thái
+    const logupModal = document.getElementById('logup');
+    if (logupModal) {
+        logupModal.addEventListener('hidden.bs.modal', function() {
+            console.log("Modal #logup đã đóng");
+            resetModalState();
+        });
+    }
 });
+
+// Hàm reset trạng thái modal
+function resetModalState() {
+    console.log("Reset trạng thái modal");
+    // Đếm số lượng modal hiển thị
+    const visibleModals = document.querySelectorAll('.modal.show').length;
+    
+    if (visibleModals === 0) {
+        // Nếu không còn modal nào hiển thị, xóa tất cả backdrop và reset body
+        document.body.classList.remove('modal-open');
+        const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+        modalBackdrops.forEach(backdrop => backdrop.remove());
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        document.body.removeAttribute('style');
+    } else if (document.querySelectorAll('.modal-backdrop').length > visibleModals) {
+        // Nếu có nhiều backdrop hơn modal đang hiển thị, chỉ giữ lại số lượng backdrop cần thiết
+        const extraBackdrops = document.querySelectorAll('.modal-backdrop').length - visibleModals;
+        const allBackdrops = Array.from(document.querySelectorAll('.modal-backdrop'));
+        allBackdrops.slice(0, extraBackdrops).forEach(backdrop => backdrop.remove());
+    }
+    
+    // Đảm bảo z-index chính xác cho modal và backdrop còn lại
+    document.querySelectorAll('.modal.show').forEach((modal, index) => {
+        const zIndex = 1050 + (10 * index);
+        modal.style.zIndex = zIndex;
+        
+        // Nếu có backdrop tương ứng, cập nhật z-index của nó
+        if (document.querySelectorAll('.modal-backdrop').length > index) {
+            const backdrop = document.querySelectorAll('.modal-backdrop')[index];
+            backdrop.style.zIndex = zIndex - 1;
+        }
+    });
+}

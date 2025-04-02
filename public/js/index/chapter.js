@@ -9,9 +9,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Lấy dữ liệu chapters từ server
     try {
-        const response = await fetch('http://localhost:3000/api/chapters');
-        if (!response.ok) throw new Error('Lỗi khi lấy dữ liệu từ API');
-        chapterData = await response.json();
+        // Sử dụng ApiService thay vì gọi fetch trực tiếp
+        chapterData = await ApiService.getChapters();
         console.log('Chapter data loaded:', chapterData);
         if (Object.keys(chapterData).length === 0) console.warn('Không có dữ liệu chapters!');
     } catch (error) {
@@ -105,11 +104,67 @@ function setupChapterModalBehavior() {
 // Hàm reset trạng thái modal
 function resetModalState() {
     console.log("Reset trạng thái modal");
-    document.body.classList.remove('modal-open');
-    const backdrops = document.querySelectorAll('.modal-backdrop');
-    backdrops.forEach(backdrop => backdrop.remove());
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
+    // Đếm số lượng modal hiển thị
+    const visibleModals = document.querySelectorAll('.modal.show').length;
+    
+    if (visibleModals === 0) {
+        // Nếu không còn modal nào hiển thị, xóa tất cả backdrop và reset body
+        document.body.classList.remove('modal-open');
+        const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+        modalBackdrops.forEach(backdrop => backdrop.remove());
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        document.body.removeAttribute('style');
+    } else {
+        // Kiểm tra và xóa backdrop của modal đọc truyện nếu có
+        const doctruyenModal = document.getElementById('doctruyen');
+        if (doctruyenModal) {
+            const doctruyenZIndex = parseInt(doctruyenModal.style.zIndex || '1050');
+            const doctruyenBackdropZIndex = doctruyenZIndex - 1;
+            
+            // Tìm và xóa backdrop của modal đọc truyện
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                const backdropZIndex = parseInt(backdrop.style.zIndex || '1040');
+                if (backdropZIndex === doctruyenBackdropZIndex) {
+                    backdrop.remove();
+                }
+            });
+        }
+        
+        // Nếu có nhiều backdrop hơn modal đang hiển thị, chỉ giữ lại số lượng backdrop cần thiết
+        if (document.querySelectorAll('.modal-backdrop').length > visibleModals) {
+            const extraBackdrops = document.querySelectorAll('.modal-backdrop').length - visibleModals;
+            const allBackdrops = Array.from(document.querySelectorAll('.modal-backdrop'));
+            allBackdrops.slice(0, extraBackdrops).forEach(backdrop => backdrop.remove());
+        }
+    }
+    
+    // Đảm bảo z-index chính xác cho modal và backdrop còn lại
+    document.querySelectorAll('.modal.show').forEach((modal, index) => {
+        const zIndex = 1050 + (10 * index);
+        modal.style.zIndex = zIndex;
+        
+        // Nếu có backdrop tương ứng, cập nhật z-index của nó
+        if (document.querySelectorAll('.modal-backdrop').length > index) {
+            const backdrop = document.querySelectorAll('.modal-backdrop')[index];
+            backdrop.style.zIndex = zIndex - 1;
+        }
+    });
+    
+    // Kiểm tra trạng thái modal đọc truyện
+    const doctruyenModal = document.getElementById('doctruyen');
+    if (doctruyenModal && doctruyenModal.classList.contains('show')) {
+        // Nếu modal đọc truyện đang hiển thị, xóa backdrop của nó
+        const doctruyenZIndex = parseInt(doctruyenModal.style.zIndex || '1050');
+        const doctruyenBackdropZIndex = doctruyenZIndex - 1;
+        
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+            const backdropZIndex = parseInt(backdrop.style.zIndex || '1040');
+            if (backdropZIndex === doctruyenBackdropZIndex) {
+                backdrop.remove();
+            }
+        });
+    }
 }
 
 // Hàm hiển thị danh sách chapters
@@ -365,9 +420,23 @@ function showModal(modalElement) {
     modalElement.classList.remove('fade');
 
     try {
-        const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+        // Thiết lập backdrop: false để không tạo backdrop cho modal đọc truyện
+        const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement, { backdrop: false, keyboard: true });
         modalInstance.show();
         console.log("Modal #doctruyen đã được mở thành công");
+        
+        // Xóa backdrop của modal đọc truyện nếu có
+        setTimeout(() => {
+            const doctruyenZIndex = parseInt(modalElement.style.zIndex || '1050');
+            const doctruyenBackdropZIndex = doctruyenZIndex - 1;
+            
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                const backdropZIndex = parseInt(backdrop.style.zIndex || '1040');
+                if (backdropZIndex === doctruyenBackdropZIndex) {
+                    backdrop.remove();
+                }
+            });
+        }, 10);
     } catch (error) {
         console.error("Lỗi khi mở modal:", error);
     }
