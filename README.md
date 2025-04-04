@@ -1,1 +1,2 @@
 # mangacomic
+image.png
