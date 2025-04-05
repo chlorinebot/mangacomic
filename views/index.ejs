@@ -755,23 +755,28 @@ Lưu ý cuối cùng:<br>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form class="d-flex" role="search" style="width: 600px;">
-                        <input class="form-control me-2" type="search" placeholder="Tìm kiếm trong lịch sử của bạn" aria-label="Search">
-                        <button class="btn btn-outline-success" type="button" style="width: 70px;">
+                    <form class="d-flex" role="search" style="width: 600px;" id="historySearchForm">
+                        <input class="form-control me-2" type="search" placeholder="Tìm kiếm trong lịch sử của bạn" aria-label="Search" id="historySearchInput">
+                        <button class="btn btn-outline-success" type="submit" style="width: 70px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
                             </svg>
                         </button>
                     </form>
-                    <h1>Vui lòng đăng nhập để xem lại lịch sử xem!!!</h1>
-                    <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập tại đây</button>
+                    <div id="historyList" class="mt-3">
+                        <!-- Danh sách lịch sử sẽ được render động -->
+                    </div>
+                    <div id="noHistoryMessage" class="text-center">
+                        <h1>Vui lòng đăng nhập để xem lại lịch sử xem!!!</h1>
+                        <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập tại đây</button>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
-    </div>      
+    </div>    
                   
     <!-- Modal card -->
     <div class="modal fade" id="card" tabindex="-1" aria-labelledby="cardModalLabel" aria-hidden="true">
@@ -868,6 +873,11 @@ Lưu ý cuối cùng:<br>
                 <li class="nav-item" role="presentation">
                   <button class="nav-link" id="favorites-tab" data-bs-toggle="tab" data-bs-target="#favorites-tab-pane" type="button" role="tab" aria-controls="favorites-tab-pane" aria-selected="false">
                     <i class="bi bi-heart me-1"></i>Truyện yêu thích
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button" role="tab" aria-controls="history-tab-pane" aria-selected="false">
+                    <i class="bi bi-clock-history me-1"></i>Lịch sử đọc
                   </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -1006,6 +1016,28 @@ Lưu ý cuối cùng:<br>
                       </div>
                     </div>
                   </div>
+                </div>
+                
+                <!-- Lịch sử đọc -->
+                <div class="tab-pane fade" id="history-tab-pane" role="tabpanel" aria-labelledby="history-tab" tabindex="0">
+                  <div class="px-3 py-2">
+                    <h4 class="mb-3">
+                        <i class="bi bi-clock-history"></i> Lịch sử đọc truyện
+                        <button id="clearHistoryBtn" class="btn btn-sm btn-outline-danger float-end">
+                            <i class="bi bi-trash"></i> Xóa tất cả
+                        </button>
+                    </h4>
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" id="searchHistory" class="form-control" placeholder="Tìm kiếm trong lịch sử..." aria-label="Tìm kiếm" aria-describedby="searchHistoryBtn">
+                            <button class="btn btn-outline-primary" type="button" id="searchHistoryBtn"><i class="bi bi-search"></i></button>
+                        </div>
+                    </div>
+                    <div id="noHistoryMessage" class="alert alert-warning d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>Bạn chưa có lịch sử đọc truyện hoặc chưa đăng nhập. Vui lòng đăng nhập để xem lịch sử!</div>
+                    </div>
+                    <div id="readingHistoryList" class="list-group"></div>
                 </div>
               </div>
             </div>
@@ -1263,5 +1295,6 @@ Lưu ý cuối cùng:<br>
     <script src="/js/index/block-devtools.js"></script>
     <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
     <script src="/js/index/favorites.js"></script>
+    <script src="/js/index/history.js"></script>
 </body>
 </html>

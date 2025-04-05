@@ -6,8 +6,9 @@ const { getUsers, deleteUserData, updateUser: updateUserData, countUsers } = req
 const { register, login } = require('./controllers/authController');
 const { getGenres, createGenre, updateGenre, deleteGenre, getCardGenres, updateCardGenres, countGenres } = require('./controllers/genreController');
 const { checkFavoriteStatus, addToFavorites, removeFromFavorites } = require('./controllers/favoriteController');
-const { checkAdminAuth } = require('./middleware/authMiddleware');
+const { checkAdminAuth, verifyToken } = require('./middleware/authMiddleware');
 const { getUserProfile, getUserFavorites } = require('./controllers/profileController');
+const { addReadingHistory, getReadingHistoryByUser, deleteReadingHistory, clearReadingHistory } = require('./controllers/readingHistoryController');
 
 const app = express();
 const port = 3000;
@@ -33,6 +34,12 @@ app.put('/api/cards/:id', checkDbConnection, updateCard);
 // API cho thể loại của một truyện
 app.get('/api/cards/:id/genres', checkDbConnection, getCardGenres);
 app.put('/api/cards/:id/genres', checkDbConnection, updateCardGenres);
+
+// API cho lịch sử đọc
+app.post('/api/reading-history', checkDbConnection, addReadingHistory);
+app.get('/api/reading-history/:userId', checkDbConnection, getReadingHistoryByUser);
+app.delete('/api/reading-history/:historyId', checkDbConnection, verifyToken, deleteReadingHistory);
+app.delete('/api/reading-history/clear/all', checkDbConnection, verifyToken, clearReadingHistory);
 
 // API cho chapters
 app.get('/api/chapters', checkDbConnection, getChapters);

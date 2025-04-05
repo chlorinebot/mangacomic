@@ -72,14 +72,25 @@ async function removeFromFavorites(userId, cardId) {
 
 // Hàm thiết lập nút yêu thích trong modal
 function setupFavoriteButton(cardId) {
+    // Kiểm tra và xóa nút yêu thích cũ nếu đã tồn tại
+    const existingButton = document.getElementById('favoriteComicBtn');
+    if (existingButton) {
+        existingButton.remove();
+    }
+    
     const favoriteButton = document.createElement('button');
     favoriteButton.className = 'btn btn-outline-danger mt-2 me-2';
     favoriteButton.id = 'favoriteComicBtn';
     favoriteButton.innerHTML = '<i class="bi bi-heart"></i> Yêu thích';
 
     // Thêm nút vào modal
-    const modalBody = document.querySelector('#card .modal-body .card-body');
+    const modalBody = document.querySelector('#card .modal-body .col-md-4 .card-body');
     if (modalBody) {
+        // Kiểm tra lại lần nữa trước khi thêm
+        const duplicateButton = modalBody.querySelector('#favoriteComicBtn');
+        if (duplicateButton) {
+            duplicateButton.remove();
+        }
         modalBody.appendChild(favoriteButton);
     } else {
         console.error('Không tìm thấy card-body trong modal để thêm nút yêu thích!');
@@ -159,6 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
         cardModal.addEventListener('show.bs.modal', (event) => {
             const comicId = cardModal.getAttribute('data-comic-id');
             if (comicId) {
+                // Đảm bảo xóa nút cũ trước khi thêm nút mới
+                const existingButton = document.getElementById('favoriteComicBtn');
+                if (existingButton) {
+                    existingButton.remove();
+                }
                 setupFavoriteButton(comicId);
             }
         });

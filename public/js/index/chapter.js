@@ -107,64 +107,23 @@ function resetModalState() {
     // Đếm số lượng modal hiển thị
     const visibleModals = document.querySelectorAll('.modal.show').length;
     
+    // Đảm bảo không có nhiều nút yêu thích bị trùng lặp
     if (visibleModals === 0) {
-        // Nếu không còn modal nào hiển thị, xóa tất cả backdrop và reset body
-        document.body.classList.remove('modal-open');
-        const modalBackdrops = document.querySelectorAll('.modal-backdrop');
-        modalBackdrops.forEach(backdrop => backdrop.remove());
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        document.body.removeAttribute('style');
-    } else {
-        // Kiểm tra và xóa backdrop của modal đọc truyện nếu có
-        const doctruyenModal = document.getElementById('doctruyen');
-        if (doctruyenModal) {
-            const doctruyenZIndex = parseInt(doctruyenModal.style.zIndex || '1050');
-            const doctruyenBackdropZIndex = doctruyenZIndex - 1;
-            
-            // Tìm và xóa backdrop của modal đọc truyện
-            document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-                const backdropZIndex = parseInt(backdrop.style.zIndex || '1040');
-                if (backdropZIndex === doctruyenBackdropZIndex) {
-                    backdrop.remove();
-                }
-            });
-        }
-        
-        // Nếu có nhiều backdrop hơn modal đang hiển thị, chỉ giữ lại số lượng backdrop cần thiết
-        if (document.querySelectorAll('.modal-backdrop').length > visibleModals) {
-            const extraBackdrops = document.querySelectorAll('.modal-backdrop').length - visibleModals;
-            const allBackdrops = Array.from(document.querySelectorAll('.modal-backdrop'));
-            allBackdrops.slice(0, extraBackdrops).forEach(backdrop => backdrop.remove());
+        // Không có modal nào đang hiển thị, có thể xóa nút yêu thích
+        const favoriteButton = document.getElementById('favoriteComicBtn');
+        if (favoriteButton) {
+            favoriteButton.remove();
         }
     }
     
-    // Đảm bảo z-index chính xác cho modal và backdrop còn lại
-    document.querySelectorAll('.modal.show').forEach((modal, index) => {
-        const zIndex = 1050 + (10 * index);
-        modal.style.zIndex = zIndex;
-        
-        // Nếu có backdrop tương ứng, cập nhật z-index của nó
-        if (document.querySelectorAll('.modal-backdrop').length > index) {
-            const backdrop = document.querySelectorAll('.modal-backdrop')[index];
-            backdrop.style.zIndex = zIndex - 1;
-        }
-    });
-    
-    // Kiểm tra trạng thái modal đọc truyện
-    const doctruyenModal = document.getElementById('doctruyen');
-    if (doctruyenModal && doctruyenModal.classList.contains('show')) {
-        // Nếu modal đọc truyện đang hiển thị, xóa backdrop của nó
-        const doctruyenZIndex = parseInt(doctruyenModal.style.zIndex || '1050');
-        const doctruyenBackdropZIndex = doctruyenZIndex - 1;
-        
-        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-            const backdropZIndex = parseInt(backdrop.style.zIndex || '1040');
-            if (backdropZIndex === doctruyenBackdropZIndex) {
-                backdrop.remove();
-            }
-        });
-    }
+    // Xử lý các vấn đề khác của modal
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+
+    // Xóa backdrop nếu còn sót lại
+    const modalBackdrops = document.querySelectorAll('.modal-backdrop');
+    modalBackdrops.forEach(backdrop => backdrop.remove());
 }
 
 // Hàm hiển thị danh sách chapters
@@ -259,6 +218,18 @@ function openReadModal(chapter) {
     // Cập nhật URL với comicId và chapterId
     const newUrl = `${window.location.origin}/?comicId=${currentCardId}&chapterId=${chapter.chapterNumber}`;
     window.history.pushState({ comicId: currentCardId, chapterId: chapter.chapterNumber }, '', newUrl);
+
+    console.log("Modal #doctruyen tồn tại và đang chuẩn bị mở");
+    
+    // Xóa nút yêu thích cũ trước khi mở modal đọc truyện
+    const favoriteButton = document.getElementById('favoriteComicBtn');
+    if (favoriteButton) {
+        console.log("Xóa nút yêu thích trước khi mở modal đọc truyện");
+        favoriteButton.remove();
+    }
+    
+    // Lưu lịch sử đọc truyện
+    saveReadingHistory(currentCardId, chapter.chapterNumber);
 
     console.log("Modal #doctruyen tồn tại trong DOM");
 
@@ -480,4 +451,41 @@ function updateNavigationButtons(prevButton, nextButton) {
 
     nextButton.disabled = currentIndex >= chapters.length - 1;
     nextButton.classList.toggle('disabled', currentIndex >= chapters.length - 1);
+}
+
+// Hàm lưu lịch sử đọc truyện
+async function saveReadingHistory(cardId, chapterId) {
+    try {
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.log('Chưa đăng nhập, không lưu lịch sử đọc');
+            return;
+        }
+
+        // Lấy ID người dùng từ token
+        const decoded = jwt_decode(token);
+        const userId = decoded.id;
+
+        // Gọi API lưu lịch sử đọc
+        const response = await fetch('/api/reading-history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                card_id: cardId,
+                chapter_id: chapterId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Không thể lưu lịch sử đọc');
+        }
+
+        console.log('Đã lưu lịch sử đọc truyện:', { userId, cardId, chapterId });
+    } catch (error) {
+        console.error('Lỗi khi lưu lịch sử đọc:', error);
+    }
 }
