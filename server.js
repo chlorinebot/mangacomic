@@ -5,6 +5,7 @@ const { getChapters, saveChapterData, deleteChapterData, countChapters } = requi
 const { getUsers, deleteUserData, updateUser: updateUserData, countUsers } = require('./controllers/userController');
 const { register, login } = require('./controllers/authController');
 const { getGenres, createGenre, updateGenre, deleteGenre, getCardGenres, updateCardGenres, countGenres } = require('./controllers/genreController');
+const { checkFavoriteStatus, addToFavorites, removeFromFavorites } = require('./controllers/favoriteController');
 const { checkAdminAuth } = require('./middleware/authMiddleware');
 
 const app = express();
@@ -47,6 +48,11 @@ app.get('/api/genres', checkDbConnection, getGenres);
 app.post('/api/genres', checkDbConnection, createGenre);
 app.put('/api/genres/:id', checkDbConnection, updateGenre);
 app.delete('/api/genres/:id', checkDbConnection, deleteGenre);
+
+// API cho favorites
+app.get('/api/favorites/:userId/:cardId', checkDbConnection, checkFavoriteStatus);
+app.post('/api/favorites', checkDbConnection, addToFavorites);
+app.delete('/api/favorites/:userId/:cardId', checkDbConnection, removeFromFavorites);
 
 // API đếm số lượng
 app.get('/api/cards/count', [checkDbConnection, checkAdminAuth], countCards);

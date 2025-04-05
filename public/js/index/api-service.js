@@ -2,9 +2,9 @@
  * Service quản lý các API endpoints
  * Tập trung quản lý tất cả các gọi API trong ứng dụng
  */
-const ApiService = (function() {
+const ApiService = (function () {
     const API_BASE_URL = 'http://localhost:3000/api';
-    
+
     // Cấu hình mặc định cho fetch
     const defaultFetchOptions = {
         headers: {
@@ -31,7 +31,7 @@ const ApiService = (function() {
      */
     const handleResponse = async (response) => {
         const data = await response.json();
-        
+
         if (!response.ok) {
             // Nếu có lỗi, tạo một Error object với thông tin từ API
             const error = new Error(data.error || 'Lỗi khi gọi API');
@@ -39,7 +39,7 @@ const ApiService = (function() {
             error.response = data;
             throw error;
         }
-        
+
         return data;
     };
 
@@ -55,14 +55,14 @@ const ApiService = (function() {
                     headers: defaultFetchOptions.headers,
                     body: JSON.stringify(credentials)
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Login error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Đăng ký người dùng mới
          */
@@ -73,14 +73,14 @@ const ApiService = (function() {
                     headers: defaultFetchOptions.headers,
                     body: JSON.stringify(userData)
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Registration error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Đổi mật khẩu người dùng
          */
@@ -94,14 +94,14 @@ const ApiService = (function() {
                     },
                     body: JSON.stringify(passwordData)
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Change password error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Lấy thông tin comics
          */
@@ -111,14 +111,14 @@ const ApiService = (function() {
                     method: 'GET',
                     headers: getAuthHeaders()
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Get cards error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Lấy thông tin comic theo ID
          */
@@ -128,14 +128,14 @@ const ApiService = (function() {
                     method: 'GET',
                     headers: getAuthHeaders()
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error(`Get card ${id} error:`, error);
                 throw error;
             }
         },
-        
+
         /**
          * Lấy danh sách chapters
          */
@@ -145,14 +145,14 @@ const ApiService = (function() {
                     method: 'GET',
                     headers: getAuthHeaders()
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Get chapters error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Lấy chi tiết của một chapter
          */
@@ -162,14 +162,14 @@ const ApiService = (function() {
                     method: 'GET',
                     headers: getAuthHeaders()
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error(`Get chapter ${chapterId} error:`, error);
                 throw error;
             }
         },
-        
+
         /**
          * Lấy danh sách thể loại
          */
@@ -179,14 +179,14 @@ const ApiService = (function() {
                     method: 'GET',
                     headers: getAuthHeaders()
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Get genres error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Lấy lịch sử đọc của người dùng
          */
@@ -196,14 +196,14 @@ const ApiService = (function() {
                     method: 'GET',
                     headers: getAuthHeaders()
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Get history error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Thêm một mục vào lịch sử đọc
          */
@@ -214,14 +214,14 @@ const ApiService = (function() {
                     headers: getAuthHeaders(),
                     body: JSON.stringify(historyData)
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Add to history error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Cập nhật thông tin người dùng
          */
@@ -232,14 +232,14 @@ const ApiService = (function() {
                     headers: getAuthHeaders(),
                     body: JSON.stringify(profileData)
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Update profile error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Gửi bình luận về một chapter
          */
@@ -250,14 +250,14 @@ const ApiService = (function() {
                     headers: getAuthHeaders(),
                     body: JSON.stringify(commentData)
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error('Add comment error:', error);
                 throw error;
             }
         },
-        
+
         /**
          * Lấy danh sách bình luận của một chapter
          */
@@ -267,10 +267,59 @@ const ApiService = (function() {
                     method: 'GET',
                     headers: getAuthHeaders()
                 });
-                
+
                 return handleResponse(response);
             } catch (error) {
                 console.error(`Get comments for chapter ${chapterId} error:`, error);
+                throw error;
+            }
+        },
+
+        /**
+         * Kiểm tra trạng thái yêu thích của một truyện
+         */
+        checkFavoriteStatus: async (userId, cardId) => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/favorites/${userId}/${cardId}`, {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Check favorite status error:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Thêm truyện vào danh sách yêu thích
+         */
+        addToFavorites: async (favoriteData) => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/favorites`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(favoriteData)
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Add to favorites error:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Xóa truyện khỏi danh sách yêu thích
+         */
+        removeFromFavorites: async (userId, cardId) => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/favorites/${userId}/${cardId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Remove from favorites error:', error);
                 throw error;
             }
         }
@@ -282,4 +331,4 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = ApiService;
 } else {
     window.ApiService = ApiService;
-} 
+}
