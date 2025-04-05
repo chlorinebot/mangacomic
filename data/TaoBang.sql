@@ -94,6 +94,21 @@ CREATE TABLE reading_history (
     CONSTRAINT fk_reading_history_chapter_id FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+/*Bảng ratings để lưu đánh giá của người dùng cho từng chương*/
+CREATE TABLE ratings (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    chapter_id INT NOT NULL,
+    rating INT NOT NULL, /*Đánh giá từ 1-5 sao*/
+    rated_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY unique_user_chapter (user_id, chapter_id), /*Mỗi người dùng chỉ đánh giá 1 lần cho mỗi chương*/
+    INDEX idx_user_id (user_id),
+    INDEX idx_chapter_id (chapter_id),
+    CONSTRAINT fk_ratings_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_ratings_chapter_id FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 /*
 Giải thích
 - Khóa chính (PRIMARY KEY): Được định nghĩa cho từng bảng để đảm bảo tính duy nhất của mỗi bản ghi.
