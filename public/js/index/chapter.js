@@ -228,8 +228,19 @@ function openReadModal(chapter) {
         favoriteButton.remove();
     }
     
-    // Lưu lịch sử đọc truyện
-    saveReadingHistory(currentCardId, chapter.chapterNumber);
+    // Lưu lịch sử đọc truyện nếu đã đăng nhập
+    const token = localStorage.getItem('token');
+    if (token) {
+        try {
+            const decoded = jwt_decode(token);
+            const userId = decoded.id;
+            saveReadingHistory(userId, currentCardId, chapter.chapterNumber);
+        } catch (error) {
+            console.error('Lỗi khi giải mã token:', error);
+        }
+    } else {
+        console.log('Người dùng chưa đăng nhập, không lưu lịch sử đọc');
+    }
 
     console.log("Modal #doctruyen tồn tại trong DOM");
 
@@ -454,29 +465,39 @@ function updateNavigationButtons(prevButton, nextButton) {
 }
 
 // Hàm lưu lịch sử đọc truyện
-async function saveReadingHistory(cardId, chapterId) {
+async function saveReadingHistory(userId, cardId, chapterId) {
+    if (!userId) {
+        console.log('Người dùng chưa đăng nhập, không lưu lịch sử đọc');
+        return;
+    }
+
     try {
-        // Kiểm tra xem người dùng đã đăng nhập chưa
         const token = localStorage.getItem('token');
         if (!token) {
-            console.log('Chưa đăng nhập, không lưu lịch sử đọc');
+            console.log('Không tìm thấy token, không lưu lịch sử đọc');
             return;
         }
 
-        // Lấy ID người dùng từ token
-        const decoded = jwt_decode(token);
-        const userId = decoded.id;
-
-        // Gọi API lưu lịch sử đọc
+        // Tìm chapter_id thực tế (id trong bảng chapters) dựa vào chapter_number
+        const chapterResponse = await fetch(`/api/chapters/${cardId}/${chapterId}`);
+        if (!chapterResponse.ok) {
+            throw new Error('Không thể lấy thông tin chapter');
+        }
+        
+        const chapterData = await chapterResponse.json();
+        const actualChapterId = chapterData.id; // Lấy ID thực tế của chapter từ database
+        
+        // Gọi API để lưu lịch sử đọc
         const response = await fetch('/api/reading-history', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 user_id: userId,
                 card_id: cardId,
-                chapter_id: chapterId
+                chapter_id: actualChapterId
             })
         });
 
@@ -484,8 +505,44 @@ async function saveReadingHistory(cardId, chapterId) {
             throw new Error('Không thể lưu lịch sử đọc');
         }
 
-        console.log('Đã lưu lịch sử đọc truyện:', { userId, cardId, chapterId });
+        console.log('Đã lưu lịch sử đọc truyện');
     } catch (error) {
-        console.error('Lỗi khi lưu lịch sử đọc:', error);
+        console.error('Lỗi khi lưu lịch sử đọc truyện:', error);
+    }
+}
+
+// Hàm tải và hiển thị chapter
+async function loadChapter(cardId, chapterId) {
+    console.log(`Đang tải chương ${chapterId} của truyện ${cardId}`);
+    
+    try {
+        // Cập nhật URL để có thể F5 tải lại đúng trang
+        const newUrl = `/?comicId=${cardId}&chapterId=${chapterId}`;
+        window.history.pushState({ cardId, chapterId }, "", newUrl);
+        
+        // Lấy thông tin userId từ token nếu đã đăng nhập
+        let userId = null;
+        const token = localStorage.getItem('token');
+        if (token) {
+            const decoded = jwt_decode(token);
+            userId = decoded.id;
+        }
+        
+        // Hiển thị loading spinner
+        document.getElementById('chapterContentContainer').innerHTML = `
+            <div class="text-center my-5 py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3">Đang tải nội dung chương...</p>
+            </div>
+        `;
+        
+        // Lưu lịch sử đọc nếu người dùng đã đăng nhập
+        if (userId) {
+            saveReadingHistory(userId, cardId, chapterId);
+        }
+        
+        // Tiếp tục tải nội dung chapter...
+    } catch (error) {
+        console.error('Lỗi khi tải chương:', error);
     }
 }

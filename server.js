@@ -9,6 +9,7 @@ const { checkFavoriteStatus, addToFavorites, removeFromFavorites } = require('./
 const { checkAdminAuth, verifyToken } = require('./middleware/authMiddleware');
 const { getUserProfile, getUserFavorites } = require('./controllers/profileController');
 const { addReadingHistory, getReadingHistoryByUser, deleteReadingHistory, clearReadingHistory } = require('./controllers/readingHistoryController');
+const apiRoutes = require('./routes/api');
 
 const app = express();
 const port = 3000;
@@ -18,6 +19,9 @@ app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', './views');
+
+// Sử dụng routes từ file api.js
+app.use('/api', apiRoutes);
 
 // Middleware xử lý lỗi chung
 app.use((err, req, res, next) => {

@@ -485,7 +485,25 @@ if (userProfileModal) {
             }
             
             // Giả lập dữ liệu cho tab thống kê (có thể thay bằng API thật sau này)
-            document.getElementById('readCount').textContent = Math.floor(Math.random() * 50);
+            // Lấy thông tin lịch sử đọc để cập nhật số lượng đã đọc
+            try {
+                const historyResponse = await fetch(`/api/reading-history/${userId}`);
+                if (historyResponse.ok) {
+                    const historyData = await historyResponse.json();
+                    // Cập nhật số lượng truyện đã đọc (đếm số lượng truyện duy nhất)
+                    const uniqueComics = new Set();
+                    historyData.forEach(item => {
+                        uniqueComics.add(item.card_id);
+                    });
+                    document.getElementById('readCount').textContent = uniqueComics.size;
+                } else {
+                    document.getElementById('readCount').textContent = '0';
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy lịch sử đọc:', error);
+                document.getElementById('readCount').textContent = '0';
+            }
+            
             document.getElementById('commentCount').textContent = Math.floor(Math.random() * 20);
             document.getElementById('shareCount').textContent = Math.floor(Math.random() * 10);
             

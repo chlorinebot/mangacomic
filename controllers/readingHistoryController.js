@@ -60,7 +60,7 @@ const getReadingHistoryByUser = async (req, res) => {
                 ch.chapter_number, ch.chapter_title
             FROM reading_history h
             JOIN cards c ON h.card_id = c.id
-            JOIN chapters ch ON h.chapter_id = ch.chapter_number AND ch.card_id = h.card_id
+            JOIN chapters ch ON h.chapter_id = ch.id AND ch.card_id = h.card_id
             WHERE h.user_id = ?
             ORDER BY h.read_at DESC
             LIMIT 100`,

@@ -78,6 +78,22 @@ CREATE TABLE favorites (
     CONSTRAINT fk_favorites_card_id FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+/*Bảng reading_history để lưu lịch sử đọc truyện*/
+CREATE TABLE reading_history (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    card_id INT NOT NULL,
+    chapter_id INT NOT NULL,
+    read_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_card_id (card_id),
+    INDEX idx_chapter_id (chapter_id),
+    CONSTRAINT fk_reading_history_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_reading_history_card_id FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_reading_history_chapter_id FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 /*
 Giải thích
 - Khóa chính (PRIMARY KEY): Được định nghĩa cho từng bảng để đảm bảo tính duy nhất của mỗi bản ghi.
@@ -94,4 +110,5 @@ Vì có các mối quan hệ khóa ngoại, bạn cần tạo bảng theo thứ 
 3. cards (không có khóa ngoại trực tiếp).
 4. card_genre (phụ thuộc vào cards và genres).
 5. chapters (phụ thuộc vào cards).
+6. reading_history (phụ thuộc vào users, cards và chapters).
 */
