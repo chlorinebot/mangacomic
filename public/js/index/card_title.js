@@ -47,9 +47,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     displayCardsForPage(1);
 
     setupCardModalBehavior();
+    
+    // Kích hoạt điều hướng bàn phím cho phân trang
+    setupKeyboardNavigation();
 
     // Xử lý URL chia sẻ khi trang được tải
     handleShareLink();
+    
+    // Thêm hiệu ứng chỉ dẫn cho người dùng
+    showKeyboardNavTip();
 });
 
 // Hàm đổ danh sách thể loại vào dropdown
@@ -104,6 +110,7 @@ function filterCardsByGenre(genreId) {
 
 // Hàm hiển thị card cho trang cụ thể
 function displayCardsForPage(pageNumber) {
+    // Giữ nhất quán số lượng mục trên mỗi trang
     const itemsPerPage = 12;
     const startIndex = (pageNumber - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -115,14 +122,30 @@ function displayCardsForPage(pageNumber) {
         return;
     }
 
+    // Xóa nội dung cũ
     cardContainer.innerHTML = '';
+    
+    // Kiểm tra nếu không có dữ liệu để hiển thị
+    if (currentPageData.length === 0) {
+        const noDataDiv = document.createElement('div');
+        noDataDiv.className = 'col-12 text-center my-5';
+        noDataDiv.innerHTML = `
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                Không có truyện nào phù hợp với tiêu chí tìm kiếm.
+            </div>
+        `;
+        cardContainer.appendChild(noDataDiv);
+        return;
+    }
 
+    // Hiển thị dữ liệu
     currentPageData.forEach(data => {
         const colDiv = document.createElement('div');
         colDiv.className = 'col';
 
         const cardDiv = document.createElement('div');
-        cardDiv.className = 'card';
+        cardDiv.className = 'card h-100'; // Thêm h-100 để các card có chiều cao đồng nhất
 
         const img = document.createElement('img');
         img.className = 'card-img-top';
@@ -130,15 +153,19 @@ function displayCardsForPage(pageNumber) {
         img.alt = data.title;
 
         const cardBody = document.createElement('div');
-        cardBody.className = 'card-body';
+        cardBody.className = 'card-body d-flex flex-column'; // Sử dụng flexbox để căn chỉnh
 
         const cardTitle = document.createElement('h5');
-        cardTitle.className = 'card-title';
+        cardTitle.className = 'card-title text-truncate'; // Thêm text-truncate để tên dài sẽ hiển thị ...
         cardTitle.textContent = data.title;
 
         const cardText = document.createElement('p');
-        cardText.className = 'card-text';
+        cardText.className = 'card-text flex-grow-1';
         cardText.textContent = data.content || 'Chưa có nội dung.';
+        // Giới hạn độ dài nội dung
+        if (cardText.textContent.length > 60) {
+            cardText.textContent = cardText.textContent.substring(0, 60) + '...';
+        }
 
         cardBody.appendChild(cardTitle);
         cardBody.appendChild(cardText);
@@ -155,6 +182,16 @@ function displayCardsForPage(pageNumber) {
         colDiv.appendChild(cardDiv);
         cardContainer.appendChild(colDiv);
     });
+    
+    // Cuộn lên đầu trang nếu không phải trang đầu tiên
+    if (pageNumber > 1) {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+    
+    console.log(`Đã hiển thị ${currentPageData.length} truyện từ trang ${pageNumber}`);
 }
 
 // Hàm hiển thị tất cả card
@@ -285,14 +322,27 @@ function setupCardPagination() {
 
     // Xóa phân trang cũ
     paginationContainer.innerHTML = '';
-    const totalPages = Math.ceil(cardData.length / 24);
+    
+    // Đảm bảo số lượng mục trên mỗi trang nhất quán
+    const itemsPerPage = 12;
+    const totalPages = Math.ceil(cardData.length / itemsPerPage);
+    
+    console.log('Phân trang: Tổng số truyện =', cardData.length, 'Số trang =', totalPages);
+    
+    // Nếu không có dữ liệu hoặc chỉ có 1 trang, không hiển thị phân trang
+    if (cardData.length === 0 || totalPages <= 1) {
+        paginationContainer.style.display = 'none';
+        return;
+    } else {
+        paginationContainer.style.display = 'flex';
+    }
 
     const ul = document.createElement('ul');
     ul.className = 'pagination';
 
     // Nút Previous
     const prevLi = document.createElement('li');
-    prevLi.className = 'page-item';
+    prevLi.className = 'page-item disabled'; // Bắt đầu với Previous bị vô hiệu hóa
     prevLi.innerHTML = '<a class="page-link" href="#">Previous</a>';
     ul.appendChild(prevLi);
 
@@ -307,6 +357,9 @@ function setupCardPagination() {
     // Nút Next
     const nextLi = document.createElement('li');
     nextLi.className = 'page-item';
+    if (totalPages <= 1) {
+        nextLi.className = 'page-item disabled';
+    }
     nextLi.innerHTML = '<a class="page-link" href="#">Next</a>';
     ul.appendChild(nextLi);
 
@@ -317,22 +370,27 @@ function setupCardPagination() {
     const prevButton = paginationContainer.querySelector('.page-item:first-child');
     const nextButton = paginationContainer.querySelector('.page-item:last-child');
 
-    pageLinks.forEach((item, index) => {
-        const pageLink = item.querySelector('.page-link');
-        pageLink.addEventListener('click', function(event) {
-            event.preventDefault();
-            pageLinks.forEach(pageItem => pageItem.classList.remove('active'));
-            item.classList.add('active');
-            displayCardsForPage(index + 1);
-            updateCardPrevNextState();
+    // Đảm bảo có các phần tử trước khi thêm sự kiện
+    if (pageLinks.length > 0) {
+        pageLinks.forEach((item, index) => {
+            const pageLink = item.querySelector('.page-link');
+            pageLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                console.log('Chuyển đến trang', index + 1);
+                pageLinks.forEach(pageItem => pageItem.classList.remove('active'));
+                item.classList.add('active');
+                displayCardsForPage(index + 1);
+                updateCardPrevNextState();
+            });
         });
-    });
+    }
 
     prevButton.addEventListener('click', function(event) {
         event.preventDefault();
         if (!this.classList.contains('disabled')) {
             const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
             if (activeIndex > 0) {
+                console.log('Chuyển đến trang trước', activeIndex);
                 pageLinks[activeIndex].classList.remove('active');
                 pageLinks[activeIndex - 1].classList.add('active');
                 displayCardsForPage(activeIndex);
@@ -346,6 +404,7 @@ function setupCardPagination() {
         if (!this.classList.contains('disabled')) {
             const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
             if (activeIndex < pageLinks.length - 1) {
+                console.log('Chuyển đến trang tiếp', activeIndex + 2);
                 pageLinks[activeIndex].classList.remove('active');
                 pageLinks[activeIndex + 1].classList.add('active');
                 displayCardsForPage(activeIndex + 2);
@@ -393,6 +452,42 @@ function setupCardModalBehavior() {
     }
 }
 
+// Thêm điều hướng bàn phím cho phân trang
+function setupKeyboardNavigation() {
+    document.addEventListener('keydown', function(event) {
+        // Nếu đang focus vào input, textarea hoặc có modal đang mở thì bỏ qua
+        if (document.querySelector('.modal.show') || 
+            document.activeElement.tagName === 'INPUT' || 
+            document.activeElement.tagName === 'TEXTAREA') {
+            return;
+        }
+        
+        const paginationContainer = document.getElementById('paginationContainer');
+        if (!paginationContainer || paginationContainer.style.display === 'none') return;
+        
+        const prevButton = paginationContainer.querySelector('.page-item:first-child');
+        const nextButton = paginationContainer.querySelector('.page-item:last-child');
+        
+        // Phím mũi tên trái (← ArrowLeft)
+        if (event.key === 'ArrowLeft' && !prevButton.classList.contains('disabled')) {
+            event.preventDefault();
+            prevButton.querySelector('.page-link').click();
+            // Hiệu ứng khi bấm
+            prevButton.classList.add('active-key');
+            setTimeout(() => prevButton.classList.remove('active-key'), 200);
+        }
+        
+        // Phím mũi tên phải (→ ArrowRight)
+        if (event.key === 'ArrowRight' && !nextButton.classList.contains('disabled')) {
+            event.preventDefault();
+            nextButton.querySelector('.page-link').click();
+            // Hiệu ứng khi bấm
+            nextButton.classList.add('active-key');
+            setTimeout(() => nextButton.classList.remove('active-key'), 200);
+        }
+    });
+}
+
 // Hàm xử lý URL chia sẻ
 function handleShareLink() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -418,5 +513,27 @@ function handleShareLink() {
             console.error('Không tìm thấy truyện với ID:', comicId);
             window.location.href = '/404';
         }
+    }
+}
+
+// Thêm hiệu ứng chỉ dẫn cho người dùng
+function showKeyboardNavTip() {
+    // Không hiển thị thông báo riêng mà tập trung vào phần tử phân trang
+    const paginationContainer = document.getElementById('paginationContainer');
+    if (!paginationContainer || paginationContainer.style.display === 'none') return;
+    
+    // Thêm lớp để nhấn mạnh cho phân trang
+    paginationContainer.classList.add('pagination-highlight');
+    setTimeout(() => {
+        paginationContainer.classList.remove('pagination-highlight');
+    }, 2000);
+    
+    // Thêm hiệu ứng chỉ dẫn phím tắt
+    const keyboardHint = document.querySelector('.keyboard-hint');
+    if (keyboardHint) {
+        keyboardHint.classList.add('keyboard-hint-active');
+        setTimeout(() => {
+            keyboardHint.classList.remove('keyboard-hint-active');
+        }, 2000);
     }
 }
