@@ -358,7 +358,19 @@ if (userProfileModal) {
             document.getElementById('profileJoinDate').textContent = userData.created_at
                 ? new Date(userData.created_at).toLocaleDateString('vi-VN')
                 : 'Không có dữ liệu';
-            document.getElementById('profileRole').textContent = roleId == '1' ? 'Admin' : 'Thành viên';
+            
+            // Cập nhật vai trò với badge
+            const profileRole = document.getElementById('profileRole');
+            profileRole.textContent = roleId == '1' ? 'Admin' : 'Thành viên';
+            profileRole.className = roleId == '1' ? 'badge bg-danger' : 'badge bg-success';
+            
+            // Tạo chữ cái đầu cho avatar
+            const initials = document.getElementById('profileInitials');
+            if (userData.username) {
+                initials.textContent = userData.username.charAt(0).toUpperCase();
+            } else {
+                initials.textContent = 'U';
+            }
 
             // Lấy danh sách truyện yêu thích
             const favorites = await ApiService.getUserFavorites(userId);
@@ -372,9 +384,15 @@ if (userProfileModal) {
             if (!Array.isArray(favorites) || favorites.length === 0) {
                 noFavoritesMessage.classList.remove('d-none');
                 favoriteComicsList.classList.add('d-none');
+                
+                // Cập nhật số lượng truyện yêu thích trên tab thống kê
+                document.getElementById('favoritesCount').textContent = '0';
             } else {
                 noFavoritesMessage.classList.add('d-none');
                 favoriteComicsList.classList.remove('d-none');
+                
+                // Cập nhật số lượng truyện yêu thích trên tab thống kê
+                document.getElementById('favoritesCount').textContent = favorites.length;
 
                 // Hiển thị danh sách truyện yêu thích
                 favorites.forEach(comic => {
@@ -385,12 +403,21 @@ if (userProfileModal) {
                     }
 
                     const comicCard = `
-                        <div class="col-md-4 mb-3">
-                            <div class="card h-100">
-                                <img src="${comic.image}" class="card-img-top" alt="${comic.title}" style="height: 200px; object-fit: cover;">
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0 hover-shadow">
+                                <div class="position-relative">
+                                    <img src="${comic.image}" class="card-img-top" alt="${comic.title}" style="height: 160px; object-fit: cover;">
+                                    <button class="btn btn-sm position-absolute top-0 end-0 m-2 btn-danger remove-favorite-btn" data-comic-id="${comic.id}">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </div>
                                 <div class="card-body">
-                                    <h6 class="card-title">${comic.title}</h6>
-                                    <a href="#" class="btn btn-sm btn-outline-primary view-comic-btn" data-comic-id="${comic.id}">Xem chi tiết</a>
+                                    <h6 class="card-title text-truncate">${comic.title}</h6>
+                                    <div class="d-grid gap-2">
+                                        <a href="#" class="btn btn-sm btn-primary view-comic-btn" data-comic-id="${comic.id}">
+                                            <i class="bi bi-eye me-1"></i>Xem chi tiết
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -409,7 +436,59 @@ if (userProfileModal) {
                         cardModal.show();
                     });
                 });
+                
+                // Thêm sự kiện cho các nút "Xóa khỏi yêu thích"
+                document.querySelectorAll('.remove-favorite-btn').forEach(button => {
+                    button.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        if (confirm('Bạn có chắc muốn xóa truyện này khỏi danh sách yêu thích?')) {
+                            const comicId = button.getAttribute('data-comic-id');
+                            try {
+                                await ApiService.removeFromFavorites(userId, comicId);
+                                // Xóa card khỏi danh sách
+                                button.closest('.col').remove();
+                                
+                                // Cập nhật số lượng
+                                const newCount = favoriteComicsList.querySelectorAll('.col').length;
+                                document.getElementById('favoritesCount').textContent = newCount;
+                                
+                                // Hiển thị thông báo nếu danh sách trống
+                                if (newCount === 0) {
+                                    noFavoritesMessage.classList.remove('d-none');
+                                    favoriteComicsList.classList.add('d-none');
+                                }
+                            } catch (error) {
+                                console.error('Lỗi khi xóa khỏi danh sách yêu thích:', error);
+                                alert('Không thể xóa khỏi danh sách yêu thích. Vui lòng thử lại!');
+                            }
+                        }
+                    });
+                });
             }
+            
+            // Thiết lập tìm kiếm truyện yêu thích
+            const searchFavorites = document.getElementById('searchFavorites');
+            if (searchFavorites) {
+                searchFavorites.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    const comicCards = favoriteComicsList.querySelectorAll('.col');
+                    
+                    comicCards.forEach(card => {
+                        const title = card.querySelector('.card-title').textContent.toLowerCase();
+                        if (title.includes(searchTerm)) {
+                            card.style.display = '';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            }
+            
+            // Giả lập dữ liệu cho tab thống kê (có thể thay bằng API thật sau này)
+            document.getElementById('readCount').textContent = Math.floor(Math.random() * 50);
+            document.getElementById('commentCount').textContent = Math.floor(Math.random() * 20);
+            document.getElementById('shareCount').textContent = Math.floor(Math.random() * 10);
+            
         } catch (error) {
             console.error('Lỗi khi lấy thông tin tài khoản:', error);
             alert(`Không thể tải thông tin tài khoản: ${error.message || 'Lỗi không xác định'}`);
@@ -418,6 +497,11 @@ if (userProfileModal) {
 
     // Reset modal khi đóng
     userProfileModal.addEventListener('hidden.bs.modal', () => {
-        resetModalState();
+        // Chuyển về tab hồ sơ mặc định khi đóng modal
+        const profileTab = document.getElementById('profile-tab');
+        if (profileTab) {
+            const tabInstance = new bootstrap.Tab(profileTab);
+            tabInstance.show();
+        }
     });
 }
