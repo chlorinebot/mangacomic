@@ -7,6 +7,7 @@ const { register, login } = require('./controllers/authController');
 const { getGenres, createGenre, updateGenre, deleteGenre, getCardGenres, updateCardGenres, countGenres } = require('./controllers/genreController');
 const { checkFavoriteStatus, addToFavorites, removeFromFavorites } = require('./controllers/favoriteController');
 const { checkAdminAuth } = require('./middleware/authMiddleware');
+const { getUserProfile, getUserFavorites } = require('./controllers/profileController');
 
 const app = express();
 const port = 3000;
@@ -63,6 +64,10 @@ app.get('/api/chapters/count', [checkDbConnection, checkAdminAuth], countChapter
 // API đăng ký và đăng nhập
 app.post('/api/register', checkDbConnection, register);
 app.post('/api/login', checkDbConnection, login);
+
+// API cho thông tin người dùng và danh sách yêu thích
+app.get('/api/users/:userId', checkDbConnection, getUserProfile);
+app.get('/api/favorites/:userId', checkDbConnection, getUserFavorites);
 
 // Route admin
 app.get('/admin-web', checkDbConnection, checkAdminAuth, (req, res) => {

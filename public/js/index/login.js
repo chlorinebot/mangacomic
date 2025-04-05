@@ -330,3 +330,94 @@ function resetModalState() {
         }
     });
 }
+
+// Xử lý khi modal Thông tin tài khoản được mở
+const userProfileModal = document.getElementById('userProfileModal');
+if (userProfileModal) {
+    userProfileModal.addEventListener('show.bs.modal', async () => {
+        try {
+            // Lấy token và giải mã để lấy userId
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Vui lòng đăng nhập để xem thông tin tài khoản!');
+                const loginModal = new bootstrap.Modal(document.getElementById('login'));
+                loginModal.show();
+                return;
+            }
+
+            const decoded = jwt_decode(token);
+            const userId = decoded.id;
+
+            // Lấy thông tin người dùng
+            const userData = await ApiService.getUserProfile(userId);
+            const roleId = localStorage.getItem('roleId');
+
+            // Hiển thị thông tin người dùng
+            document.getElementById('profileUsername').textContent = userData.username || 'Không có dữ liệu';
+            document.getElementById('profileEmail').textContent = userData.email || 'Không có dữ liệu';
+            document.getElementById('profileJoinDate').textContent = userData.created_at
+                ? new Date(userData.created_at).toLocaleDateString('vi-VN')
+                : 'Không có dữ liệu';
+            document.getElementById('profileRole').textContent = roleId == '1' ? 'Admin' : 'Thành viên';
+
+            // Lấy danh sách truyện yêu thích
+            const favorites = await ApiService.getUserFavorites(userId);
+            const favoriteComicsList = document.getElementById('favoriteComicsList');
+            const noFavoritesMessage = document.getElementById('noFavoritesMessage');
+
+            // Xóa nội dung cũ
+            favoriteComicsList.innerHTML = '';
+
+            // Kiểm tra dữ liệu favorites
+            if (!Array.isArray(favorites) || favorites.length === 0) {
+                noFavoritesMessage.classList.remove('d-none');
+                favoriteComicsList.classList.add('d-none');
+            } else {
+                noFavoritesMessage.classList.add('d-none');
+                favoriteComicsList.classList.remove('d-none');
+
+                // Hiển thị danh sách truyện yêu thích
+                favorites.forEach(comic => {
+                    // Kiểm tra các thuộc tính cần thiết
+                    if (!comic.id || !comic.title || !comic.image) {
+                        console.warn('Dữ liệu truyện không đầy đủ:', comic);
+                        return;
+                    }
+
+                    const comicCard = `
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <img src="${comic.image}" class="card-img-top" alt="${comic.title}" style="height: 200px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h6 class="card-title">${comic.title}</h6>
+                                    <a href="#" class="btn btn-sm btn-outline-primary view-comic-btn" data-comic-id="${comic.id}">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    favoriteComicsList.insertAdjacentHTML('beforeend', comicCard);
+                });
+
+                // Thêm sự kiện cho các nút "Xem chi tiết"
+                document.querySelectorAll('.view-comic-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const comicId = button.getAttribute('data-comic-id');
+                        const cardModalEl = document.getElementById('card');
+                        cardModalEl.setAttribute('data-comic-id', comicId);
+                        const cardModal = new bootstrap.Modal(cardModalEl);
+                        cardModal.show();
+                    });
+                });
+            }
+        } catch (error) {
+            console.error('Lỗi khi lấy thông tin tài khoản:', error);
+            alert(`Không thể tải thông tin tài khoản: ${error.message || 'Lỗi không xác định'}`);
+        }
+    });
+
+    // Reset modal khi đóng
+    userProfileModal.addEventListener('hidden.bs.modal', () => {
+        resetModalState();
+    });
+}

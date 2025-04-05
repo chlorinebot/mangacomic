@@ -3,12 +3,11 @@ let cardData = []; // Danh sách truyện
 let originalCardData = []; // Lưu trữ dữ liệu gốc để lọc
 let genres = []; // Danh sách thể loại
 let currentCardData = null;
-const ITEMS_PER_PAGE = 12; // Thiết lập số lượng card trên mỗi trang
 
 document.addEventListener('DOMContentLoaded', async function() {
     if (window.cardInitialized) return;
     window.cardInitialized = true;
-
+    
     // Lấy danh sách thể loại từ API
     try {
         const genreResponse = await fetch('http://localhost:3000/api/genres');
@@ -41,7 +40,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
-    const totalPages = Math.ceil(cardData.length / ITEMS_PER_PAGE);
+    const itemsPerPage = 12;
+    const totalPages = Math.ceil(cardData.length / itemsPerPage);
 
     setupCardPagination();
     displayCardsForPage(1);
@@ -96,14 +96,17 @@ function filterCardsByGenre(genreId) {
     }
 
     // Cập nhật giao diện
+    const itemsPerPage = 12;
+    const totalPages = Math.ceil(cardData.length / itemsPerPage);
     setupCardPagination();
     displayCardsForPage(1);
 }
 
 // Hàm hiển thị card cho trang cụ thể
 function displayCardsForPage(pageNumber) {
-    const startIndex = (pageNumber - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const itemsPerPage = 12;
+    const startIndex = (pageNumber - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
     const currentPageData = cardData.slice(startIndex, endIndex);
 
     const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
@@ -282,10 +285,7 @@ function setupCardPagination() {
 
     // Xóa phân trang cũ
     paginationContainer.innerHTML = '';
-    const totalPages = Math.ceil(cardData.length / ITEMS_PER_PAGE);
-    
-    // Giới hạn hiển thị chỉ 2 trang như trong ảnh mẫu
-    const maxVisiblePages = 2;
+    const totalPages = Math.ceil(cardData.length / 24);
 
     const ul = document.createElement('ul');
     ul.className = 'pagination';
@@ -293,16 +293,13 @@ function setupCardPagination() {
     // Nút Previous
     const prevLi = document.createElement('li');
     prevLi.className = 'page-item';
-    prevLi.innerHTML = '<a class="page-link" href="#"><i class="bi bi-arrow-left"></i> Previous</a>';
+    prevLi.innerHTML = '<a class="page-link" href="#">Previous</a>';
     ul.appendChild(prevLi);
 
-    // Thiết lập trang hiện tại từ sessionStorage hoặc mặc định là 1
-    const currentPage = parseInt(sessionStorage.getItem('currentPage')) || 1;
-    
-    // Chỉ hiển thị trang 1 và 2 như trong ảnh mẫu
-    for (let i = 1; i <= Math.min(maxVisiblePages, totalPages); i++) {
+    // Các trang số
+    for (let i = 1; i <= totalPages; i++) {
         const li = document.createElement('li');
-        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.className = `page-item ${i === 1 ? 'active' : ''}`;
         li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
         ul.appendChild(li);
     }
@@ -310,7 +307,7 @@ function setupCardPagination() {
     // Nút Next
     const nextLi = document.createElement('li');
     nextLi.className = 'page-item';
-    nextLi.innerHTML = '<a class="page-link" href="#">Next <i class="bi bi-arrow-right"></i></a>';
+    nextLi.innerHTML = '<a class="page-link" href="#">Next</a>';
     ul.appendChild(nextLi);
 
     paginationContainer.appendChild(ul);
@@ -324,11 +321,9 @@ function setupCardPagination() {
         const pageLink = item.querySelector('.page-link');
         pageLink.addEventListener('click', function(event) {
             event.preventDefault();
-            const pageNum = index + 1;
-            sessionStorage.setItem('currentPage', pageNum);
             pageLinks.forEach(pageItem => pageItem.classList.remove('active'));
             item.classList.add('active');
-            displayCardsForPage(pageNum);
+            displayCardsForPage(index + 1);
             updateCardPrevNextState();
         });
     });
@@ -336,12 +331,12 @@ function setupCardPagination() {
     prevButton.addEventListener('click', function(event) {
         event.preventDefault();
         if (!this.classList.contains('disabled')) {
-            const currentPage = parseInt(sessionStorage.getItem('currentPage')) || 1;
-            if (currentPage > 1) {
-                const newPage = currentPage - 1;
-                sessionStorage.setItem('currentPage', newPage);
-                displayCardsForPage(newPage);
-                setupCardPagination(); // Tạo lại phân trang để cập nhật trạng thái
+            const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
+            if (activeIndex > 0) {
+                pageLinks[activeIndex].classList.remove('active');
+                pageLinks[activeIndex - 1].classList.add('active');
+                displayCardsForPage(activeIndex);
+                updateCardPrevNextState();
             }
         }
     });
@@ -349,87 +344,22 @@ function setupCardPagination() {
     nextButton.addEventListener('click', function(event) {
         event.preventDefault();
         if (!this.classList.contains('disabled')) {
-            const currentPage = parseInt(sessionStorage.getItem('currentPage')) || 1;
-            if (currentPage < totalPages) {
-                const newPage = currentPage + 1;
-                sessionStorage.setItem('currentPage', newPage);
-                displayCardsForPage(newPage);
-                setupCardPagination(); // Tạo lại phân trang để cập nhật trạng thái
+            const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
+            if (activeIndex < pageLinks.length - 1) {
+                pageLinks[activeIndex].classList.remove('active');
+                pageLinks[activeIndex + 1].classList.add('active');
+                displayCardsForPage(activeIndex + 2);
+                updateCardPrevNextState();
             }
         }
     });
 
-    // Thêm điều hướng bằng phím mũi tên trái/phải
-    document.addEventListener('keydown', handleArrowKeys);
-
     updateCardPrevNextState();
-    updatePaginationStyles(); // Cập nhật style cho các nút phân trang
 
     function updateCardPrevNextState() {
-        const currentPage = parseInt(sessionStorage.getItem('currentPage')) || 1;
-        prevButton.classList.toggle('disabled', currentPage <= 1);
-        nextButton.classList.toggle('disabled', currentPage >= totalPages);
-    }
-    
-    // Hàm áp dụng style cho phân trang
-    function updatePaginationStyles() {
-        const allPageLinks = document.querySelectorAll('.page-link');
-        allPageLinks.forEach(link => {
-            if (link.parentElement.classList.contains('active')) {
-                link.style.backgroundColor = '#0d6efd';
-            } else if (link.parentElement.classList.contains('disabled')) {
-                link.style.backgroundColor = '#343a40';
-                link.style.color = '#6c757d';
-            } else {
-                link.style.backgroundColor = '#343a40';
-            }
-            link.style.color = '#fff';
-            link.style.border = 'none';
-        });
-    }
-}
-
-// Hàm xử lý phím mũi tên trái/phải
-function handleArrowKeys(event) {
-    // Chỉ xử lý khi không có input field nào đang được focus
-    if (document.activeElement.tagName === 'INPUT' || 
-        document.activeElement.tagName === 'TEXTAREA') {
-        return;
-    }
-    
-    const totalPages = Math.ceil(cardData.length / ITEMS_PER_PAGE);
-    const currentPage = parseInt(sessionStorage.getItem('currentPage')) || 1;
-    
-    // Mũi tên trái: chuyển đến trang trước
-    if (event.key === 'ArrowLeft' && currentPage > 1) {
-        const newPage = currentPage - 1;
-        sessionStorage.setItem('currentPage', newPage);
-        displayCardsForPage(newPage);
-        setupCardPagination();
-        // Hiệu ứng bấm nút Previous
-        const prevButton = document.querySelector('.pagination .page-item:first-child .page-link');
-        if (prevButton) {
-            prevButton.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                prevButton.style.transform = 'scale(1)';
-            }, 200);
-        }
-    }
-    
-    // Mũi tên phải: chuyển đến trang sau
-    if (event.key === 'ArrowRight' && currentPage < totalPages) {
-        const newPage = currentPage + 1;
-        sessionStorage.setItem('currentPage', newPage);
-        displayCardsForPage(newPage);
-        setupCardPagination();
-        // Hiệu ứng bấm nút Next
-        const nextButton = document.querySelector('.pagination .page-item:last-child .page-link');
-        if (nextButton) {
-            nextButton.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                nextButton.style.transform = 'scale(1)';
-            }, 200);
-        }
+        const activeIndex = pageLinks.findIndex(item => item.classList.contains('active'));
+        prevButton.classList.toggle('disabled', activeIndex <= 0);
+        nextButton.classList.toggle('disabled', activeIndex >= pageLinks.length - 1);
     }
 }
 

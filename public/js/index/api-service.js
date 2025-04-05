@@ -307,7 +307,39 @@ const ApiService = (function () {
                 throw error;
             }
         },
+        /**
+ * Lấy thông tin hồ sơ người dùng
+ */
+getUserProfile: async (userId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            method: 'GET',
+            headers: getAuthHeaders()
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error('Get user profile error:', error);
+        throw error;
+    }
+},
 
+/**
+ * Lấy danh sách truyện yêu thích của người dùng
+ */
+getUserFavorites: async (userId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/favorites/${userId}`, {
+            method: 'GET',
+            headers: getAuthHeaders()
+        });
+        const data = await handleResponse(response);
+        // Đảm bảo dữ liệu trả về là mảng
+        return Array.isArray(data) ? data : [];
+    } catch (error) {
+        console.error('Get user favorites error:', error);
+        throw error;
+    }
+},
         /**
          * Xóa truyện khỏi danh sách yêu thích
          */
@@ -323,6 +355,7 @@ const ApiService = (function () {
                 throw error;
             }
         }
+        
     };
 })();
 

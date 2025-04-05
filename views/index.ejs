@@ -749,6 +749,44 @@ Lưu ý cuối cùng:<br>
         </div>
     </div>
 
+<!-- Modal Thông tin tài khoản -->
+    <div class="modal fade" id="userProfileModal" tabindex="-1" aria-labelledby="userProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="userProfileModalLabel">Thông tin tài khoản</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Thông tin cá nhân</h5>
+                  <p><strong>Tên người dùng:</strong> <span id="profileUsername"></span></p>
+                  <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+                  <p><strong>Ngày tham gia:</strong> <span id="profileJoinDate"></span></p>
+                  <p><strong>Vai trò:</strong> <span id="profileRole"></span></p>
+                </div>
+              </div>
+              <div class="card mt-3">
+                <div class="card-body">
+                  <h5 class="card-title">Danh sách truyện đã thích</h5>
+                  <div id="favoriteComicsList" class="row">
+                    <!-- Danh sách truyện yêu thích sẽ được thêm động -->
+                  </div>
+                  <div id="noFavoritesMessage" class="text-center d-none">
+                    <p>Chưa có truyện nào trong danh sách yêu thích.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
     <!-- Modal Cài đặt (Trung tâm tài khoản - Modal 1) -->
 <div class="modal fade settings-modal" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
