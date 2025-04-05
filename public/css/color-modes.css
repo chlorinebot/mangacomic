@@ -54,11 +54,18 @@
 /* Style cho nút theme */
 .bd-mode-toggle {
   z-index: 1500;
+  position: fixed !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  margin-bottom: 1rem !important;
+  margin-right: 1rem !important;
+  display: block !important;
 }
 
 .bd-mode-toggle .dropdown-menu {
   background-color: var(--bs-body-bg);
   border-color: var(--bs-border-color);
+  z-index: 1600;
 }
 
 .bd-mode-toggle .dropdown-item {

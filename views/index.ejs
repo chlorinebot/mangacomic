@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100" data-bs-theme="auto">
 <head>
-    <script src="/js/index/background/CoreDarkMode.js"></script>
+    <script src="/assets/js/color-modes.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -123,6 +123,13 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-bs-toggle="modal" data-bs-target="#history" href="#" aria-disabled="true">Lịch sử</a>
+                    </li>
+                    <!-- Nút Theme Toggle trong navbar -->
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="#" id="navbar-theme-toggle">
+                            <i class="bi bi-sun-fill" id="navbar-light-icon" style="font-size: 1.2rem; display: none;"></i>
+                            <i class="bi bi-moon-stars-fill" id="navbar-dark-icon" style="font-size: 1.2rem;"></i>
+                        </a>
                     </li> 
                 </ul>
                 <form class="d-flex" role="search">
@@ -1237,40 +1244,7 @@ Lưu ý cuối cùng:<br>
     </symbol>
   </svg>
 
-      <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
-          <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
-                  id="bd-theme"
-                  type="button"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  aria-label="Toggle theme (auto)">
-            <svg class="bi my-1 theme-icon-active" width="1em" height="1em"><use href="#circle-half"></use></svg>
-            <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
-            <li>
-              <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                <svg class="bi me-2" width="1em" height="1em"><use href="#sun-fill"></use></svg>
-                Light
-                <svg class="bi ms-auto d-none" width="1em" height="1em"><use href="#check2"></use></svg>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                <svg class="bi me-2" width="1em" height="1em"><use href="#moon-stars-fill"></use></svg>
-                Dark
-                <svg class="bi ms-auto d-none" width="1em" height="1em"><use href="#check2"></use></svg>
-              </button>
-            </li>
-            <li>
-              <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-                <svg class="bi me-2" width="1em" height="1em"><use href="#circle-half"></use></svg>
-                Auto
-                <svg class="bi ms-auto d-none" width="1em" height="1em"><use href="#check2"></use></svg>
-              </button>
-            </li>
-          </ul>
-        </div>
+  <!-- Theme dropdown đã được thay thế bằng nút toggle trong navbar -->
 
     <br>
 
@@ -1296,5 +1270,44 @@ Lưu ý cuối cùng:<br>
     <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
     <script src="/js/index/favorites.js"></script>
     <script src="/js/index/history.js"></script>
+
+    <script>
+      // Thêm script để xử lý toggle theme
+      document.addEventListener('DOMContentLoaded', function() {
+        const navbarThemeToggler = document.getElementById('navbar-theme-toggle');
+        const navbarLightIcon = document.getElementById('navbar-light-icon');
+        const navbarDarkIcon = document.getElementById('navbar-dark-icon');
+        const htmlElement = document.documentElement;
+        
+        // Kiểm tra theme hiện tại và cập nhật trạng thái ban đầu
+        const updateIcons = () => {
+          const currentTheme = htmlElement.getAttribute('data-bs-theme');
+          if (currentTheme === 'dark') {
+            navbarLightIcon.style.display = 'none';
+            navbarDarkIcon.style.display = 'block';
+          } else {
+            navbarLightIcon.style.display = 'block';
+            navbarDarkIcon.style.display = 'none';
+          }
+        };
+        
+        // Khởi tạo
+        updateIcons();
+        
+        // Toggle theme
+        navbarThemeToggler.addEventListener('click', function(e) {
+          e.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ a
+          const currentTheme = htmlElement.getAttribute('data-bs-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          
+          // Cập nhật giao diện
+          htmlElement.setAttribute('data-bs-theme', newTheme);
+          localStorage.setItem('theme', newTheme);
+          updateIcons();
+          
+          console.log('Theme changed to:', newTheme);
+        });
+      });
+    </script>
 </body>
 </html>
