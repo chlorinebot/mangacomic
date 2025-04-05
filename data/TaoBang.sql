@@ -68,6 +68,16 @@ CREATE TABLE chapters (
     CONSTRAINT fk_chapters_card_id FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+/*Câu lệnh SQL để tạo bảng favorites*/
+CREATE TABLE favorites (
+    user_id INT NOT NULL,
+    card_id INT NOT NULL,
+    PRIMARY KEY (user_id, card_id),
+    INDEX idx_card_id (card_id),
+    CONSTRAINT fk_favorites_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_favorites_card_id FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 /*
 Giải thích
 - Khóa chính (PRIMARY KEY): Được định nghĩa cho từng bảng để đảm bảo tính duy nhất của mỗi bản ghi.
