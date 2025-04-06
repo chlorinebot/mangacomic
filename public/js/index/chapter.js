@@ -317,7 +317,28 @@ function openReadModal(chapter) {
     modalBody.appendChild(commentSection);
 
     modalFooter.innerHTML = '';
-    modalFooter.className = 'modal-footer d-flex justify-content-between align-items-center';
+    modalFooter.className = 'modal-footer d-flex justify-content-between align-items-center flex-wrap';
+
+    // Thêm phần đánh giá sao vào footer
+    const rightGroup = document.createElement('div');
+    rightGroup.className = 'ms-auto rating-container d-flex align-items-center';
+    
+    const ratingText = document.createElement('span');
+    ratingText.className = 'me-2';
+    ratingText.textContent = 'Đánh giá:';
+    
+    const ratingStars = document.createElement('div');
+    ratingStars.className = 'rating';
+    ratingStars.innerHTML = `
+        <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="Tuyệt vời"></label>
+        <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="Hay"></label>
+        <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="Bình thường"></label>
+        <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="Không hay"></label>
+        <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="Tệ"></label>
+    `;
+    
+    rightGroup.appendChild(ratingText);
+    rightGroup.appendChild(ratingStars);
 
     const leftGroup = document.createElement('div');
     const commentButton = document.createElement('button');
@@ -384,6 +405,18 @@ function openReadModal(chapter) {
 
     modalFooter.appendChild(leftGroup);
     modalFooter.appendChild(centerGroup);
+    modalFooter.appendChild(rightGroup);
+
+    // Thêm sự kiện cho các sao đánh giá
+    ratingStars.querySelectorAll('input[name="rating"]').forEach(star => {
+        star.addEventListener('change', function() {
+            const ratingValue = parseInt(this.value);
+            submitChapterRating(currentCardId, chapter.chapterNumber, ratingValue);
+        });
+    });
+
+    // Kiểm tra xem người dùng đã đánh giá chương này chưa và hiển thị đánh giá hiện tại
+    checkUserRating(currentCardId, chapter.chapterNumber);
 
     updateNavigationButtons(prevButton, nextButton);
 
@@ -545,4 +578,110 @@ async function loadChapter(cardId, chapterId) {
     } catch (error) {
         console.error('Lỗi khi tải chương:', error);
     }
+}
+
+// Hàm submit đánh giá chương
+async function submitChapterRating(cardId, chapterId, rating) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showToast('Vui lòng đăng nhập để đánh giá', 'warning');
+            return;
+        }
+
+        const decoded = jwt_decode(token);
+        const userId = decoded.id;
+
+        const response = await fetch('/api/ratings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                chapter_id: chapterId,
+                card_id: cardId,
+                rating: rating
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showToast('Cảm ơn bạn đã đánh giá!', 'success');
+        } else {
+            throw new Error('Lỗi khi gửi đánh giá');
+        }
+    } catch (error) {
+        console.error('Lỗi khi đánh giá:', error);
+        showToast('Đã xảy ra lỗi khi đánh giá', 'error');
+    }
+}
+
+// Kiểm tra đánh giá của người dùng cho một chương
+async function checkUserRating(cardId, chapterId) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            return; // Không được đăng nhập, không cần kiểm tra
+        }
+
+        const decoded = jwt_decode(token);
+        const userId = decoded.id;
+
+        const response = await fetch(`/api/ratings?user_id=${userId}&chapter_id=${chapterId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const ratingData = await response.json();
+            if (ratingData && ratingData.rating) {
+                // Hiển thị đánh giá hiện tại
+                const starInput = document.querySelector(`input[name="rating"][value="${ratingData.rating}"]`);
+                if (starInput) {
+                    starInput.checked = true;
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Lỗi khi kiểm tra đánh giá:', error);
+    }
+}
+
+// Hiển thị thông báo
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container');
+    
+    if (!toastContainer) {
+        const newToastContainer = document.createElement('div');
+        newToastContainer.id = 'toast-container';
+        newToastContainer.className = 'position-fixed bottom-0 end-0 p-3';
+        document.body.appendChild(newToastContainer);
+    }
+    
+    const toastElement = document.createElement('div');
+    toastElement.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type}`;
+    toastElement.setAttribute('role', 'alert');
+    toastElement.setAttribute('aria-live', 'assertive');
+    toastElement.setAttribute('aria-atomic', 'true');
+    
+    toastElement.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    const toastContainerEl = document.getElementById('toast-container') || newToastContainer;
+    toastContainerEl.appendChild(toastElement);
+    
+    const toast = new bootstrap.Toast(toastElement, {
+        delay: 3000
+    });
+    
+    toast.show();
 }
