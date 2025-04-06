@@ -592,6 +592,15 @@ async function submitChapterRating(cardId, chapterId, rating) {
         const decoded = jwt_decode(token);
         const userId = decoded.id;
 
+        // Lấy chapter_id thực tế từ API
+        const chapterResponse = await fetch(`/api/chapters/${cardId}/${chapterId}`);
+        if (!chapterResponse.ok) {
+            throw new Error('Không thể lấy thông tin chapter');
+        }
+        
+        const chapterData = await chapterResponse.json();
+        const actualChapterId = chapterData.id; // Lấy ID thực tế của chapter từ database
+
         const response = await fetch('/api/ratings', {
             method: 'POST',
             headers: {
@@ -600,7 +609,7 @@ async function submitChapterRating(cardId, chapterId, rating) {
             },
             body: JSON.stringify({
                 user_id: userId,
-                chapter_id: chapterId,
+                chapter_id: actualChapterId, // Sử dụng chapter_id thực tế
                 card_id: cardId,
                 rating: rating
             })
@@ -610,11 +619,12 @@ async function submitChapterRating(cardId, chapterId, rating) {
             const result = await response.json();
             showToast('Cảm ơn bạn đã đánh giá!', 'success');
         } else {
-            throw new Error('Lỗi khi gửi đánh giá');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Lỗi khi gửi đánh giá');
         }
     } catch (error) {
         console.error('Lỗi khi đánh giá:', error);
-        showToast('Đã xảy ra lỗi khi đánh giá', 'error');
+        showToast(error.message || 'Đã xảy ra lỗi khi đánh giá', 'error');
     }
 }
 
@@ -629,7 +639,16 @@ async function checkUserRating(cardId, chapterId) {
         const decoded = jwt_decode(token);
         const userId = decoded.id;
 
-        const response = await fetch(`/api/ratings?user_id=${userId}&chapter_id=${chapterId}`, {
+        // Lấy chapter_id thực tế từ API
+        const chapterResponse = await fetch(`/api/chapters/${cardId}/${chapterId}`);
+        if (!chapterResponse.ok) {
+            throw new Error('Không thể lấy thông tin chapter');
+        }
+        
+        const chapterData = await chapterResponse.json();
+        const actualChapterId = chapterData.id; // Lấy ID thực tế của chapter từ database
+
+        const response = await fetch(`/api/ratings?user_id=${userId}&chapter_id=${actualChapterId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -647,6 +666,7 @@ async function checkUserRating(cardId, chapterId) {
         }
     } catch (error) {
         console.error('Lỗi khi kiểm tra đánh giá:', error);
+        showToast('Không thể tải đánh giá của bạn', 'error');
     }
 }
 
@@ -680,7 +700,7 @@ function showToast(message, type = 'info') {
     toastContainerEl.appendChild(toastElement);
     
     const toast = new bootstrap.Toast(toastElement, {
-        delay: 3000
+        delay: 2000
     });
     
     toast.show();
