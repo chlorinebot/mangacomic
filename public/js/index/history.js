@@ -243,3 +243,108 @@ async function clearReadingHistory() {
         loadReadingHistory();
     }
 }
+
+// Quản lý lịch sử đọc truyện
+document.addEventListener('DOMContentLoaded', function() {
+    // Các elements
+    const historySearchForm = document.getElementById('historySearchForm');
+    const historySearchInput = document.getElementById('historySearchInput');
+    const searchHistoryInput = document.getElementById('searchHistory');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const readingHistoryList = document.getElementById('readingHistoryList');
+    const noHistoryMessage = document.querySelectorAll('#noHistoryMessage');
+
+    // Khởi tạo mảng lịch sử từ localStorage
+    let readingHistory = JSON.parse(localStorage.getItem('readingHistory')) || [];
+
+    // Hiển thị lịch sử
+    function displayHistory(historyItems = readingHistory) {
+        if (!readingHistoryList) return;
+
+        if (historyItems.length === 0) {
+            noHistoryMessage.forEach(msg => msg.classList.remove('d-none'));
+            readingHistoryList.innerHTML = '';
+            return;
+        }
+
+        noHistoryMessage.forEach(msg => msg.classList.add('d-none'));
+        readingHistoryList.innerHTML = historyItems.map((item, index) => `
+            <div class="list-group-item list-group-item-action" aria-current="true">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">${item.title}</h6>
+                        <p class="mb-1 text-muted">Chương ${item.chapter}</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">${new Date(item.timestamp).toLocaleString()}</small>
+                        <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeHistoryItem(${index})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Thêm vào lịch sử
+    window.addToHistory = function(title, chapter) {
+        const historyItem = {
+            title,
+            chapter,
+            timestamp: new Date().toISOString()
+        };
+
+        readingHistory.unshift(historyItem);
+        localStorage.setItem('readingHistory', JSON.stringify(readingHistory));
+        displayHistory();
+    };
+
+    // Xóa một mục khỏi lịch sử
+    window.removeHistoryItem = function(index) {
+        readingHistory.splice(index, 1);
+        localStorage.setItem('readingHistory', JSON.stringify(readingHistory));
+        displayHistory();
+    };
+
+    // Xóa toàn bộ lịch sử
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', function() {
+            if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử đọc?')) {
+                readingHistory = [];
+                localStorage.removeItem('readingHistory');
+                displayHistory();
+            }
+        });
+    }
+
+    // Tìm kiếm trong lịch sử
+    function searchHistory(query) {
+        if (!query) {
+            displayHistory();
+            return;
+        }
+
+        const searchResults = readingHistory.filter(item => 
+            item.title.toLowerCase().includes(query.toLowerCase()) ||
+            item.chapter.toString().includes(query)
+        );
+        displayHistory(searchResults);
+    }
+
+    // Xử lý sự kiện tìm kiếm
+    if (historySearchForm) {
+        historySearchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            searchHistory(historySearchInput.value);
+        });
+    }
+
+    if (searchHistoryInput) {
+        searchHistoryInput.addEventListener('input', function(e) {
+            searchHistory(e.target.value);
+        });
+    }
+
+    // Hiển thị lịch sử ban đầu
+    displayHistory();
+});

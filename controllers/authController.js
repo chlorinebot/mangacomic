@@ -37,7 +37,7 @@ const login = async (req, res) => {
         const token = jwt.sign(
             { id: user.id, username: user.username, role_id: user.role_id },
             JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '190h' }
         );
 
         res.json({ message: 'Đăng nhập thành công!', token, role_id: user.role_id });
