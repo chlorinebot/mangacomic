@@ -10,6 +10,7 @@ const { checkAdminAuth, verifyToken } = require('./middleware/authMiddleware');
 const { getUserProfile, getUserFavorites } = require('./controllers/profileController');
 const { addReadingHistory, getReadingHistoryByUser, deleteReadingHistory, clearReadingHistory } = require('./controllers/readingHistoryController');
 const apiRoutes = require('./routes/api');
+const { addComment, getComments, updateComment, deleteComment, getCommentReplies, addCommentReply } = require('./controllers/commentController');
 
 const app = express();
 const port = 3000;
@@ -79,6 +80,14 @@ app.post('/api/login', checkDbConnection, login);
 // API cho thông tin người dùng và danh sách yêu thích
 app.get('/api/users/:userId', checkDbConnection, getUserProfile);
 app.get('/api/favorites/:userId', checkDbConnection, getUserFavorites);
+
+// API bình luận
+app.post('/api/comments', checkDbConnection, verifyToken, addComment);
+app.get('/api/comments/:chapterId', checkDbConnection, getComments);
+app.put('/api/comments/:commentId', checkDbConnection, verifyToken, updateComment);
+app.delete('/api/comments/:commentId', checkDbConnection, verifyToken, deleteComment);
+app.get('/api/comments/:commentId/replies', checkDbConnection, getCommentReplies);
+app.post('/api/comments/:commentId/replies', checkDbConnection, verifyToken, addCommentReply);
 
 // Route admin
 app.get('/admin-web', checkDbConnection, checkAdminAuth, (req, res) => {

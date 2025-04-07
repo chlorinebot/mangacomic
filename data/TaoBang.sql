@@ -109,6 +109,34 @@ CREATE TABLE ratings (
     CONSTRAINT fk_ratings_chapter_id FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+/*Bảng comments để lưu bình luận*/
+CREATE TABLE comments (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    chapter_id INT NOT NULL,
+    content TEXT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_chapter_id (chapter_id),
+    CONSTRAINT fk_comments_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_comments_chapter_id FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+/*Bảng comment_replies để lưu phản hồi của bình luận*/
+CREATE TABLE comment_replies (
+    id INT NOT NULL AUTO_INCREMENT,
+    comment_id INT NOT NULL,
+    user_id INT NOT NULL,
+    content TEXT NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_comment_id (comment_id),
+    INDEX idx_user_id (user_id),
+    CONSTRAINT fk_replies_comment_id FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_replies_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 /*
 Giải thích
 - Khóa chính (PRIMARY KEY): Được định nghĩa cho từng bảng để đảm bảo tính duy nhất của mỗi bản ghi.

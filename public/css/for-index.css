@@ -495,3 +495,99 @@ overflow-y: auto;
 #toast-container .toast {
     min-width: 250px;
 }
+
+/* CSS cố định form bình luận */
+#comment-section {
+    margin-bottom: 60px; /* Tạo khoảng cách để không bị che bởi footer */
+}
+
+#comment-section .comment-form {
+    position: sticky;
+    bottom: 0;
+    background-color: #fff;
+    padding: 15px;
+    border-top: 1px solid #dee2e6;
+    z-index: 100;
+    margin-left: -15px;
+    margin-right: -15px;
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* CSS cho emoji picker */
+.emoji-picker {
+    position: relative;
+    display: inline-block;
+}
+
+.emoji-button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    color: #6c757d;
+}
+
+.emoji-button:hover {
+    color: #0d6efd;
+}
+
+.emoji-popup {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 10px;
+    display: none;
+    width: 300px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.emoji-popup.show {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 5px;
+}
+
+.emoji-item {
+    cursor: pointer;
+    text-align: center;
+    padding: 5px;
+    font-size: 1.2rem;
+    transition: transform 0.1s;
+}
+
+.emoji-item:hover {
+    transform: scale(1.2);
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+/* Dark mode cho emoji picker */
+[data-bs-theme="dark"] .emoji-popup {
+    background-color: #212529;
+    border-color: #495057;
+}
+
+[data-bs-theme="dark"] .emoji-item:hover {
+    background-color: #343a40;
+}
+
+[data-bs-theme="dark"] .emoji-button {
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .emoji-button:hover {
+    color: #0d6efd;
+}
+
+/* Đảm bảo form bình luận phù hợp với chế độ tối */
+[data-bs-theme="dark"] #comment-section .comment-form {
+    background-color: #212529;
+    border-top: 1px solid #495057;
+}
