@@ -779,7 +779,16 @@ async function loadComments(chapterId) {
 function createCommentForm() {
     const form = document.createElement('form');
     form.className = 'comment-form mb-4';
+    form.id = 'commentForm';
+
     form.innerHTML = `
+        <div class="replying-to">
+            <div class="reply-info">
+                <i class="bi bi-reply-fill"></i>
+                <span>Đang trả lời bình luận của <strong class="reply-to-username"></strong></span>
+            </div>
+            <button type="button" class="cancel-reply" title="Hủy phản hồi">×</button>
+        </div>
         <div class="form-group position-relative">
             <textarea class="form-control" rows="3" placeholder="Viết bình luận của bạn..." required></textarea>
             <div class="emoji-picker mt-2">
@@ -792,29 +801,33 @@ function createCommentForm() {
             </div>
         </div>
         <div class="d-flex justify-content-end mt-2">
-            <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+            <button type="submit" class="btn btn-primary submit-btn">Gửi bình luận</button>
         </div>
     `;
 
-    // Xử lý sự kiện cho emoji picker
+    const textarea = form.querySelector('textarea');
     const emojiButton = form.querySelector('.emoji-button');
     const emojiPopup = form.querySelector('.emoji-popup');
-    const textarea = form.querySelector('textarea');
+    const submitBtn = form.querySelector('.submit-btn');
+    const replyingToDiv = form.querySelector('.replying-to');
+    const cancelReplyBtn = form.querySelector('.cancel-reply');
+    const replyToUsername = form.querySelector('.reply-to-username');
 
-    // Hiển thị/ẩn emoji popup
+    let currentCommentId = null;
+    let isReplyMode = false;
+
+    // Xử lý emoji picker
     emojiButton.addEventListener('click', (e) => {
         e.preventDefault();
         emojiPopup.classList.toggle('show');
     });
 
-    // Đóng emoji popup khi click ra ngoài
     document.addEventListener('click', (e) => {
         if (!emojiButton.contains(e.target) && !emojiPopup.contains(e.target)) {
             emojiPopup.classList.remove('show');
         }
     });
 
-    // Xử lý khi chọn emoji
     emojiPopup.addEventListener('click', (e) => {
         if (e.target.classList.contains('emoji-item')) {
             const emoji = e.target.textContent;
@@ -827,7 +840,13 @@ function createCommentForm() {
         }
     });
 
-    // Xử lý sự kiện submit form
+    // Xử lý hủy phản hồi
+    cancelReplyBtn.addEventListener('click', () => {
+        resetForm();
+        textarea.focus();
+    });
+
+    // Xử lý submit form
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const content = textarea.value.trim();
@@ -843,54 +862,82 @@ function createCommentForm() {
             const decoded = jwt_decode(token);
             const userId = decoded.id;
 
-            // Lấy chapter_id thực tế từ API
-            const chapterResponse = await fetch(`/api/chapters/${currentCardId}/${currentChapterData.chapterNumber}`);
-            if (!chapterResponse.ok) {
-                throw new Error('Không thể lấy thông tin chapter');
+            let response;
+            if (isReplyMode && currentCommentId) {
+                // Gửi phản hồi
+                response = await fetch(`/api/comments/${currentCommentId}/replies`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        content: content
+                    })
+                });
+            } else {
+                // Gửi bình luận mới
+                const chapterResponse = await fetch(`/api/chapters/${currentCardId}/${currentChapterData.chapterNumber}`);
+                const chapterData = await chapterResponse.json();
+                const actualChapterId = chapterData.id;
+
+                response = await fetch('/api/comments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        chapter_id: actualChapterId,
+                        content: content
+                    })
+                });
             }
-            
-            const chapterData = await chapterResponse.json();
-            const actualChapterId = chapterData.id;
 
-            const response = await fetch('/api/comments', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    user_id: userId,
-                    chapter_id: actualChapterId,
-                    content: content
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Không thể thêm bình luận');
+            if (response.ok) {
+                const result = await response.json();
+                showToast(isReplyMode ? 'Đã gửi phản hồi thành công' : 'Đã gửi bình luận thành công', 'success');
+                
+                // Cập nhật giao diện
+                await loadComments(currentChapterData.id);
+                resetForm();
+            } else {
+                throw new Error('Không thể gửi bình luận');
             }
-
-            const newComment = await response.json();
-            const commentList = document.querySelector('.comment-list');
-            const commentElement = createCommentElement(newComment);
-            
-            if (commentList.firstChild && commentList.firstChild.classList && commentList.firstChild.classList.contains('text-muted')) {
-                commentList.innerHTML = '';
-            }
-            
-            commentList.insertBefore(commentElement, commentList.firstChild);
-            form.reset();
-            emojiPopup.classList.remove('show');
-
-            // Cập nhật số lượng bình luận
-            updateCommentCount();
-
-            showToast('Đã thêm bình luận thành công', 'success');
         } catch (error) {
-            console.error('Lỗi khi thêm bình luận:', error);
-            showToast(error.message || 'Có lỗi xảy ra khi thêm bình luận', 'error');
+            console.error('Lỗi khi gửi bình luận:', error);
+            showToast(error.message || 'Có lỗi xảy ra', 'error');
         }
     });
+
+    // Hàm chuyển form sang chế độ phản hồi
+    function setReplyMode(comment) {
+        isReplyMode = true;
+        currentCommentId = comment.id;
+        replyToUsername.textContent = comment.username;
+        replyingToDiv.classList.add('active');
+        textarea.placeholder = `Viết phản hồi cho ${comment.username}...`;
+        submitBtn.textContent = 'Gửi phản hồi';
+        form.scrollIntoView({ behavior: 'smooth' });
+        textarea.focus();
+    }
+
+    // Hàm reset form về trạng thái ban đầu
+    function resetForm() {
+        isReplyMode = false;
+        currentCommentId = null;
+        replyingToDiv.classList.remove('active');
+        textarea.placeholder = 'Viết bình luận của bạn...';
+        submitBtn.textContent = 'Gửi bình luận';
+        textarea.value = '';
+        emojiPopup.classList.remove('show');
+    }
+
+    // Thêm các phương thức vào form
+    form.setReplyMode = setReplyMode;
+    form.resetForm = resetForm;
 
     return form;
 }
@@ -929,9 +976,9 @@ function updateCommentCount() {
 
 // Hàm tạo phần tử bình luận
 function createCommentElement(comment) {
-    const div = document.createElement('div');
-    div.className = 'comment-item card mb-3';
-    div.dataset.commentId = comment.id;
+    const commentElement = document.createElement('div');
+    commentElement.className = 'comment-item card mb-3';
+    commentElement.dataset.commentId = comment.id;
 
     const token = localStorage.getItem('token');
     let currentUserId = null;
@@ -940,7 +987,7 @@ function createCommentElement(comment) {
         currentUserId = decoded.id;
     }
 
-    div.innerHTML = `
+    commentElement.innerHTML = `
         <div class="card-body">
             <div class="d-flex align-items-start">
                 <img src="${comment.avatar || 'https://via.placeholder.com/40'}" class="rounded-circle me-2" width="40" height="40" alt="${comment.username}">
@@ -986,14 +1033,14 @@ function createCommentElement(comment) {
     `;
 
     // Xử lý sự kiện cho các nút
-    const replyBtn = div.querySelector('.reply-btn');
-    const viewRepliesBtn = div.querySelector('.view-replies-btn');
-    const editBtn = div.querySelector('.edit-btn');
-    const deleteBtn = div.querySelector('.delete-btn');
-    const replyForm = div.querySelector('.reply-form');
-    const cancelReplyBtn = div.querySelector('.cancel-reply-btn');
-    const repliesContainer = div.querySelector('.replies-container');
-    const replyFormContainer = div.querySelector('.reply-form-container');
+    const replyBtn = commentElement.querySelector('.reply-btn');
+    const viewRepliesBtn = commentElement.querySelector('.view-replies-btn');
+    const editBtn = commentElement.querySelector('.edit-btn');
+    const deleteBtn = commentElement.querySelector('.delete-btn');
+    const replyForm = commentElement.querySelector('.reply-form');
+    const cancelReplyBtn = commentElement.querySelector('.cancel-reply-btn');
+    const repliesContainer = commentElement.querySelector('.replies-container');
+    const replyFormContainer = commentElement.querySelector('.reply-form-container');
 
     if (replyBtn) {
         replyBtn.addEventListener('click', () => {
@@ -1001,7 +1048,14 @@ function createCommentElement(comment) {
                 showToast('Vui lòng đăng nhập để phản hồi', 'warning');
                 return;
             }
-            replyFormContainer.style.display = 'block';
+            const commentForm = document.getElementById('commentForm');
+            if (commentForm && commentForm.setReplyMode) {
+                const replyData = {
+                    id: comment.id,
+                    username: comment.username
+                };
+                commentForm.setReplyMode(replyData);
+            }
         });
     }
 
@@ -1036,10 +1090,10 @@ function createCommentElement(comment) {
                                             <button class="btn btn-sm btn-link text-danger delete-reply-btn">Xóa</button>
                                         ` : ''}
                                     </div>
-                                    <div class="reply-to-reply-form-container mt-2" style="display: none;">
-                                        <form class="reply-to-reply-form">
+                                    <div class="reply-form-container mt-2" style="display: none;">
+                                        <form class="reply-form">
                                             <div class="form-group position-relative">
-                                                <textarea class="form-control" rows="2" placeholder="Phản hồi..." required></textarea>
+                                                <textarea class="form-control" rows="2" placeholder="Viết phản hồi..." required></textarea>
                                                 <div class="emoji-picker mt-2">
                                                     <button type="button" class="emoji-button" title="Chèn emoji">
                                                         <i class="bi bi-emoji-smile"></i>
@@ -1050,7 +1104,7 @@ function createCommentElement(comment) {
                                                 </div>
                                             </div>
                                             <div class="d-flex justify-content-end mt-2">
-                                                <button type="button" class="btn btn-sm btn-secondary me-2 cancel-reply-to-reply-btn">Hủy</button>
+                                                <button type="button" class="btn btn-sm btn-secondary me-2 cancel-reply-btn">Hủy</button>
                                                 <button type="submit" class="btn btn-sm btn-primary">Gửi</button>
                                             </div>
                                         </form>
@@ -1059,10 +1113,185 @@ function createCommentElement(comment) {
                             </div>
                         </div>
                     `).join('');
-                    
-                    // Khởi tạo emoji picker cho tất cả các form phản hồi của phản hồi
-                    initializeReplyToReplyEmojiPickers(repliesContainer);
-                    
+
+                    // Thêm xử lý sự kiện cho các nút trong phản hồi
+                    repliesContainer.querySelectorAll('.reply-item').forEach(replyItem => {
+                        const replyId = replyItem.dataset.replyId;
+                        const replyToReplyBtn = replyItem.querySelector('.reply-to-reply-btn');
+                        const editReplyBtn = replyItem.querySelector('.edit-reply-btn');
+                        const deleteReplyBtn = replyItem.querySelector('.delete-reply-btn');
+                        const replyContent = replyItem.querySelector('.reply-content');
+
+                        // Xử lý nút phản hồi cho phản hồi
+                        if (replyToReplyBtn) {
+                            replyToReplyBtn.addEventListener('click', () => {
+                                if (!token) {
+                                    showToast('Vui lòng đăng nhập để phản hồi', 'warning');
+                                    return;
+                                }
+                                const commentForm = document.getElementById('commentForm');
+                                if (commentForm && commentForm.setReplyMode) {
+                                    const replyData = {
+                                        id: replyId,
+                                        username: replyItem.querySelector('h6').textContent
+                                    };
+                                    commentForm.setReplyMode(replyData);
+                                }
+                            });
+                        }
+
+                        // Xử lý nút sửa phản hồi
+                        if (editReplyBtn) {
+                            editReplyBtn.addEventListener('click', async () => {
+                                const currentContent = replyContent.textContent;
+                                
+                                replyContent.innerHTML = `
+                                    <form class="edit-reply-form">
+                                        <div class="form-group position-relative">
+                                            <textarea class="form-control" rows="2" required>${currentContent}</textarea>
+                                            <div class="emoji-picker mt-2">
+                                                <button type="button" class="emoji-button" title="Chèn emoji">
+                                                    <i class="bi bi-emoji-smile"></i>
+                                                </button>
+                                                <div class="emoji-popup">
+                                                    ${generateEmojiList()}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-end mt-2">
+                                            <button type="button" class="btn btn-sm btn-secondary me-2 cancel-edit-btn">Hủy</button>
+                                            <button type="submit" class="btn btn-sm btn-primary">Lưu</button>
+                                        </div>
+                                    </form>
+                                `;
+
+                                const editForm = replyContent.querySelector('.edit-reply-form');
+                                const cancelEditBtn = replyContent.querySelector('.cancel-edit-btn');
+                                const textarea = editForm.querySelector('textarea');
+                                const emojiButton = editForm.querySelector('.emoji-button');
+                                const emojiPopup = editForm.querySelector('.emoji-popup');
+
+                                // Xử lý emoji picker
+                                emojiButton.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    emojiPopup.classList.toggle('show');
+                                });
+
+                                document.addEventListener('click', (e) => {
+                                    if (!emojiButton.contains(e.target) && !emojiPopup.contains(e.target)) {
+                                        emojiPopup.classList.remove('show');
+                                    }
+                                });
+
+                                emojiPopup.addEventListener('click', (e) => {
+                                    if (e.target.classList.contains('emoji-item')) {
+                                        const emoji = e.target.textContent;
+                                        const start = textarea.selectionStart;
+                                        const end = textarea.selectionEnd;
+                                        const text = textarea.value;
+                                        textarea.value = text.substring(0, start) + emoji + text.substring(end);
+                                        textarea.focus();
+                                        textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+                                    }
+                                });
+
+                                // Xử lý nút hủy
+                                cancelEditBtn.addEventListener('click', () => {
+                                    replyContent.textContent = currentContent;
+                                });
+
+                                // Xử lý form sửa
+                                editForm.addEventListener('submit', async (e) => {
+                                    e.preventDefault();
+                                    const newContent = textarea.value.trim();
+                                    if (!newContent || newContent === currentContent) {
+                                        replyContent.textContent = currentContent;
+                                        return;
+                                    }
+
+                                    try {
+                                        const token = localStorage.getItem('token');
+                                        if (!token) {
+                                            showToast('Vui lòng đăng nhập để sửa phản hồi', 'warning');
+                                            replyContent.textContent = currentContent;
+                                            return;
+                                        }
+
+                                        const response = await fetch(`/api/comments/replies/${replyId}`, {
+                                            method: 'PUT',
+                                            headers: {
+                                                'Authorization': `Bearer ${token}`,
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                content: newContent
+                                            })
+                                        });
+
+                                        if (!response.ok) {
+                                            const error = await response.text();
+                                            throw new Error(error || 'Không thể cập nhật phản hồi');
+                                        }
+
+                                        replyContent.textContent = newContent;
+                                        showToast('Đã cập nhật phản hồi thành công', 'success');
+                                    } catch (error) {
+                                        console.error('Lỗi khi cập nhật phản hồi:', error);
+                                        showToast(error.message || 'Có lỗi xảy ra khi cập nhật phản hồi', 'error');
+                                        replyContent.textContent = currentContent;
+                                    }
+                                });
+                            });
+                        }
+
+                        // Xử lý nút xóa phản hồi
+                        if (deleteReplyBtn) {
+                            deleteReplyBtn.addEventListener('click', async () => {
+                                if (!confirm('Bạn có chắc chắn muốn xóa phản hồi này?')) return;
+
+                                try {
+                                    const token = localStorage.getItem('token');
+                                    if (!token) {
+                                        showToast('Vui lòng đăng nhập để xóa phản hồi', 'warning');
+                                        return;
+                                    }
+
+                                    const response = await fetch(`/api/comments/replies/${replyId}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'Authorization': `Bearer ${token}`
+                                        }
+                                    });
+
+                                    if (!response.ok) {
+                                        const error = await response.text();
+                                        throw new Error(error || 'Không thể xóa phản hồi');
+                                    }
+
+                                    // Xóa phần tử khỏi DOM
+                                    replyItem.remove();
+                                    
+                                    // Cập nhật số lượng phản hồi
+                                    const commentElement = replyItem.closest('.comment-item');
+                                    const viewRepliesBtn = commentElement.querySelector('.view-replies-btn');
+                                    if (viewRepliesBtn) {
+                                        const currentCount = parseInt(viewRepliesBtn.textContent.match(/\d+/)[0]) - 1;
+                                        if (currentCount > 0) {
+                                            viewRepliesBtn.textContent = `Xem ${currentCount} phản hồi`;
+                                        } else {
+                                            viewRepliesBtn.remove();
+                                        }
+                                    }
+                                    
+                                    showToast('Đã xóa phản hồi thành công', 'success');
+                                } catch (error) {
+                                    console.error('Lỗi khi xóa phản hồi:', error);
+                                    showToast(error.message || 'Có lỗi xảy ra khi xóa phản hồi', 'error');
+                                }
+                            });
+                        }
+                    });
+
                     repliesContainer.style.display = 'block';
                     viewRepliesBtn.textContent = 'Ẩn phản hồi';
                 } catch (error) {
@@ -1076,102 +1305,9 @@ function createCommentElement(comment) {
         });
     }
 
-    if (replyForm) {
-        replyForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const content = replyForm.querySelector('textarea').value.trim();
-            if (!content) return;
-
-            try {
-                const decoded = jwt_decode(token);
-                const userId = decoded.id;
-
-                const response = await fetch(`/api/comments/${comment.id}/replies`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        content: content
-                    })
-                });
-
-                if (response.ok) {
-                    const newReply = await response.json();
-                    
-                    // Thêm phản hồi mới vào danh sách
-                    if (repliesContainer.style.display === 'none') {
-                        repliesContainer.style.display = 'block';
-                    }
-                    
-                    repliesContainer.insertAdjacentHTML('beforeend', `
-                        <div class="reply-item ms-4 mt-2" data-reply-id="${newReply.id}">
-                            <div class="d-flex align-items-start">
-                                <img src="${newReply.avatar || 'https://via.placeholder.com/32'}" class="rounded-circle me-2" width="32" height="32" alt="${newReply.username}">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-1">${newReply.username}</h6>
-                                        <small class="text-muted">Vừa xong</small>
-                                    </div>
-                                    <div class="reply-content">${newReply.content}</div>
-                                    <div class="reply-actions mt-2">
-                                        <button class="btn btn-sm btn-link reply-to-reply-btn">Phản hồi</button>
-                                        ${currentUserId === newReply.user_id ? `
-                                            <button class="btn btn-sm btn-link edit-reply-btn">Sửa</button>
-                                            <button class="btn btn-sm btn-link text-danger delete-reply-btn">Xóa</button>
-                                        ` : ''}
-                                    </div>
-                                    <div class="reply-to-reply-form-container mt-2" style="display: none;">
-                                        <form class="reply-to-reply-form">
-                                            <div class="form-group position-relative">
-                                                <textarea class="form-control" rows="2" placeholder="Phản hồi..." required></textarea>
-                                                <div class="emoji-picker mt-2">
-                                                    <button type="button" class="emoji-button" title="Chèn emoji">
-                                                        <i class="bi bi-emoji-smile"></i>
-                                                    </button>
-                                                    <div class="emoji-popup">
-                                                        ${generateEmojiList()}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex justify-content-end mt-2">
-                                                <button type="button" class="btn btn-sm btn-secondary me-2 cancel-reply-to-reply-btn">Hủy</button>
-                                                <button type="submit" class="btn btn-sm btn-primary">Gửi</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `);
-
-                    // Cập nhật emoji picker cho phản hồi mới
-                    initializeReplyToReplyEmojiPickers(repliesContainer);
-
-                    // Cập nhật số lượng phản hồi
-                    comment.reply_count++;
-                    viewRepliesBtn.textContent = `Xem ${comment.reply_count} phản hồi`;
-                    
-                    // Ẩn form và xóa nội dung
-                    replyFormContainer.style.display = 'none';
-                    replyForm.reset();
-                    
-                    showToast('Đã thêm phản hồi thành công', 'success');
-                } else {
-                    throw new Error('Không thể thêm phản hồi');
-                }
-            } catch (error) {
-                console.error('Lỗi khi thêm phản hồi:', error);
-                showToast('Có lỗi xảy ra khi thêm phản hồi', 'error');
-            }
-        });
-    }
-
     if (editBtn) {
         editBtn.addEventListener('click', () => {
-            const contentDiv = div.querySelector('.comment-content');
+            const contentDiv = commentElement.querySelector('.comment-content');
             const currentContent = contentDiv.textContent;
             
             contentDiv.innerHTML = `
@@ -1211,18 +1347,6 @@ function createCommentElement(comment) {
                     emojiPopup.classList.remove('show');
                 }
             });
-
-            emojiPopup.addEventListener('click', (e) => {
-                if (e.target.classList.contains('emoji-item')) {
-                    const emoji = e.target.textContent;
-                    const start = textarea.selectionStart;
-                    const end = textarea.selectionEnd;
-                    const text = textarea.value;
-                    textarea.value = text.substring(0, start) + emoji + text.substring(end);
-                    textarea.focus();
-                    textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
-                }
-            });
             
             // Xử lý nút hủy
             cancelEditBtn.addEventListener('click', () => {
@@ -1239,8 +1363,12 @@ function createCommentElement(comment) {
                 }
 
                 try {
-                    const decoded = jwt_decode(token);
-                    const userId = decoded.id;
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        showToast('Vui lòng đăng nhập để sửa bình luận', 'warning');
+                        contentDiv.textContent = currentContent;
+                        return;
+                    }
 
                     const response = await fetch(`/api/comments/${comment.id}`, {
                         method: 'PUT',
@@ -1274,8 +1402,11 @@ function createCommentElement(comment) {
             if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return;
 
             try {
-                const decoded = jwt_decode(token);
-                const userId = decoded.id;
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showToast('Vui lòng đăng nhập để xóa bình luận', 'warning');
+                    return;
+                }
 
                 const response = await fetch(`/api/comments/${comment.id}`, {
                     method: 'DELETE',
@@ -1287,7 +1418,7 @@ function createCommentElement(comment) {
                 });
 
                 if (response.ok) {
-                    div.remove();
+                    commentElement.remove();
                     updateCommentCount();
                     showToast('Đã xóa bình luận', 'success');
                 } else {
@@ -1301,9 +1432,9 @@ function createCommentElement(comment) {
     }
 
     // Xử lý emoji picker cho form phản hồi
-    const replyEmojiButton = div.querySelector('.reply-form .emoji-button');
-    const replyEmojiPopup = div.querySelector('.reply-form .emoji-popup');
-    const replyTextarea = div.querySelector('.reply-form textarea');
+    const replyEmojiButton = commentElement.querySelector('.reply-form .emoji-button');
+    const replyEmojiPopup = commentElement.querySelector('.reply-form .emoji-popup');
+    const replyTextarea = commentElement.querySelector('.reply-form textarea');
 
     if (replyEmojiButton && replyEmojiPopup && replyTextarea) {
         replyEmojiButton.addEventListener('click', (e) => {
@@ -1330,7 +1461,7 @@ function createCommentElement(comment) {
         });
     }
 
-    return div;
+    return commentElement;
 }
 
 // Hàm khởi tạo emoji picker cho các form phản hồi của phản hồi

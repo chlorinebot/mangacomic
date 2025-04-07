@@ -214,11 +214,151 @@ const addCommentReply = async (req, res) => {
     }
 };
 
+// Thêm phản hồi cho phản hồi
+const addReplyToReply = async (req, res) => {
+    const { replyId } = req.params;
+    const { user_id, content, parent_reply_id } = req.body;
+
+    if (!user_id || !content) {
+        return res.status(400).json({ error: 'Thiếu thông tin cần thiết' });
+    }
+
+    const connection = await dbPool.getConnection();
+    try {
+        // Thêm phản hồi mới
+        const [result] = await connection.query(
+            'INSERT INTO comment_replies (comment_id, user_id, content, parent_reply_id, created_at) VALUES ((SELECT comment_id FROM comment_replies WHERE id = ?), ?, ?, ?, NOW())',
+            [replyId, user_id, content, parent_reply_id]
+        );
+
+        // Lấy thông tin phản hồi vừa thêm
+        const [replies] = await connection.query(
+            `SELECT r.*, u.username, u.avatar 
+            FROM comment_replies r
+            JOIN users u ON r.user_id = u.id
+            WHERE r.id = ?`,
+            [result.insertId]
+        );
+
+        res.status(201).json(replies[0]);
+    } catch (err) {
+        console.error('Lỗi khi thêm phản hồi:', err);
+        res.status(500).json({ error: 'Lỗi khi thêm phản hồi' });
+    } finally {
+        connection.release();
+    }
+};
+
+// Lấy danh sách phản hồi của một phản hồi
+const getRepliesOfReply = async (req, res) => {
+    const { replyId } = req.params;
+    const connection = await dbPool.getConnection();
+    
+    try {
+        const [replies] = await connection.query(
+            `SELECT r.*, u.username, u.avatar 
+            FROM comment_replies r
+            JOIN users u ON r.user_id = u.id
+            WHERE r.parent_reply_id = ?
+            ORDER BY r.created_at ASC`,
+            [replyId]
+        );
+
+        res.json(replies);
+    } catch (err) {
+        console.error('Lỗi khi lấy phản hồi:', err);
+        res.status(500).json({ error: 'Lỗi khi lấy phản hồi' });
+    } finally {
+        connection.release();
+    }
+};
+
+// Cập nhật phản hồi
+const updateReply = async (req, res) => {
+    const { replyId } = req.params;
+    const { content, user_id } = req.body;
+
+    if (!content) {
+        return res.status(400).json({ error: 'Nội dung phản hồi không được để trống' });
+    }
+
+    const connection = await dbPool.getConnection();
+    try {
+        // Kiểm tra quyền sửa phản hồi
+        const [reply] = await connection.query(
+            'SELECT user_id FROM comment_replies WHERE id = ?',
+            [replyId]
+        );
+
+        if (reply.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy phản hồi' });
+        }
+
+        if (reply[0].user_id !== user_id) {
+            return res.status(403).json({ error: 'Bạn không có quyền sửa phản hồi này' });
+        }
+
+        // Cập nhật phản hồi
+        await connection.query(
+            'UPDATE comment_replies SET content = ? WHERE id = ?',
+            [content, replyId]
+        );
+
+        res.json({ message: 'Đã cập nhật phản hồi' });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật phản hồi:', err);
+        res.status(500).json({ error: 'Lỗi khi cập nhật phản hồi' });
+    } finally {
+        connection.release();
+    }
+};
+
+// Xóa phản hồi
+const deleteReply = async (req, res) => {
+    const { replyId } = req.params;
+    const { user_id } = req.body;
+
+    const connection = await dbPool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // Kiểm tra quyền xóa phản hồi
+        const [reply] = await connection.query(
+            'SELECT user_id, comment_id FROM comment_replies WHERE id = ?',
+            [replyId]
+        );
+
+        if (reply.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy phản hồi' });
+        }
+
+        if (reply[0].user_id !== user_id) {
+            return res.status(403).json({ error: 'Bạn không có quyền xóa phản hồi này' });
+        }
+
+        // Xóa phản hồi và các phản hồi con
+        await connection.query('DELETE FROM comment_replies WHERE id = ? OR parent_reply_id = ?', [replyId, replyId]);
+
+        await connection.commit();
+        res.json({ message: 'Đã xóa phản hồi' });
+    } catch (err) {
+        await connection.rollback();
+        console.error('Lỗi khi xóa phản hồi:', err);
+        res.status(500).json({ error: 'Lỗi khi xóa phản hồi' });
+    } finally {
+        connection.release();
+    }
+};
+
 module.exports = {
     addComment,
     getComments,
     updateComment,
     deleteComment,
     getCommentReplies,
-    addCommentReply
+    addCommentReply,
+    addReplyToReply,
+    getRepliesOfReply,
+    updateReply,
+    deleteReply
 }; 

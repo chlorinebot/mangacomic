@@ -591,3 +591,60 @@ overflow-y: auto;
     background-color: #212529;
     border-top: 1px solid #495057;
 }
+
+.replying-to {
+    display: none;
+    background-color: var(--bs-gray-100);
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--bs-primary);
+}
+
+.replying-to.active {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.replying-to span {
+    color: var(--bs-gray-800);
+}
+
+.replying-to strong {
+    color: var(--bs-primary);
+    margin-left: 4px;
+}
+
+.replying-to .cancel-reply {
+    background: none;
+    border: none;
+    color: var(--bs-gray-600);
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 1.2rem;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.replying-to .cancel-reply:hover {
+    color: var(--bs-danger);
+}
+
+/* Dark mode */
+[data-bs-theme="dark"] .replying-to {
+    background-color: var(--bs-gray-800);
+    border-left-color: var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .replying-to span {
+    color: var(--bs-gray-200);
+}
+
+[data-bs-theme="dark"] .replying-to .cancel-reply {
+    color: var(--bs-gray-400);
+}
+
+[data-bs-theme="dark"] .replying-to .cancel-reply:hover {
+    color: var(--bs-danger);
+}
