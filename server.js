@@ -12,6 +12,7 @@ const { addReadingHistory, getReadingHistoryByUser, deleteReadingHistory, clearR
 const apiRoutes = require('./routes/api');
 const { addComment, getComments, updateComment, deleteComment, getCommentReplies, addCommentReply } = require('./controllers/commentController');
 
+
 const app = express();
 const port = 3000;
 

@@ -607,7 +607,7 @@ async function submitChapterRating(cardId, chapterId, rating) {
         }
         
         const chapterData = await chapterResponse.json();
-        const actualChapterId = chapterData.id; // Lấy ID thực tế của chapter từ database
+        const actualChapterId = chapterData.id;
 
         const response = await fetch('/api/ratings', {
             method: 'POST',
@@ -617,7 +617,7 @@ async function submitChapterRating(cardId, chapterId, rating) {
             },
             body: JSON.stringify({
                 user_id: userId,
-                chapter_id: actualChapterId, // Sử dụng chapter_id thực tế
+                chapter_id: actualChapterId,
                 card_id: cardId,
                 rating: rating
             })
@@ -654,7 +654,7 @@ async function checkUserRating(cardId, chapterId) {
         }
         
         const chapterData = await chapterResponse.json();
-        const actualChapterId = chapterData.id; // Lấy ID thực tế của chapter từ database
+        const actualChapterId = chapterData.id;
 
         const response = await fetch(`/api/ratings?user_id=${userId}&chapter_id=${actualChapterId}`, {
             headers: {
@@ -727,7 +727,7 @@ async function loadComments(chapterId) {
         }
         
         const chapterData = await chapterResponse.json();
-        const actualChapterId = chapterData.id; // Lấy ID thực tế của chapter từ database
+        const actualChapterId = chapterData.id;
 
         const response = await fetch(`/api/comments/${actualChapterId}`);
         if (!response.ok) {
@@ -862,6 +862,15 @@ function createCommentForm() {
             const decoded = jwt_decode(token);
             const userId = decoded.id;
 
+            // Lấy chapter_id thực tế từ API
+            const chapterResponse = await fetch(`/api/chapters/${currentCardId}/${currentChapterData.chapterNumber}`);
+            if (!chapterResponse.ok) {
+                throw new Error('Không thể lấy thông tin chapter');
+            }
+            
+            const chapterData = await chapterResponse.json();
+            const actualChapterId = chapterData.id;
+
             let response;
             if (isReplyMode && currentCommentId) {
                 // Gửi phản hồi
@@ -878,22 +887,18 @@ function createCommentForm() {
                 });
             } else {
                 // Gửi bình luận mới
-                const chapterResponse = await fetch(`/api/chapters/${currentCardId}/${currentChapterData.chapterNumber}`);
-                const chapterData = await chapterResponse.json();
-                const actualChapterId = chapterData.id;
-
                 response = await fetch('/api/comments', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        chapter_id: actualChapterId,
-                        content: content
-                    })
-                });
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    chapter_id: actualChapterId,
+                    content: content
+                })
+            });
             }
 
             if (response.ok) {
@@ -1113,7 +1118,7 @@ function createCommentElement(comment) {
                             </div>
                         </div>
                     `).join('');
-
+                    
                     // Thêm xử lý sự kiện cho các nút trong phản hồi
                     repliesContainer.querySelectorAll('.reply-item').forEach(replyItem => {
                         const replyId = replyItem.dataset.replyId;
@@ -1136,9 +1141,9 @@ function createCommentElement(comment) {
                                         username: replyItem.querySelector('h6').textContent
                                     };
                                     commentForm.setReplyMode(replyData);
-                                }
-                            });
-                        }
+            }
+        });
+    }
 
                         // Xử lý nút sửa phản hồi
                         if (editReplyBtn) {
@@ -1173,7 +1178,7 @@ function createCommentElement(comment) {
 
                                 // Xử lý emoji picker
                                 emojiButton.addEventListener('click', (e) => {
-                                    e.preventDefault();
+            e.preventDefault();
                                     emojiPopup.classList.toggle('show');
                                 });
 
@@ -1217,16 +1222,20 @@ function createCommentElement(comment) {
                                             return;
                                         }
 
+                const decoded = jwt_decode(token);
+                const userId = decoded.id;
+
                                         const response = await fetch(`/api/comments/replies/${replyId}`, {
                                             method: 'PUT',
-                                            headers: {
+                    headers: {
                                                 'Authorization': `Bearer ${token}`,
                                                 'Content-Type': 'application/json'
-                                            },
-                                            body: JSON.stringify({
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
                                                 content: newContent
-                                            })
-                                        });
+                    })
+                });
 
                                         if (!response.ok) {
                                             const error = await response.text();
@@ -1256,11 +1265,18 @@ function createCommentElement(comment) {
                                         return;
                                     }
 
+                                    const decoded = jwt_decode(token);
+                                    const userId = decoded.id;
+
                                     const response = await fetch(`/api/comments/replies/${replyId}`, {
                                         method: 'DELETE',
                                         headers: {
-                                            'Authorization': `Bearer ${token}`
-                                        }
+                                            'Authorization': `Bearer ${token}`,
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            user_id: userId
+                                        })
                                     });
 
                                     if (!response.ok) {
@@ -1278,13 +1294,13 @@ function createCommentElement(comment) {
                                         const currentCount = parseInt(viewRepliesBtn.textContent.match(/\d+/)[0]) - 1;
                                         if (currentCount > 0) {
                                             viewRepliesBtn.textContent = `Xem ${currentCount} phản hồi`;
-                                        } else {
+                } else {
                                             viewRepliesBtn.remove();
-                                        }
+                }
                                     }
                                     
                                     showToast('Đã xóa phản hồi thành công', 'success');
-                                } catch (error) {
+            } catch (error) {
                                     console.error('Lỗi khi xóa phản hồi:', error);
                                     showToast(error.message || 'Có lỗi xảy ra khi xóa phản hồi', 'error');
                                 }
