@@ -5,20 +5,42 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Middleware xác thực token JWT
 const verifyToken = (req, res, next) => {
-    // Lấy token từ header Authorization
-    const authHeader = req.headers.authorization;
+    // Lấy token từ nhiều nguồn (header Authorization, cookie)
+    let token = null;
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Không tìm thấy token xác thực' });
+    // 1. Kiểm tra Authorization header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
+    }
+    
+    // 2. Nếu không có trong Authorization header, kiểm tra cookie
+    if (!token && req.headers.cookie) {
+        const cookies = req.headers.cookie.split(';');
+        for (const cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'token') {
+                token = value;
+                break;
+            }
+        }
+    }
+    
+    // 3. Nếu vẫn không có token, kiểm tra req.cookies (nếu cookie-parser đã cài đặt)
+    if (!token && req.cookies && req.cookies.token) {
+        token = req.cookies.token;
     }
 
-    const token = authHeader.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ error: 'Không tìm thấy token xác thực' });
+    }
 
     try {
         // Giải mã token
         const decoded = jwt.verify(token, JWT_SECRET);
         // Lưu thông tin người dùng đã giải mã vào req.user
         req.user = decoded;
+        console.log('Token xác thực thành công, thông tin user:', decoded);
         next();
     } catch (err) {
         console.error('Lỗi xác thực token:', err);
@@ -27,21 +49,34 @@ const verifyToken = (req, res, next) => {
 };
 
 const checkAdminAuth = (req, res, next) => {
-    // Lấy token từ cookie
-    const cookies = req.headers.cookie;
-    let token;
-
-    if (cookies) {
-        const cookieArray = cookies.split(';');
-        const tokenCookie = cookieArray.find(cookie => cookie.trim().startsWith('token='));
-        if (tokenCookie) {
-            token = tokenCookie.split('=')[1];
+    // Lấy token từ nhiều nguồn (header Authorization, cookie)
+    let token = null;
+    
+    // 1. Kiểm tra req.cookies (nếu cookie-parser đã cài đặt)
+    if (req.cookies && req.cookies.token) {
+        token = req.cookies.token;
+    }
+    
+    // 2. Nếu không có, kiểm tra header Cookie thủ công
+    if (!token && req.headers.cookie) {
+        const cookies = req.headers.cookie.split(';');
+        for (const cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'token') {
+                token = value;
+                break;
+            }
         }
+    }
+    
+    // 3. Nếu vẫn không có, kiểm tra Authorization header
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
     }
 
     // Nếu không có token, render 401
     if (!token) {
-        console.log('No token found in cookies, rendering 401');
+        console.log('No token found, rendering 401');
         return res.status(401).render('401', { error: 'No token provided' });
     }
 

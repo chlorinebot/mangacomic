@@ -4,6 +4,15 @@ let originalCardData = []; // Lưu trữ dữ liệu gốc để lọc
 let genres = []; // Danh sách thể loại
 let currentCardData = null;
 
+// Hàm để trộn ngẫu nhiên mảng (thuật toán Fisher-Yates)
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     if (window.cardInitialized) return;
     window.cardInitialized = true;
@@ -28,6 +37,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         originalCardData = [...cardData]; // Lưu trữ dữ liệu gốc
         console.log('Card data loaded:', cardData);
         if (cardData.length === 0) console.warn('Không có dữ liệu truyện!');
+        
+        // Trộn ngẫu nhiên danh sách truyện
+        cardData = shuffleArray([...cardData]);
+        console.log('Shuffled card data:', cardData);
     } catch (error) {
         console.error('Lỗi khi lấy cardData:', error);
         cardData = [];
@@ -56,6 +69,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Thêm hiệu ứng chỉ dẫn cho người dùng
     showKeyboardNavTip();
+    
+    // Thêm nút để trộn lại thứ tự hiển thị
+    addRandomizeButton();
 });
 
 // Hàm đổ danh sách thể loại vào dropdown
@@ -100,6 +116,9 @@ function filterCardsByGenre(genreId) {
             return genre && genreNames.includes(genre.genre_name);
         });
     }
+    
+    // Trộn ngẫu nhiên kết quả sau khi lọc
+    cardData = shuffleArray([...cardData]);
 
     // Cập nhật giao diện
     const itemsPerPage = 12;
@@ -674,4 +693,41 @@ function showKeyboardNavTip() {
             keyboardHint.classList.remove('keyboard-hint-active');
         }, 2000);
     }
+}
+
+// Thêm nút trộn ngẫu nhiên thứ tự truyện
+function addRandomizeButton() {
+    // Tìm container phù hợp để thêm nút vào
+    const paginationContainer = document.getElementById('paginationContainer');
+    if (!paginationContainer) return;
+    
+    // Tạo nút trộn ngẫu nhiên
+    const randomizeButton = document.createElement('button');
+    randomizeButton.className = 'btn btn-outline-primary ms-3';
+    randomizeButton.innerHTML = '<i class="bi bi-shuffle"></i> Ngẫu nhiên';
+    randomizeButton.title = 'Trộn ngẫu nhiên thứ tự hiển thị';
+    
+    // Thêm sự kiện cho nút
+    randomizeButton.addEventListener('click', function() {
+        // Trộn ngẫu nhiên các card
+        cardData = shuffleArray([...cardData]);
+        
+        // Hiển thị lại trang đầu tiên
+        setupCardPagination();
+        displayCardsForPage(1);
+        
+        // Hiệu ứng thông báo
+        this.classList.add('btn-primary');
+        this.classList.remove('btn-outline-primary');
+        this.innerHTML = '<i class="bi bi-check-circle"></i> Đã trộn';
+        
+        setTimeout(() => {
+            this.classList.add('btn-outline-primary');
+            this.classList.remove('btn-primary');
+            this.innerHTML = '<i class="bi bi-shuffle"></i> Ngẫu nhiên';
+        }, 1000);
+    });
+    
+    // Thêm nút vào container
+    paginationContainer.parentNode.appendChild(randomizeButton);
 }

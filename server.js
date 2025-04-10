@@ -10,8 +10,16 @@ const { checkAdminAuth, verifyToken } = require('./middleware/authMiddleware');
 const { getUserProfile, getUserFavorites } = require('./controllers/profileController');
 const { addReadingHistory, getReadingHistoryByUser, deleteReadingHistory, clearReadingHistory } = require('./controllers/readingHistoryController');
 const apiRoutes = require('./routes/api');
+const reportRoutes = require('./routes/reportRoutes');
 const { addComment, getComments, updateComment, deleteComment, getCommentReplies, addCommentReply } = require('./controllers/commentController');
-
+const jwt = require('jsonwebtoken');
+// Cố gắng import cookie-parser nếu đã cài đặt, nếu không thì xử lý thủ công
+let cookieParser;
+try {
+    cookieParser = require('cookie-parser');
+} catch (error) {
+    console.warn('Module cookie-parser không được tìm thấy. Sẽ sử dụng phương thức thủ công để xử lý cookie.');
+}
 
 const app = express();
 const port = 3000;
@@ -19,11 +27,21 @@ const port = 3000;
 app.use(express.static('public'));
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Thêm middleware cookie-parser nếu đã cài đặt
+if (cookieParser) {
+    app.use(cookieParser());
+}
+
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
 // Sử dụng routes từ file api.js
 app.use('/api', apiRoutes);
+
+// Sử dụng routes cho báo cáo
+app.use('/report', reportRoutes);
 
 // Middleware xử lý lỗi chung
 app.use((err, req, res, next) => {

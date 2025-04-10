@@ -10,6 +10,7 @@
     <!-- CSS Bootstrap -->
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/language-flags.css">
     <!-- Theme CSS -->
     <link rel="stylesheet" href="/css/color-modes.css">
     <!-- PURE-CSS từ Github -->
@@ -153,6 +154,19 @@
     </style>
 </head>
 <body class="d-flex flex-column h-100">
+    <!-- Toast thông báo khi báo cáo thành công -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="reportSuccessToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <strong class="me-auto">Thông báo</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Báo cáo sự cố đã được gửi thành công. Chúng tôi sẽ xem xét và phản hồi sớm nhất!
+            </div>
+        </div>
+    </div>
+
     <nav class="navbar navbar-expand-lg bg-body-tertiary navbar fixed-top bg-body-tertiary">
         <div class="container-xl">
             <a class="navbar-brand ms-5" href="#">MANGA COMIC</a>
@@ -181,7 +195,37 @@
                             <i class="bi bi-sun-fill" id="navbar-light-icon" style="font-size: 1.2rem; display: none;"></i>
                             <i class="bi bi-moon-stars-fill" id="navbar-dark-icon" style="font-size: 1.2rem;"></i>
                         </a>
-                    </li> 
+                    </li>
+                    <!-- Nút chuyển đổi ngôn ngữ -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="flag-icon flag-icon-vi me-1" id="currentLanguageFlag"></span>
+                            <span id="currentLanguageText">Tiếng Việt</span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                            <li>
+                                <a class="dropdown-item language-option d-flex align-items-center" href="#" data-lang="vi">
+                                    <span class="flag-icon flag-icon-vi"></span>
+                                    Tiếng Việt
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item language-option d-flex align-items-center" href="#" data-lang="en">
+                                    <span class="flag-icon flag-icon-en"></span>
+                                    English
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item language-option d-flex align-items-center" href="#" data-lang="zh">
+                                    <span class="flag-icon flag-icon-zh"></span>
+                                    中文
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#reportIssueModal">Báo cáo sự cố</a>
+                    </li>
                 </ul>
                 <form class="d-flex" role="search">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -924,6 +968,140 @@ Lưu ý cuối cùng:<br>
             </div>
         </div>
     </div>
+    <!-- Modal báo cáo sự cố -->
+  <div class="modal fade" id="reportIssueModal" tabindex="-1" aria-labelledby="reportIssueModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportIssueModalLabel">Báo cáo sự cố</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reportIssueForm" method="POST" action="/report">
+                    <div class="mb-3">
+                        <label for="reportTitle" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="reportTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="issueDescription" class="form-label">Mô tả sự cố</label>
+                        <textarea class="form-control" id="issueDescription" name="content" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactEmail" class="form-label">Email liên hệ</label>
+                        <input type="email" class="form-control" id="contactEmail" name="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Gửi báo cáo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cài đặt (Trung tâm tài khoản - Modal 1) -->
+<div class="modal fade settings-modal" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="settingsModalLabel">Trung tâm tài khoản</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Quản lý phần cài đặt tài khoản và trạng nghiệm kết nối trên các công nghệ của MangaComic.</p>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person"></i> Thông tin cá nhân
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" id="securityButton">
+                        <i class="bi bi-shield-lock"></i> Mật khẩu và bảo mật
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-gear"></i> Tùy chọn quảng cáo
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-check-circle"></i> Xác minh
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Thêm trung tâm tài khoản
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Mật khẩu và bảo mật (Modal 2) -->
+<div class="modal fade security-modal" id="securityModal" tabindex="-1" aria-labelledby="securityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="securityModalLabel">Mật khẩu và bảo mật</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Quản lý mật khẩu, tùy chọn đăng nhập và phương thức khôi phục.</p>
+                <h6>Đăng nhập và khôi phục</h6>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action" id="changePasswordButton">
+                        Đổi mật khẩu
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Xác thực 2 yếu tố
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Thông tin đăng nhập đã lưu
+                    </a>
+                </div>
+                <h6 class="mt-4">Kiểm tra bảo mật</h6>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Nơi bạn đang nhập
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Cảnh báo đăng nhập
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Email gắn đẩy
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        Kiểm tra bảo mật
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Đổi mật khẩu (Modal 3) -->
+<div class="modal fade change-password-modal" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Đổi mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Mật khẩu của bạn hiện tại bao gồm các chi tiết như độ dài 6 ký tự, thông tin bao gồm cả chữ số, chữ cái và ký tự đặc biệt (%$#@).</p>
+                <form id="changePasswordForm">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmNewPassword" class="form-label">Nhập lại mật khẩu mới</label>
+                        <input type="password" class="form-control" id="confirmNewPassword" required>
+                    </div>
+                    <p>Bạn quên mật khẩu hiện tại? Hãy chọn mục này nếu nguồn khác đang đăng nhập tài khoản của bạn.</p>
+                    <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+                    <div id="changePasswordMessage" class="mt-2 text-danger"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal Thông tin tài khoản -->
     <div class="modal fade" id="userProfileModal" tabindex="-1" aria-labelledby="userProfileModalLabel" aria-hidden="true">
@@ -1118,6 +1296,7 @@ Lưu ý cuối cùng:<br>
           </div>
         </div>
       </div>
+      
 
 <style>
   /* Thiết lập giao diện tab */
@@ -1184,111 +1363,7 @@ Lưu ý cuối cùng:<br>
   }
 </style>
 
-    <!-- Modal Cài đặt (Trung tâm tài khoản - Modal 1) -->
-<div class="modal fade settings-modal" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="settingsModalLabel">Trung tâm tài khoản</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Quản lý phần cài đặt tài khoản và trạng nghiệm kết nối trên các công nghệ của MangaComic.</p>
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <i class="bi bi-person"></i> Thông tin cá nhân
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action" id="securityButton">
-                        <i class="bi bi-shield-lock"></i> Mật khẩu và bảo mật
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <i class="bi bi-gear"></i> Tùy chọn quảng cáo
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <i class="bi bi-check-circle"></i> Xác minh
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        Thêm trung tâm tài khoản
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Mật khẩu và bảo mật (Modal 2) -->
-<div class="modal fade security-modal" id="securityModal" tabindex="-1" aria-labelledby="securityModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="securityModalLabel">Mật khẩu và bảo mật</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Quản lý mật khẩu, tùy chọn đăng nhập và phương thức khôi phục.</p>
-                <h6>Đăng nhập và khôi phục</h6>
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action" id="changePasswordButton">
-                        Đổi mật khẩu
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        Xác thực 2 yếu tố
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        Thông tin đăng nhập đã lưu
-                    </a>
-                </div>
-                <h6 class="mt-4">Kiểm tra bảo mật</h6>
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action">
-                        Nơi bạn đang nhập
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        Cảnh báo đăng nhập
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        Email gắn đẩy
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        Kiểm tra bảo mật
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Đổi mật khẩu (Modal 3) -->
-<div class="modal fade change-password-modal" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="changePasswordModalLabel">Đổi mật khẩu</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Mật khẩu của bạn hiện tại bao gồm các chi tiết như độ dài 6 ký tự, thông tin bao gồm cả chữ số, chữ cái và ký tự đặc biệt (%$#@).</p>
-                <form id="changePasswordForm">
-                    <div class="mb-3">
-                        <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
-                        <input type="password" class="form-control" id="currentPassword" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="newPassword" class="form-label">Mật khẩu mới</label>
-                        <input type="password" class="form-control" id="newPassword" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirmNewPassword" class="form-label">Nhập lại mật khẩu mới</label>
-                        <input type="password" class="form-control" id="confirmNewPassword" required>
-                    </div>
-                    <p>Bạn quên mật khẩu hiện tại? Hãy chọn mục này nếu nguồn khác đang đăng nhập tài khoản của bạn.</p>
-                    <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
-                    <div id="changePasswordMessage" class="mt-2 text-danger"></div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+    
 
     <!-- Background-->
 <body class="d-flex flex-column h-100">
@@ -1307,6 +1382,8 @@ Lưu ý cuối cùng:<br>
       <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
     </symbol>
   </svg>
+
+  
 
   <!-- Theme dropdown đã được thay thế bằng nút toggle trong navbar -->
 
@@ -1329,50 +1406,60 @@ Lưu ý cuối cùng:<br>
     <script src="/js/index/login.js"></script>
     <script src="/js/index/logup.js"></script>
     <script src="/js/index/genre.js"></script>
-    <script src="/js/index/anti-copy.js"></script>
-    <script src="/js/index/block-devtools.js"></script>
+    <!--<script src="/js/index/anti-copy.js"></script>-->
+    <!--<script src="/js/index/block-devtools.js"></script>-->
     <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
     <script src="/js/index/favorites.js"></script>
     <script src="/js/index/history.js"></script>
     <script src="/js/index/notifications.js"></script>
+    <script src="/js/index/language-switcher.js"></script>
 
     <script>
-      // Thêm script để xử lý toggle theme
-      document.addEventListener('DOMContentLoaded', function() {
-        const navbarThemeToggler = document.getElementById('navbar-theme-toggle');
-        const navbarLightIcon = document.getElementById('navbar-light-icon');
-        const navbarDarkIcon = document.getElementById('navbar-dark-icon');
-        const htmlElement = document.documentElement;
-        
-        // Kiểm tra theme hiện tại và cập nhật trạng thái ban đầu
-        const updateIcons = () => {
-          const currentTheme = htmlElement.getAttribute('data-bs-theme');
-          if (currentTheme === 'dark') {
-            navbarLightIcon.style.display = 'none';
-            navbarDarkIcon.style.display = 'block';
-          } else {
-            navbarLightIcon.style.display = 'block';
-            navbarDarkIcon.style.display = 'none';
-          }
-        };
-        
-        // Khởi tạo
-        updateIcons();
-        
-        // Toggle theme
-        navbarThemeToggler.addEventListener('click', function(e) {
-          e.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ a
-          const currentTheme = htmlElement.getAttribute('data-bs-theme');
-          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          
-          // Cập nhật giao diện
-          htmlElement.setAttribute('data-bs-theme', newTheme);
-          localStorage.setItem('theme', newTheme);
-          updateIcons();
-          
-          console.log('Theme changed to:', newTheme);
+        // Thêm script để xử lý toggle theme
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbarThemeToggler = document.getElementById('navbar-theme-toggle');
+            const navbarLightIcon = document.getElementById('navbar-light-icon');
+            const navbarDarkIcon = document.getElementById('navbar-dark-icon');
+            const htmlElement = document.documentElement;
+            
+            // Kiểm tra theme hiện tại và cập nhật trạng thái ban đầu
+            const updateIcons = () => {
+                const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                if (currentTheme === 'dark') {
+                    navbarLightIcon.style.display = 'none';
+                    navbarDarkIcon.style.display = 'block';
+                } else {
+                    navbarLightIcon.style.display = 'block';
+                    navbarDarkIcon.style.display = 'none';
+                }
+            };
+            
+            // Khởi tạo
+            updateIcons();
+            
+            // Toggle theme
+            navbarThemeToggler.addEventListener('click', function(e) {
+                e.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ a
+                const currentTheme = htmlElement.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // Cập nhật giao diện
+                htmlElement.setAttribute('data-bs-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateIcons();
+                
+                console.log('Theme changed to:', newTheme);
+            });
+
+            // Kiểm tra nếu URL có tham số reportSuccess=true thì hiển thị toast
+            const urlParams = new URLSearchParams(window.location.search);
+            const reportSuccess = urlParams.get('reportSuccess');
+            
+            if (reportSuccess === 'true') {
+                const toast = new bootstrap.Toast(document.getElementById('reportSuccessToast'));
+                toast.show();
+            }
         });
-      });
     </script>
 </body>
 </html>
