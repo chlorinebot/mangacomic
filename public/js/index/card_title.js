@@ -295,6 +295,9 @@ function openCardModal(data) {
 
     // Lấy và hiển thị điểm đánh giá trung bình của truyện
     fetchComicRating(data.id);
+    
+    // Lấy và hiển thị số lượt xem truyện
+    fetchComicViews(data.id);
 
     modal.setAttribute('data-comic-id', data.id);
 
@@ -313,6 +316,69 @@ function openCardModal(data) {
 
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
+}
+
+// Hàm để lấy và hiển thị số lượt xem của truyện
+async function fetchComicViews(cardId) {
+    try {
+        const response = await fetch(`/api/cards/views/${cardId}`);
+        if (!response.ok) {
+            throw new Error('Không thể lấy thông tin lượt xem');
+        }
+        
+        const viewData = await response.json();
+        
+        // Tìm vị trí để thêm lượt xem (sau phần tử rating)
+        const cardBody = document.querySelector('#card .card-body');
+        const comicRating = document.getElementById('comicRating');
+        
+        // Xóa phần tử lượt xem cũ nếu có
+        const existingViews = document.getElementById('comicViews');
+        if (existingViews) {
+            existingViews.remove();
+        }
+        
+        // Tạo phần tử hiển thị lượt xem
+        const viewsElement = document.createElement('p');
+        viewsElement.className = 'card-text';
+        viewsElement.id = 'comicViews';
+        viewsElement.innerHTML = `<i class="bi bi-eye"></i> Lượt xem: <span class="fw-bold">${viewData.views}</span>`;
+        
+        // Đảm bảo lượt xem hiển thị bên dưới đánh giá
+        if (comicRating) {
+            // Chèn phần tử lượt xem sau phần tử đánh giá
+            if (comicRating.nextSibling) {
+                cardBody.insertBefore(viewsElement, comicRating.nextSibling);
+            } else {
+                cardBody.appendChild(viewsElement);
+            }
+        } else {
+            // Nếu không có đánh giá, thêm vào cuối body
+            cardBody.appendChild(viewsElement);
+        }
+    } catch (error) {
+        console.error('Lỗi khi lấy số lượt xem truyện:', error);
+    }
+}
+
+// Hàm để cập nhật số lượt xem của truyện khi người dùng đọc
+async function incrementComicViews(cardId) {
+    try {
+        const response = await fetch(`/api/cards/views/increment/${cardId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Không thể cập nhật lượt xem');
+        }
+        
+        console.log('Đã cập nhật lượt xem cho truyện ID:', cardId);
+    } catch (error) {
+        console.error('Lỗi khi cập nhật lượt xem truyện:', error);
+    }
 }
 
 // Hàm để lấy và hiển thị điểm đánh giá trung bình của truyện
@@ -497,6 +563,14 @@ function setupCardModalBehavior() {
             if (currentCardData) {
                 const cardBsModal = new bootstrap.Modal(cardModal);
                 cardBsModal.show();
+            }
+        });
+        
+        // Thêm sự kiện khi modal đọc truyện được mở để tăng lượt xem
+        docTruyenModal.addEventListener('shown.bs.modal', function() {
+            if (currentCardData) {
+                // Tăng số lượt xem khi người dùng mở modal đọc truyện
+                incrementComicViews(currentCardData.id);
             }
         });
     }

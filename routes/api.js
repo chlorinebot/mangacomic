@@ -167,4 +167,92 @@ router.get('/ratings/average/comic/:card_id', async (req, res) => {
     }
 });
 
+// Lấy số lượt xem của một truyện
+router.get('/cards/views/:cardId', async (req, res) => {
+    const { cardId } = req.params;
+    
+    if (!cardId) {
+        return res.status(400).json({ error: 'Thiếu thông tin cardId' });
+    }
+    
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query(
+            'SELECT views FROM cards WHERE id = ?',
+            [cardId]
+        );
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy truyện' });
+        }
+        
+        // Đảm bảo trả về 0 nếu views là NULL
+        const views = rows[0].views === null ? 0 : rows[0].views;
+        
+        res.json({
+            card_id: cardId,
+            views: views
+        });
+    } catch (err) {
+        console.error('Lỗi khi lấy số lượt xem truyện:', err);
+        res.status(500).json({ error: 'Lỗi khi lấy số lượt xem truyện', details: err.message });
+    } finally {
+        connection.release();
+    }
+});
+
+// Tăng số lượt xem của một truyện
+router.post('/cards/views/increment/:cardId', async (req, res) => {
+    const { cardId } = req.params;
+    
+    if (!cardId) {
+        return res.status(400).json({ error: 'Thiếu thông tin cardId' });
+    }
+    
+    const connection = await dbPool.getConnection();
+    try {
+        // Kiểm tra xem truyện có tồn tại không và giá trị views hiện tại
+        const [checkRows] = await connection.query(
+            'SELECT views FROM cards WHERE id = ?',
+            [cardId]
+        );
+        
+        if (checkRows.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy truyện' });
+        }
+        
+        // Xử lý trường hợp views là NULL hoặc không tồn tại
+        if (checkRows[0].views === null) {
+            // Cập nhật từ NULL thành 1
+            await connection.query(
+                'UPDATE cards SET views = 1 WHERE id = ?',
+                [cardId]
+            );
+        } else {
+            // Tăng số lượt xem lên 1
+            await connection.query(
+                'UPDATE cards SET views = views + 1 WHERE id = ?',
+                [cardId]
+            );
+        }
+        
+        // Lấy số lượt xem mới
+        const [rows] = await connection.query(
+            'SELECT views FROM cards WHERE id = ?',
+            [cardId]
+        );
+        
+        res.json({
+            card_id: cardId,
+            views: rows[0].views,
+            message: 'Đã cập nhật số lượt xem truyện'
+        });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật số lượt xem truyện:', err);
+        res.status(500).json({ error: 'Lỗi khi cập nhật số lượt xem truyện', details: err.message });
+    } finally {
+        connection.release();
+    }
+});
+
 module.exports = router; 

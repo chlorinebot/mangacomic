@@ -228,6 +228,9 @@ function openReadModal(chapter) {
         favoriteButton.remove();
     }
     
+    // Tăng số lượt xem cho truyện
+    incrementComicViews(currentCardId);
+    
     // Lưu lịch sử đọc truyện nếu đã đăng nhập
     const token = localStorage.getItem('token');
     if (token) {
@@ -1178,7 +1181,7 @@ function createCommentElement(comment) {
 
                                 // Xử lý emoji picker
                                 emojiButton.addEventListener('click', (e) => {
-            e.preventDefault();
+                e.preventDefault();
                                     emojiPopup.classList.toggle('show');
                                 });
 
