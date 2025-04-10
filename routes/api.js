@@ -135,4 +135,36 @@ router.get('/ratings/average/:chapter_id', async (req, res) => {
     }
 });
 
+// Lấy điểm đánh giá trung bình của một truyện
+router.get('/ratings/average/comic/:card_id', async (req, res) => {
+    const { card_id } = req.params;
+    
+    if (!card_id) {
+        return res.status(400).json({ error: 'Thiếu thông tin card_id' });
+    }
+    
+    const connection = await dbPool.getConnection();
+    try {
+        // Lấy điểm đánh giá trung bình từ tất cả các chương của truyện
+        const [rows] = await connection.query(
+            `SELECT AVG(r.rating) as average_rating, COUNT(r.id) as rating_count
+            FROM ratings r
+            JOIN chapters c ON r.chapter_id = c.id
+            WHERE c.card_id = ?`,
+            [card_id]
+        );
+        
+        res.json({
+            card_id,
+            average_rating: rows[0].average_rating ? parseFloat(rows[0].average_rating).toFixed(1) : 0,
+            rating_count: rows[0].rating_count || 0
+        });
+    } catch (err) {
+        console.error('Lỗi khi lấy điểm đánh giá trung bình của truyện:', err);
+        res.status(500).json({ error: 'Lỗi khi lấy điểm đánh giá trung bình của truyện', details: err.message });
+    } finally {
+        connection.release();
+    }
+});
+
 module.exports = router; 

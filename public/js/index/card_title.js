@@ -293,6 +293,9 @@ function openCardModal(data) {
         cardContent.textContent = `Nội dung truyện: ${data.content || 'Chưa có nội dung.'}`;
     }
 
+    // Lấy và hiển thị điểm đánh giá trung bình của truyện
+    fetchComicRating(data.id);
+
     modal.setAttribute('data-comic-id', data.id);
 
     const shareButton = modalBody.querySelector('#shareComicBtn');
@@ -310,6 +313,67 @@ function openCardModal(data) {
 
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
+}
+
+// Hàm để lấy và hiển thị điểm đánh giá trung bình của truyện
+async function fetchComicRating(cardId) {
+    try {
+        const response = await fetch(`/api/ratings/average/comic/${cardId}`);
+        if (!response.ok) {
+            throw new Error('Không thể lấy thông tin đánh giá');
+        }
+        
+        const ratingData = await response.json();
+        
+        // Tìm vị trí để thêm đánh giá (sau thẻ p của comicHashtags)
+        const cardBody = document.querySelector('#card .card-body');
+        const comicHashtags = document.querySelector('#comicHashtags');
+        
+        // Xóa đánh giá cũ nếu có
+        const existingRating = document.getElementById('comicRating');
+        if (existingRating) {
+            existingRating.remove();
+        }
+        
+        // Tạo phần tử hiển thị đánh giá
+        const ratingElement = document.createElement('p');
+        ratingElement.className = 'card-text';
+        ratingElement.id = 'comicRating';
+        
+        // Tạo HTML cho hiển thị sao
+        const averageRating = parseFloat(ratingData.average_rating) || 0;
+        const fullStars = Math.floor(averageRating);
+        const hasHalfStar = averageRating - fullStars >= 0.5;
+        
+        let starsHTML = '';
+        
+        // Thêm sao đầy đủ
+        for (let i = 0; i < fullStars; i++) {
+            starsHTML += '<i class="bi bi-star-fill text-warning"></i>';
+        }
+        
+        // Thêm nửa sao nếu cần
+        if (hasHalfStar) {
+            starsHTML += '<i class="bi bi-star-half text-warning"></i>';
+        }
+        
+        // Thêm sao trống cho đủ 5 sao
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        for (let i = 0; i < emptyStars; i++) {
+            starsHTML += '<i class="bi bi-star text-warning"></i>';
+        }
+        
+        ratingElement.innerHTML = `Đánh giá: ${starsHTML} <span class="rating-value">(${averageRating}/5 từ ${ratingData.rating_count} lượt đánh giá)</span>`;
+        
+        // Thêm phần tử đánh giá vào sau comicHashtags
+        if (comicHashtags && comicHashtags.nextSibling) {
+            cardBody.insertBefore(ratingElement, comicHashtags.nextSibling);
+        } else {
+            cardBody.appendChild(ratingElement);
+        }
+    } catch (error) {
+        console.error('Lỗi khi lấy điểm đánh giá trung bình:', error);
+    }
 }
 
 // Hàm thiết lập phân trang
