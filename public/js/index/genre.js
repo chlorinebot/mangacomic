@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const allA = document.createElement('a');
             allA.className = 'dropdown-item';
             allA.href = '#';
-            allA.textContent = 'Tất cả';
+            
             allA.setAttribute('data-original-genre', 'all');
             allA.addEventListener('click', function (e) {
                 e.preventDefault();
