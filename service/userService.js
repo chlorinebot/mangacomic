@@ -159,4 +159,58 @@ const countUsers = async () => {
     }
 };
 
-module.exports = { getAllUsers, registerUser, loginUser, deleteUser, updateUser, countUsers };
+// Đổi mật khẩu người dùng
+const changePassword = async (username, currentPassword, newPassword) => {
+    const connection = await dbPool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // Thêm log để kiểm tra giá trị username
+        console.log('Đang thực hiện đổi mật khẩu cho username:', username);
+
+        // Kiểm tra xem người dùng có tồn tại không
+        const [users] = await connection.query('SELECT id, username, password FROM users WHERE username = ?', [username]);
+        
+        // Log để kiểm tra kết quả truy vấn
+        console.log('Kết quả tìm kiếm người dùng:', users.length ? 'Tìm thấy' : 'Không tìm thấy');
+        
+        if (users.length === 0) {
+            throw new Error('Người dùng không tồn tại');
+        }
+
+        const user = users[0];
+        
+        // Kiểm tra mật khẩu hiện tại
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        console.log('Kết quả kiểm tra mật khẩu:', isMatch ? 'Đúng' : 'Sai');
+        
+        if (!isMatch) {
+            throw new Error('Mật khẩu hiện tại không chính xác');
+        }
+
+        // Hash mật khẩu mới
+        const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+        
+        // Cập nhật mật khẩu
+        const [result] = await connection.query(
+            'UPDATE users SET password = ? WHERE id = ?',
+            [hashedPassword, user.id]
+        );
+        
+        console.log('Kết quả cập nhật mật khẩu:', result.affectedRows > 0 ? 'Thành công' : 'Thất bại');
+        
+        await connection.commit();
+        return { 
+            success: true,
+            message: 'Đổi mật khẩu thành công'
+        };
+    } catch (err) {
+        await connection.rollback();
+        console.error('Lỗi trong hàm changePassword:', err);
+        throw err;
+    } finally {
+        connection.release();
+    }
+};
+
+module.exports = { getAllUsers, registerUser, loginUser, deleteUser, updateUser, countUsers, changePassword };

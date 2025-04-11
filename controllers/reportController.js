@@ -93,6 +93,15 @@ const submitReport = async (req, res) => {
 const getReports = async (req, res) => {
     const connection = await dbPool.getConnection();
     try {
+        // Kiểm tra xem cột notes đã tồn tại chưa
+        const [columns] = await connection.query('SHOW COLUMNS FROM reports LIKE ?', ['notes']);
+        
+        // Nếu cột notes chưa tồn tại, thêm cột notes vào bảng reports
+        if (columns.length === 0) {
+            await connection.query('ALTER TABLE reports ADD COLUMN notes TEXT');
+            console.log('Đã thêm cột notes vào bảng reports');
+        }
+        
         const [reports] = await connection.query(
             `SELECT r.*, u.username 
              FROM reports r
@@ -112,7 +121,7 @@ const getReports = async (req, res) => {
 // Hàm cập nhật trạng thái báo cáo
 const updateReportStatus = async (req, res) => {
     const { reportId } = req.params;
-    const { status } = req.body;
+    const { status, notes } = req.body;
     
     if (!reportId || !status) {
         return res.status(400).json({ error: 'Thiếu thông tin cần thiết' });
@@ -120,16 +129,36 @@ const updateReportStatus = async (req, res) => {
     
     const connection = await dbPool.getConnection();
     try {
-        const [result] = await connection.query(
-            'UPDATE reports SET status = ?, processed_at = NOW() WHERE id = ?',
-            [status, reportId]
-        );
+        // Kiểm tra xem cột notes đã tồn tại chưa
+        const [columns] = await connection.query('SHOW COLUMNS FROM reports LIKE ?', ['notes']);
+        
+        // Nếu cột notes chưa tồn tại, thêm cột notes vào bảng reports
+        if (columns.length === 0) {
+            await connection.query('ALTER TABLE reports ADD COLUMN notes TEXT');
+            console.log('Đã thêm cột notes vào bảng reports');
+        }
+        
+        // Cập nhật trạng thái và ghi chú
+        const query = notes 
+            ? 'UPDATE reports SET status = ?, processed_at = NOW(), notes = ? WHERE id = ?'
+            : 'UPDATE reports SET status = ?, processed_at = NOW() WHERE id = ?';
+            
+        const params = notes 
+            ? [status, notes, reportId]
+            : [status, reportId];
+            
+        const [result] = await connection.query(query, params);
         
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Không tìm thấy báo cáo với ID này' });
         }
         
-        res.json({ message: 'Cập nhật trạng thái báo cáo thành công' });
+        res.json({ 
+            message: 'Cập nhật trạng thái báo cáo thành công',
+            status,
+            notes: notes || null,
+            processed_at: new Date()
+        });
     } catch (err) {
         console.error('Lỗi khi cập nhật trạng thái báo cáo:', err);
         res.status(500).json({ error: 'Lỗi khi cập nhật trạng thái báo cáo', details: err.message });

@@ -3,7 +3,8 @@
  * Tập trung quản lý tất cả các gọi API trong ứng dụng
  */
 const ApiService = (function () {
-    const API_BASE_URL = 'http://localhost:3000/api';
+    // Sử dụng đường dẫn tương đối thay vì hard-code URL
+    const API_BASE_URL = '/api';
 
     // Cấu hình mặc định cho fetch
     const defaultFetchOptions = {
@@ -86,6 +87,16 @@ const ApiService = (function () {
          */
         changePassword: async (passwordData) => {
             try {
+                console.log('ApiService - Đang gửi yêu cầu đổi mật khẩu:', {
+                    url: `${API_BASE_URL}/users/change-password`,
+                    method: 'PUT',
+                    headers: {
+                        ...defaultFetchOptions.headers,
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    data: passwordData
+                });
+                
                 const response = await fetch(`${API_BASE_URL}/users/change-password`, {
                     method: 'PUT',
                     headers: {
@@ -93,6 +104,11 @@ const ApiService = (function () {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify(passwordData)
+                });
+
+                console.log('ApiService - Nhận phản hồi:', {
+                    status: response.status,
+                    statusText: response.statusText
                 });
 
                 return handleResponse(response);
@@ -352,6 +368,91 @@ getUserFavorites: async (userId) => {
                 return handleResponse(response);
             } catch (error) {
                 console.error('Remove from favorites error:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Lấy bảng xếp hạng truyện đọc nhiều nhất
+         * Dựa trên bảng cards (số lượt xem)
+         */
+        getRankingMostRead: async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/rankings/most-read`, {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Get most read rankings error:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Lấy bảng xếp hạng truyện được yêu thích nhất
+         * Dựa trên bảng favorites (số lượt yêu thích)
+         */
+        getRankingMostLiked: async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/rankings/most-liked`, {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Get most liked rankings error:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Lấy bảng xếp hạng truyện có đánh giá cao nhất
+         * Dựa trên bảng ratings (điểm đánh giá trung bình)
+         */
+        getRankingHighestRated: async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/rankings/highest-rated`, {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Get highest rated rankings error:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Lấy bảng xếp hạng truyện xem nhiều trong tuần
+         * Dựa trên bảng cards (số lượt xem trong 7 ngày gần nhất)
+         */
+        getRankingWeeklyTop: async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/rankings/weekly-top`, {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Get weekly top rankings error:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Lấy bảng xếp hạng truyện xem nhiều trong ngày
+         * Dựa trên bảng cards (số lượt xem trong 24 giờ gần nhất)
+         */
+        getRankingDailyTop: async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/rankings/daily-top`, {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+                return handleResponse(response);
+            } catch (error) {
+                console.error('Get daily top rankings error:', error);
                 throw error;
             }
         }

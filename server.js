@@ -11,6 +11,7 @@ const { getUserProfile, getUserFavorites } = require('./controllers/profileContr
 const { addReadingHistory, getReadingHistoryByUser, deleteReadingHistory, clearReadingHistory } = require('./controllers/readingHistoryController');
 const apiRoutes = require('./routes/api');
 const reportRoutes = require('./routes/reportRoutes');
+const rankingRoutes = require('./routes/rankingRoutes');
 const { addComment, getComments, updateComment, deleteComment, getCommentReplies, addCommentReply } = require('./controllers/commentController');
 const jwt = require('jsonwebtoken');
 // Cố gắng import cookie-parser nếu đã cài đặt, nếu không thì xử lý thủ công
@@ -43,6 +44,9 @@ app.use('/api', apiRoutes);
 // Sử dụng routes cho báo cáo
 app.use('/report', reportRoutes);
 
+// Sử dụng routes cho bảng xếp hạng
+app.use('/api/rankings', rankingRoutes);
+
 // Middleware xử lý lỗi chung
 app.use((err, req, res, next) => {
     console.error('Lỗi không xử lý được:', err.stack);
@@ -73,6 +77,33 @@ app.delete('/api/chapters', checkDbConnection, deleteChapterData);
 // API cho users
 app.get('/api/users', checkDbConnection, getUsers);
 app.delete('/api/users/:id', checkDbConnection, deleteUserData);
+
+// API đổi mật khẩu người dùng (phải đặt trước route động /api/users/:id)
+app.put('/api/users/change-password', [checkDbConnection, verifyToken], async (req, res) => {
+    try {
+        const { username, currentPassword, newPassword } = req.body;
+        
+        if (!username || !currentPassword || !newPassword) {
+            return res.status(400).json({ error: 'Thiếu thông tin. Vui lòng cung cấp đầy đủ username, currentPassword và newPassword' });
+        }
+        
+        // Kiểm tra xem username trong request có khớp với người dùng đã xác thực không
+        if (username !== req.user.username) {
+            return res.status(403).json({ error: 'Bạn không có quyền đổi mật khẩu cho tài khoản này' });
+        }
+        
+        // Sử dụng service để thay đổi mật khẩu
+        const { changePassword } = require('./service/userService');
+        const result = await changePassword(username, currentPassword, newPassword);
+        
+        res.json(result);
+    } catch (err) {
+        console.error('Lỗi khi đổi mật khẩu:', err);
+        res.status(400).json({ error: err.message || 'Đổi mật khẩu thất bại' });
+    }
+});
+
+// API cập nhật thông tin người dùng
 app.put('/api/users/:id', checkDbConnection, updateUserData);
 
 // API cho genres

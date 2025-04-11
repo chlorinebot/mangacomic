@@ -186,8 +186,17 @@
                             <!-- Danh sách thể loại sẽ được đổ động bằng JavaScript -->
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="modal" data-bs-target="#history" href="#" aria-disabled="true">Lịch sử</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="rankingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Bảng xếp hạng
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="rankingDropdown">
+                            <li><a class="dropdown-item" href="#" data-ranking-type="most-read" data-bs-toggle="modal" data-bs-target="#rankingModal">Truyện đọc nhiều nhất</a></li>
+                            <li><a class="dropdown-item" href="#" data-ranking-type="most-liked" data-bs-toggle="modal" data-bs-target="#rankingModal">Truyện được yêu thích nhất</a></li>
+                            <li><a class="dropdown-item" href="#" data-ranking-type="highest-rated" data-bs-toggle="modal" data-bs-target="#rankingModal">Truyện đánh giá cao nhất</a></li>
+                            <li><a class="dropdown-item" href="#" data-ranking-type="weekly-top" data-bs-toggle="modal" data-bs-target="#rankingModal">Top xem tuần</a></li>
+                            <li><a class="dropdown-item" href="#" data-ranking-type="daily-top" data-bs-toggle="modal" data-bs-target="#rankingModal">Top xem ngày</a></li>
+                        </ul>
                     </li>
                     <!-- Nút Theme Toggle trong navbar -->
                     <li class="nav-item">
@@ -997,6 +1006,62 @@ Lưu ý cuối cùng:<br>
     </div>
 </div>
 
+<!-- Modal Bảng Xếp Hạng -->
+<div class="modal fade" id="rankingModal" tabindex="-1" aria-labelledby="rankingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rankingModalLabel">Bảng xếp hạng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <ul class="nav nav-pills" id="rankingTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-ranking-type="most-read" href="#">Đọc nhiều nhất</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-ranking-type="most-liked" href="#">Yêu thích nhất</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-ranking-type="highest-rated" href="#">Đánh giá cao nhất</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-ranking-type="weekly-top" href="#">Top tuần</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-ranking-type="daily-top" href="#">Top ngày</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" width="5%">Hạng</th>
+                                <th scope="col" width="15%">Ảnh bìa</th>
+                                <th scope="col" width="35%">Tên truyện</th>
+                                <th scope="col" width="15%">Tác giả</th>
+                                <th scope="col" width="15%">Thể loại</th>
+                                <th scope="col" width="15%" id="rankingMetricHeader">Lượt xem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankingTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Cài đặt (Trung tâm tài khoản - Modal 1) -->
 <div class="modal fade settings-modal" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -1080,7 +1145,14 @@ Lưu ý cuối cùng:<br>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Mật khẩu của bạn hiện tại bao gồm các chi tiết như độ dài 6 ký tự, thông tin bao gồm cả chữ số, chữ cái và ký tự đặc biệt (%$#@).</p>
+                <p>Mật khẩu mới phải đáp ứng các yêu cầu sau:</p>
+                <ul class="mb-3">
+                    <li>Độ dài từ 8 đến 20 ký tự</li>
+                    <li>Chứa ít nhất 1 chữ hoa (A-Z)</li>
+                    <li>Chứa ít nhất 1 chữ thường (a-z)</li>
+                    <li>Chứa ít nhất 1 số (0-9)</li>
+                    <li>Chứa ít nhất 1 ký tự đặc biệt (!@#$%^&*)</li>
+                </ul>
                 <form id="changePasswordForm">
                     <div class="mb-3">
                         <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
@@ -1089,14 +1161,14 @@ Lưu ý cuối cùng:<br>
                     <div class="mb-3">
                         <label for="newPassword" class="form-label">Mật khẩu mới</label>
                         <input type="password" class="form-control" id="newPassword" required>
+                        <div id="passwordRequirements" class="form-text small"></div>
                     </div>
                     <div class="mb-3">
                         <label for="confirmNewPassword" class="form-label">Nhập lại mật khẩu mới</label>
                         <input type="password" class="form-control" id="confirmNewPassword" required>
                     </div>
-                    <p>Bạn quên mật khẩu hiện tại? Hãy chọn mục này nếu nguồn khác đang đăng nhập tài khoản của bạn.</p>
                     <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
-                    <div id="changePasswordMessage" class="mt-2 text-danger"></div>
+                    <div id="changePasswordMessage" class="mt-2"></div>
                 </form>
             </div>
         </div>
@@ -1413,6 +1485,7 @@ Lưu ý cuối cùng:<br>
     <script src="/js/index/history.js"></script>
     <script src="/js/index/notifications.js"></script>
     <script src="/js/index/language-switcher.js"></script>
+    <script src="/js/index/rankings.js"></script>
 
     <script>
         // Thêm script để xử lý toggle theme
@@ -1461,5 +1534,7 @@ Lưu ý cuối cùng:<br>
             }
         });
     </script>
+
+    
 </body>
 </html>

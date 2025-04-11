@@ -61,43 +61,149 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (changePasswordForm) {
+        const currentPasswordInput = document.getElementById('currentPassword');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+        const passwordRequirements = document.getElementById('passwordRequirements');
+        const changePasswordMessage = document.getElementById('changePasswordMessage');
+
+        // Kiểm tra yêu cầu mật khẩu mới khi người dùng nhập
+        newPasswordInput.addEventListener('input', validateNewPassword);
+        confirmNewPasswordInput.addEventListener('input', validatePasswordMatch);
+
+        // Hàm kiểm tra mật khẩu mới
+        function validateNewPassword() {
+            const password = newPasswordInput.value;
+            const requirements = [];
+            
+            // Kiểm tra độ dài
+            if (password.length < 8 || password.length > 20) {
+                requirements.push('<span class="text-danger">• Độ dài phải từ 8-20 ký tự</span>');
+            } else {
+                requirements.push('<span class="text-success">• Độ dài hợp lệ</span>');
+            }
+            
+            // Kiểm tra chữ hoa
+            if (!/[A-Z]/.test(password)) {
+                requirements.push('<span class="text-danger">• Cần ít nhất 1 chữ hoa</span>');
+            } else {
+                requirements.push('<span class="text-success">• Có chữ hoa</span>');
+            }
+            
+            // Kiểm tra chữ thường
+            if (!/[a-z]/.test(password)) {
+                requirements.push('<span class="text-danger">• Cần ít nhất 1 chữ thường</span>');
+            } else {
+                requirements.push('<span class="text-success">• Có chữ thường</span>');
+            }
+            
+            // Kiểm tra số
+            if (!/[0-9]/.test(password)) {
+                requirements.push('<span class="text-danger">• Cần ít nhất 1 số</span>');
+            } else {
+                requirements.push('<span class="text-success">• Có số</span>');
+            }
+            
+            // Kiểm tra ký tự đặc biệt
+            if (!/[!@#$%^&*]/.test(password)) {
+                requirements.push('<span class="text-danger">• Cần ít nhất 1 ký tự đặc biệt (!@#$%^&*)</span>');
+            } else {
+                requirements.push('<span class="text-success">• Có ký tự đặc biệt</span>');
+            }
+            
+            // Hiển thị kết quả
+            passwordRequirements.innerHTML = requirements.join('<br>');
+            
+            // Nếu có giá trị ở trường xác nhận mật khẩu, kiểm tra lại
+            if (confirmNewPasswordInput.value) {
+                validatePasswordMatch();
+            }
+            
+            return password.length >= 8 && password.length <= 20 && 
+                   /[A-Z]/.test(password) && /[a-z]/.test(password) && 
+                   /[0-9]/.test(password) && /[!@#$%^&*]/.test(password);
+        }
+
+        // Hàm kiểm tra xác nhận mật khẩu
+        function validatePasswordMatch() {
+            const match = newPasswordInput.value === confirmNewPasswordInput.value;
+            if (confirmNewPasswordInput.value) {
+                if (!match) {
+                    confirmNewPasswordInput.classList.add('is-invalid');
+                } else {
+                    confirmNewPasswordInput.classList.remove('is-invalid');
+                    confirmNewPasswordInput.classList.add('is-valid');
+                }
+            }
+            return match;
+        }
+
         changePasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+            const currentPassword = currentPasswordInput.value;
+            const newPassword = newPasswordInput.value;
+            const confirmNewPassword = confirmNewPasswordInput.value;
             const username = localStorage.getItem('username');
 
-            if (newPassword !== confirmNewPassword) {
+            // Xóa thông báo cũ
+            changePasswordMessage.textContent = '';
+            changePasswordMessage.className = 'mt-2';
+
+            // Kiểm tra các trường đầu vào
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                changePasswordMessage.textContent = 'Vui lòng điền đầy đủ thông tin';
+                changePasswordMessage.className = 'mt-2 text-danger';
+                return;
+            }
+
+            if (!validateNewPassword()) {
+                changePasswordMessage.textContent = 'Mật khẩu mới không đáp ứng các yêu cầu';
+                changePasswordMessage.className = 'mt-2 text-danger';
+                return;
+            }
+
+            if (!validatePasswordMatch()) {
                 changePasswordMessage.textContent = 'Mật khẩu mới và xác nhận mật khẩu không khớp!';
                 changePasswordMessage.className = 'mt-2 text-danger';
                 return;
             }
 
-            if (newPassword.length < 8 || newPassword.length > 20 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[!@#$%^&*]/.test(newPassword)) {
-                changePasswordMessage.textContent = 'Mật khẩu mới phải dài 8-20 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt!';
-                changePasswordMessage.className = 'mt-2 text-danger';
-                return;
-            }
-
             try {
-                // Sử dụng ApiService thay vì gọi fetch trực tiếp
+                // Hiển thị thông báo đang xử lý
+                changePasswordMessage.textContent = 'Đang xử lý...';
+                changePasswordMessage.className = 'mt-2 text-info';
+                
+                // Log dữ liệu trước khi gửi
+                console.log('Đang gửi yêu cầu đổi mật khẩu với username:', username);
+                
+                // Gọi API đổi mật khẩu
                 const data = await ApiService.changePassword({
                     username,
                     currentPassword,
                     newPassword,
                 });
 
+                console.log('Kết quả từ API đổi mật khẩu:', data);
+
+                // Hiển thị thông báo thành công
                 changePasswordMessage.textContent = 'Đổi mật khẩu thành công!';
                 changePasswordMessage.className = 'mt-2 text-success';
+                
+                // Đóng modal sau 2 giây
                 setTimeout(() => {
                     const changePasswordModal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
                     if (changePasswordModal) changePasswordModal.hide();
                     changePasswordForm.reset();
+                    passwordRequirements.innerHTML = '';
                     changePasswordMessage.textContent = '';
-                }, 1000);
+                    
+                    // Xóa các class validation
+                    newPasswordInput.classList.remove('is-valid', 'is-invalid');
+                    confirmNewPasswordInput.classList.remove('is-valid', 'is-invalid');
+                }, 2000);
             } catch (error) {
+                // Hiển thị thông báo lỗi
                 changePasswordMessage.textContent = error.message || 'Đổi mật khẩu thất bại!';
                 changePasswordMessage.className = 'mt-2 text-danger';
                 console.error('Lỗi chi tiết:', error);
