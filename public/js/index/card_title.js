@@ -164,7 +164,7 @@ function displayCardsForPage(pageNumber) {
         colDiv.className = 'col';
 
         const cardDiv = document.createElement('div');
-        cardDiv.className = 'card h-100'; // Thêm h-100 để các card có chiều cao đồng nhất
+        cardDiv.className = 'card h-100';
 
         const img = document.createElement('img');
         img.className = 'card-img-top';
@@ -172,14 +172,14 @@ function displayCardsForPage(pageNumber) {
         img.alt = data.title;
 
         const cardBody = document.createElement('div');
-        cardBody.className = 'card-body d-flex flex-column'; // Sử dụng flexbox để căn chỉnh
+        cardBody.className = 'card-body';
 
         const cardTitle = document.createElement('h5');
-        cardTitle.className = 'card-title text-truncate'; // Thêm text-truncate để tên dài sẽ hiển thị ...
+        cardTitle.className = 'card-title';
         cardTitle.textContent = data.title;
 
         const cardText = document.createElement('p');
-        cardText.className = 'card-text flex-grow-1';
+        cardText.className = 'card-text';
         cardText.textContent = data.content || 'Chưa có nội dung.';
         // Giới hạn độ dài nội dung
         if (cardText.textContent.length > 60) {
@@ -192,7 +192,6 @@ function displayCardsForPage(pageNumber) {
         cardDiv.appendChild(img);
         cardDiv.appendChild(cardBody);
 
-        cardDiv.style.cursor = 'pointer';
         cardDiv.setAttribute('data-comic-id', data.id);
         cardDiv.addEventListener('click', function() {
             openCardModal(data);
