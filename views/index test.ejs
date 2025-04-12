@@ -152,266 +152,8 @@
           display: block !important;
         }
     </style>
-
-    <style>
-        /* ... existing code ... */
-        
-        /* Layout CSS */
-        html, body {
-            height: 100%;
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .sb-nav-fixed {
-            padding-top: 56px;
-        }
-        
-        .sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
-            width: 225px;
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 56px;
-            z-index: 1038;
-        }
-        
-        .sb-nav-fixed #layoutSidenav #layoutSidenav_content {
-            padding-left: 225px;
-            padding-top: 1rem;
-            top: 56px;
-        }
-        
-        /* Top navbar */
-        .sb-topnav {
-            height: 56px;
-            z-index: 1039;
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 0;
-            padding: 0;
-        }
-        
-        /* Sidenav */
-        #layoutSidenav {
-            display: flex;
-            flex: 1;
-        }
-        
-        #layoutSidenav_nav {
-            flex-basis: 225px;
-            flex-shrink: 0;
-            transition: transform 0.15s ease-in-out;
-            z-index: 1038;
-            transform: translateX(0);
-        }
-        
-        #layoutSidenav_content {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-width: 0;
-            flex-grow: 1;
-            min-height: calc(100vh - 56px);
-            margin-left: 0;
-            transition: margin 0.15s ease-in-out;
-        }
-        
-        .sb-sidenav-toggled #layoutSidenav_nav {
-            transform: translateX(-225px);
-        }
-        
-        .sb-sidenav-toggled #layoutSidenav_content {
-            margin-left: -225px;
-        }
-        
-        @media (max-width: 767.98px) {
-            #layoutSidenav_nav {
-                transform: translateX(-225px);
-            }
-            
-            #layoutSidenav_content {
-                margin-left: -225px;
-            }
-            
-            .sb-sidenav-toggled #layoutSidenav_nav {
-                transform: translateX(0);
-            }
-            
-            .sb-sidenav-toggled #layoutSidenav_content {
-                margin-left: 0;
-            }
-        }
-        
-        /* Sidenav menu styling */
-        .sb-sidenav {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            flex-wrap: nowrap;
-        }
-        
-        .sb-sidenav .sb-sidenav-menu {
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav {
-            flex-direction: column;
-            flex-wrap: nowrap;
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav .sb-sidenav-menu-heading {
-            padding: 1.75rem 1rem 0.75rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            color: rgba(255, 255, 255, 0.8);
-            position: relative;
-            transition: color 0.15s ease;
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link:hover {
-            color: #fff;
-            padding-left: 1.25rem;
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link.active {
-            color: #fff;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link .sb-nav-link-icon {
-            font-size: 0.9rem;
-            margin-right: 0.5rem;
-            width: 1.5rem;
-            text-align: center;
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link .sb-sidenav-collapse-arrow {
-            display: inline-block;
-            margin-left: auto;
-            transition: transform 0.15s ease;
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav .nav-link.collapsed .sb-sidenav-collapse-arrow {
-            transform: rotate(-90deg);
-        }
-        
-        .sb-sidenav .sb-sidenav-menu .nav .sb-sidenav-menu-nested {
-            margin-left: 1.5rem;
-            flex-direction: column;
-        }
-        
-        .sb-sidenav .sb-sidenav-footer {
-            padding: 0.75rem;
-            background-color: rgba(0, 0, 0, 0.25);
-        }
-        
-        /* Color schemes */
-        .sb-sidenav-dark {
-            background-color: #212529;
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
-        .sb-sidenav-dark .sb-sidenav-menu .sb-sidenav-menu-heading {
-            color: rgba(255, 255, 255, 0.25);
-        }
-        
-        .sb-sidenav-dark .sb-sidenav-menu .nav-link {
-            color: rgba(255, 255, 255, 0.65);
-        }
-        
-        .sb-sidenav-dark .sb-sidenav-menu .nav-link:hover {
-            color: #fff;
-        }
-        
-        .sb-sidenav-dark .sb-sidenav-menu .nav-link.active {
-            color: #fff;
-        }
-        
-        .sb-sidenav-dark .sb-sidenav-footer {
-            background-color: #343a40;
-        }
-        
-        /* Content area styling */
-        .content-wrapper {
-            padding: 1.5rem;
-            min-height: calc(100vh - 56px);
-        }
-        
-        #comicList {
-            margin-top: 1rem;
-        }
-        
-        /* Grid layout */
-        .row-cols-md-6 > * {
-            flex: 0 0 auto;
-            width: 16.666667% !important; /* Force 6 columns */
-        }
-
-        @media (max-width: 767.98px) {
-            .row-cols-md-6 > * {
-                width: 33.333333% !important; /* 3 columns on tablet */
-            }
-        }
-
-        @media (max-width: 576px) {
-            .row-cols-md-6 > * {
-                width: 50% !important; /* 2 columns on mobile */
-            }
-        }
-        
-        
-        
-        /* Footer positioning */
-        .footer {
-            margin-top: auto;
-            background-color: #f8f9fa;
-        }
-        
-        /* Ensure content doesn't overlap with navbar */
-        #layoutSidenav_content {
-            margin-top: 0;
-        }
-        
-        /* Pagination positioning */
-        .pagination-container {
-            margin-top: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        /* Spacing */
-        .col {
-            padding: 0.5rem;
-        }
-
-        /* Container */
-        .container-fluid {
-            max-width: 1800px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-
-        /* Limit to 12 cards (2 rows x 6 columns) */
-        #cardContainer .col:nth-child(n+13) {
-            display: none;
-        }
-    </style>
 </head>
-<body class="d-flex flex-column h-100 sb-nav-fixed">
+<body class="d-flex flex-column h-100">
     <!-- Toast thông báo khi báo cáo thành công -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="reportSuccessToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -425,167 +167,139 @@
         </div>
     </div>
 
-    <!-- Sidenav and Content wrapper -->
-    <div id="layoutSidenav">
-        <!-- Side Navigation -->
-        <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                <div class="sb-sidenav-menu">
-                    <div class="nav">
-                        <div class="sb-sidenav-menu-heading">MENU</div>
-                        <a class="nav-link active" href=".">
-                            <div class="sb-nav-link-icon"><i class="bi bi-house-door"></i></div>
-                            Trang chủ
-                        </a>
-                        
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseGenres" aria-expanded="false" aria-controls="collapseGenres">
-                            <div class="sb-nav-link-icon"><i class="bi bi-tags"></i></div>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary navbar fixed-top bg-body-tertiary">
+        <div class="container-xl">
+            <a class="navbar-brand ms-5" href="#">MANGA COMIC</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href=".">Trang chủ</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="genreDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Thể loại
-                            <div class="sb-sidenav-collapse-arrow"><i class="bi bi-chevron-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseGenres" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav" id="genreDropdownMenu">
-                                <!-- Danh sách thể loại sẽ được đổ động bằng JavaScript -->
-                            </nav>
-                        </div>
-                        
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseRankings" aria-expanded="false" aria-controls="collapseRankings">
-                            <div class="sb-nav-link-icon"><i class="bi bi-trophy"></i></div>
+                        <ul class="dropdown-menu" id="genreDropdownMenu" aria-labelledby="genreDropdown">
+                            <!-- Danh sách thể loại sẽ được đổ động bằng JavaScript -->
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="rankingDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Bảng xếp hạng
-                            <div class="sb-sidenav-collapse-arrow"><i class="bi bi-chevron-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseRankings" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="#" data-ranking-type="most-read" data-bs-toggle="modal" data-bs-target="#rankingModal">
-                                    <div class="sb-nav-link-icon"><i class="bi bi-eye"></i></div>
-                                    Đọc nhiều nhất
-                                </a>
-                                <a class="nav-link" href="#" data-ranking-type="most-liked" data-bs-toggle="modal" data-bs-target="#rankingModal">
-                                    <div class="sb-nav-link-icon"><i class="bi bi-heart"></i></div>
-                                    Yêu thích nhất
-                                </a>
-                                <a class="nav-link" href="#" data-ranking-type="highest-rated" data-bs-toggle="modal" data-bs-target="#rankingModal">
-                                    <div class="sb-nav-link-icon"><i class="bi bi-star"></i></div>
-                                    Đánh giá cao nhất
-                                </a>
-                                <a class="nav-link" href="#" data-ranking-type="weekly-top" data-bs-toggle="modal" data-bs-target="#rankingModal">
-                                    <div class="sb-nav-link-icon"><i class="bi bi-calendar-week"></i></div>
-                                    Top xem tuần
-                                </a>
-                                <a class="nav-link" href="#" data-ranking-type="daily-top" data-bs-toggle="modal" data-bs-target="#rankingModal">
-                                    <div class="sb-nav-link-icon"><i class="bi bi-calendar-day"></i></div>
-                                    Top xem ngày
-                                </a>
-                            </nav>
-                        </div>
-                        
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#historyModal">
-                            <div class="sb-nav-link-icon"><i class="bi bi-clock-history"></i></div>
-                            Lịch sử đọc truyện
+                        <ul class="dropdown-menu" aria-labelledby="rankingDropdown">
+                            <li><a class="dropdown-item" href="#" data-ranking-type="most-read" data-bs-toggle="modal" data-bs-target="#rankingModal">Truyện đọc nhiều nhất</a></li>
+                            <li><a class="dropdown-item" href="#" data-ranking-type="most-liked" data-bs-toggle="modal" data-bs-target="#rankingModal">Truyện được yêu thích nhất</a></li>
+                            <li><a class="dropdown-item" href="#" data-ranking-type="highest-rated" data-bs-toggle="modal" data-bs-target="#rankingModal">Truyện đánh giá cao nhất</a></li>
+                            <li><a class="dropdown-item" href="#" data-ranking-type="weekly-top" data-bs-toggle="modal" data-bs-target="#rankingModal">Top xem tuần</a></li>
+                            <li><a class="dropdown-item" href="#" data-ranking-type="daily-top" data-bs-toggle="modal" data-bs-target="#rankingModal">Top xem ngày</a></li>
+                        </ul>
+                    </li>
+                    <!-- Nút Theme Toggle trong navbar -->
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center" href="#" id="navbar-theme-toggle">
+                            <i class="bi bi-sun-fill" id="navbar-light-icon" style="font-size: 1.2rem; display: none;"></i>
+                            <i class="bi bi-moon-stars-fill" id="navbar-dark-icon" style="font-size: 1.2rem;"></i>
                         </a>
-                        
-                        <div class="sb-sidenav-menu-heading">CÀI ĐẶT</div>
-                        
-                        
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLanguages" aria-expanded="false" aria-controls="collapseLanguages">
-                            <div class="sb-nav-link-icon"><i class="bi bi-globe"></i></div>
-                            Ngôn ngữ
-                            <div class="sb-sidenav-collapse-arrow"><i class="bi bi-chevron-down"></i></div>
+                    </li>
+                    <!-- Nút chuyển đổi ngôn ngữ -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="flag-icon flag-icon-vi me-1" id="currentLanguageFlag"></span>
+                            <span id="currentLanguageText">Tiếng Việt</span>
                         </a>
-                        <div class="collapse" id="collapseLanguages" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link language-option" href="#" data-lang="vi">
-                                    <div class="sb-nav-link-icon"><span class="flag-icon flag-icon-vi"></span></div>
+                        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                            <li>
+                                <a class="dropdown-item language-option d-flex align-items-center" href="#" data-lang="vi">
+                                    <span class="flag-icon flag-icon-vi"></span>
                                     Tiếng Việt
                                 </a>
-                                <a class="nav-link language-option" href="#" data-lang="en">
-                                    <div class="sb-nav-link-icon"><span class="flag-icon flag-icon-en"></span></div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item language-option d-flex align-items-center" href="#" data-lang="en">
+                                    <span class="flag-icon flag-icon-en"></span>
                                     English
                                 </a>
-                                <a class="nav-link language-option" href="#" data-lang="zh">
-                                    <div class="sb-nav-link-icon"><span class="flag-icon flag-icon-zh"></span></div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item language-option d-flex align-items-center" href="#" data-lang="zh">
+                                    <span class="flag-icon flag-icon-zh"></span>
                                     中文
                                 </a>
-                            </nav>
-                        </div>
-                        
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#reportIssueModal">
-                            <div class="sb-nav-link-icon"><i class="bi bi-exclamation-triangle"></i></div>
-                            Báo cáo sự cố
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#reportIssueModal">Báo cáo sự cố</a>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button" style="width: 70px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                        </svg>
+                    </button>
+                </form>
+                <!-- Thêm các nút Tin nhắn và Thông báo (ẩn ban đầu) -->
+                <ul class="navbar-nav me-2 mb-2 mb-lg-0 d-none ms-5" id="userActions">
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" href="#" id="messagesButton">
+                            <i class="bi bi-chat-dots"></i>
+                            <!-- Badge for unread messages -->
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="messagesBadge">
+                                0
+                                <span class="visually-hidden">unread messages</span>
+                            </span>
                         </a>
-                    </div>
-                </div>
-            </nav>
-        </div>
-        <div id="layoutSidenav_content">
-            <!--Hiện thị các card truyện-->
-            <main>
-                <div class="container-fluid px-4">
-                    <div class="row row-cols-1 row-cols-md-6 g-4" id="cardContainer">
-                        <!-- Comic cards will be populated here -->
+                    </li>
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" href="#" id="notificationsButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-bell"></i>
+                            <!-- Badge for unread notifications -->
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notificationsBadge">
+                                0
+                                <span class="visually-hidden">unread notifications</span>
+                            </span>
+                        </a>
+                        <!-- Dropdown menu cho thông báo -->
+                        <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                            <div class="p-2 border-bottom d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Thông báo</h6>
+                                <button class="btn btn-sm text-primary" id="markAllReadBtn">Đánh dấu đã đọc</button>
+                            </div>
+                            <div class="notification-list">
+                                <!-- Thông báo sẽ được thêm vào đây động bằng JavaScript -->
+                            </div>
+                            <div class="p-2 border-top text-center">
+                                <a href="#" class="text-decoration-none" id="viewAllNotifications">Xem tất cả thông báo</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <!-- User dropdown -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown ms-5">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                            </svg>
+                            Đăng nhập/Đăng ký
+                        </a>
+                        <ul class="dropdown-menu">
+                            <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập</button>
+                            <li><hr class="dropdown-divider"></li>
+                            <button type="button" class="btn btn-outline-success ms-5" data-bs-toggle="modal" data-bs-target="#logup" style="width: 105px;">Đăng ký</button>
+                        </ul>
+                    </li>
+                </ul>
             </div>
-                    <nav aria-label="Page navigation" class="mt-4">
-                        <div class="d-flex justify-content-center" id="paginationContainer">
-                            <ul class="pagination pagination-lg">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#">Previous</a>
-                </li>
-                                <li class="page-item active" aria-current="page">
-                                    <a class="page-link" href="#">1</a>
-                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">Next</a>
-                </li>
-              </ul>
-                        </div>
-                    </nav>
-                      </div>
-            </main>
-            <footer class="py-4 bg-dark text-white mt-auto">
-                <div class="container-fluid px-4">
-                  <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <h5 class="text-uppercase mb-3">MANGA COMIC</h5>
-                            <p class="small">Website đọc truyện tranh online với nhiều thể loại đa dạng, cập nhật liên tục. Mang đến trải nghiệm tốt nhất cho người dùng.</p>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <h5 class="text-uppercase mb-3">Liên Kết</h5>
-                            <ul class="list-unstyled">
-                                <li><a href="#" class="text-white-50 text-decoration-none">Điều khoản sử dụng</a></li>
-                                <li><a href="#" class="text-white-50 text-decoration-none">Chính sách bảo mật</a></li>
-                                <li><a href="#" class="text-white-50 text-decoration-none">Về chúng tôi</a></li>
-                                <li><a href="#" class="text-white-50 text-decoration-none">Liên hệ</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <h5 class="text-uppercase mb-3">Kết Nối</h5>
-                            <div class="d-flex gap-3">
-                                <a href="#" class="text-white"><i class="bi bi-facebook fs-4"></i></a>
-                                <a href="#" class="text-white"><i class="bi bi-twitter fs-4"></i></a>
-                                <a href="#" class="text-white"><i class="bi bi-instagram fs-4"></i></a>
-                                <a href="#" class="text-white"><i class="bi bi-discord fs-4"></i></a>
-                        </div>
-                        </div>
-                      </div>
-                    <hr class="my-3 bg-secondary">
-                    <div class="row align-items-center">
-                        <div class="col-md-6 small">
-                            Copyright &copy; MangaComic 2024. All rights reserved.
-                    </div>
-                        <div class="col-md-6 text-md-end small">
-                            <a href="#" class="text-white-50 text-decoration-none me-3">Privacy Policy</a>
-                            <a href="#" class="text-white-50 text-decoration-none">Terms &amp; Conditions</a>
-                  </div>
-                </div>
-                        </div>
-            </footer>
         </div>
-
-        
-        
-
-
-        
+    </nav>
     <!-- Offcanvas nơi hiển thị sau tìm kiếm -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header">
@@ -701,8 +415,181 @@
     
     <br><br><br>
 
+    <div class="container-fluid">
+        <!-- Navbar có thẻ h1 -->
+        <h1 class="w-100 text-center my-3">Những trang truyện huyền thoại yêu thích của bạn đang ở đây, đọc ngay!</h1>
+        <br>
+        <!-- Phần card được tách riêng ra khỏi navbar -->
+        <div class="row row-cols-1 row-cols-md-6 g-4" id="comicList">
+            <!-- Danh sách truyện sẽ được render động bởi card_title.js -->
+        </div>
+    </div>
+    <br><br>
+    <!-- Footer -->
+    <nav aria-label="Page navigation" class="d-flex justify-content-center mt-5 mb-4">
+        <ul class="pagination pagination-lg" id="paginationContainer">
+            <li class="page-item disabled">
+                <a class="page-link">Previous</a>
+            </li>
+            <li class="page-item active" aria-current="page">
+                <a class="page-link" href="#">1</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="#">Next</a>
+            </li>
+        </ul>
+    </nav>
     
+    <!-- CSS cho phân trang -->
+    <style>
+        .pagination {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 30px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        /* Hiệu ứng nhấn mạnh phân trang */
+        .pagination-highlight {
+            box-shadow: 0 0 20px rgba(13, 110, 253, 0.7);
+            transform: translateY(-3px);
+        }
+        
+        .pagination .page-link {
+            background-color: #343a40;
+            color: #fff;
+            border: none;
+            min-width: 45px;
+            text-align: center;
+            transition: all 0.3s ease;
+            padding: 10px 16px;
+            margin: 0;
+        }
+        
+        .pagination .page-item:first-child .page-link {
+            border-top-left-radius: 30px;
+            border-bottom-left-radius: 30px;
+        }
+        
+        .pagination .page-item:last-child .page-link {
+            border-top-right-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            color: #fff;
+            border: none;
+            font-weight: bold;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+            z-index: 2;
+        }
+        
+        .pagination .page-item:not(.active):not(.disabled):hover .page-link {
+            background-color: #495057;
+            transform: translateY(-2px);
+        }
+        
+        .pagination .page-item.disabled .page-link {
+            background-color: #343a40;
+            color: #6c757d;
+            opacity: 0.7;
+            border: none;
+        }
+        
+        /* Hiệu ứng khi nhấn phím điều hướng */
+        .pagination .page-item.active-key .page-link {
+            background-color: #198754;
+            transform: scale(1.1);
+            transition: all 0.1s ease;
+        }
+        
+        /* Hiệu ứng gợi ý phím tắt */
+        .keyboard-hint {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .keyboard-hint-active {
+            transform: scale(1.05);
+            color: #0d6efd;
+        }
+        
+        .keyboard-hint-active .key {
+            background-color: #e9ecef;
+            border-color: #0d6efd;
+            box-shadow: 0 0 10px rgba(13, 110, 253, 0.3);
+        }
+        
+        .keyboard-hint .key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            padding: 0.15rem 0.4rem;
+            min-width: 1.8rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        /* Thêm hiệu ứng khi chuyển trang */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #comicList .col {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
     
+    <!-- Thêm chỉ dẫn phím tắt dưới phân trang -->
+    <div class="keyboard-hint mb-4">
+        <span>Sử dụng</span>
+        <span class="key"><i class="bi bi-arrow-left"></i></span>
+        <span>và</span>
+        <span class="key"><i class="bi bi-arrow-right"></i></span>
+        <span>để điều hướng giữa các trang</span>
+    </div>
+    
+    <footer class="footer mt-auto py-3 bg-light bg-body-tertiary">
+        <div class="container">
+            <div class="text-center">
+                <p class="mb-0">© Copyright 2025 by KimTuan. All Rights Reserved. <a href="#" data-bs-toggle="modal" data-bs-target="#dieukhoandv">Điều khoản dịch vụ</a> & <a href="#" data-bs-toggle="modal" data-bs-target="#quyenriengtu">Quyền riêng tư</a>.</p>
+            </div>
+        </div>
+
+        
+    </footer>
+    
+    <!-- CSS để footer luôn nằm dưới đáy -->
+    <style>
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+        
+        body {
+            margin-bottom: 60px; /* Đảm bảo có đủ khoảng trống cho footer */
+        }
+        
+        .footer {
+            
+            width: 100%;
+            height: 60px; /* Chiều cao của footer */
+        }
+    </style>
     <!-- Modal điều khoản dịch vụ -->
     <div class="modal fade" id="dieukhoandv" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen">
@@ -1570,99 +1457,6 @@ Lưu ý cuối cùng:<br>
 
   
 
-        
-        
-    </div>
-
-    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        
-        <a class="navbar-brand ps-3" href="#">MANGA COMIC</a>
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
-            <i class="bi bi-list"></i>
-        </button>
-
-
-        <div class="d-flex align-items-center ms-auto">
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button" style="width: 70px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                    </svg>
-                </button>
-            </form>
-
-            
-
-
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <!-- Nút Theme Toggle trong navbar -->
-                <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center" href="#" id="navbar-theme-toggle">
-                        <i class="bi bi-sun-fill" id="navbar-light-icon" style="font-size: 1.2rem; display: none;"></i>
-                        <i class="bi bi-moon-stars-fill" id="navbar-dark-icon" style="font-size: 1.2rem;"></i>
-                    </a>
-                </li>
-            </ul>
-            
-            <!-- Thêm các nút Tin nhắn và Thông báo (ẩn ban đầu) -->
-            <ul class="navbar-nav me-2 mb-2 mb-lg-0 d-none ms-5" id="userActions">
-                <li class="nav-item position-relative">
-                    <a class="nav-link" href="#" id="messagesButton">
-                        <i class="bi bi-chat-dots"></i>
-                        <!-- Badge for unread messages -->
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="messagesBadge">
-                            0
-                            <span class="visually-hidden">unread messages</span>
-                        </span>
-                    </a>
-                </li>
-                <li class="nav-item position-relative">
-                    <a class="nav-link" href="#" id="notificationsButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-bell"></i>
-                        <!-- Badge for unread notifications -->
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notificationsBadge">
-                            0
-                            <span class="visually-hidden">unread notifications</span>
-                        </span>
-                    </a>
-                    <!-- Dropdown menu cho thông báo -->
-                    <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0" style="width: 320px; max-height: 400px; overflow-y: auto;">
-                        <div class="p-2 border-bottom d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">Thông báo</h6>
-                            <button class="btn btn-sm text-primary" id="markAllReadBtn">Đánh dấu đã đọc</button>
-                        </div>
-                        <div class="notification-list">
-                            <!-- Thông báo sẽ được thêm vào đây động bằng JavaScript -->
-                        </div>
-                        <div class="p-2 border-top text-center">
-                            <a href="#" class="text-decoration-none" id="viewAllNotifications">Xem tất cả thông báo</a>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-            <!-- User dropdown -->
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown ms-5">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-                        </svg>
-                        Đăng nhập/Đăng ký
-                    </a>
-                    <ul class="dropdown-menu">
-                        <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập</button>
-                        <li><hr class="dropdown-divider"></li>
-                        <button type="button" class="btn btn-outline-success ms-5" data-bs-toggle="modal" data-bs-target="#logup" style="width: 105px;">Đăng ký</button>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-    
-</nav>
-
-    
   <!-- Theme dropdown đã được thay thế bằng nút toggle trong navbar -->
 
     <br>
@@ -1741,105 +1535,6 @@ Lưu ý cuối cùng:<br>
         });
     </script>
 
-
-
-
-
-
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Sidebar Toggle Functionality
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.body.classList.toggle('sb-sidenav-toggled');
-                localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-            });
-        }
-        
-        // Check for previous sidebar state
-        if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-            document.body.classList.add('sb-sidenav-toggled');
-        }
-        
-        // Mobile responsive handling
-        function handleResponsive() {
-            if (window.innerWidth < 768) {
-                document.body.classList.add('sb-sidenav-toggled');
-            } else {
-                if (localStorage.getItem('sb|sidebar-toggle') !== 'true') {
-                    document.body.classList.remove('sb-sidenav-toggled');
-                }
-            }
-        }
-        
-        // Initialize responsive state
-        handleResponsive();
-        
-        // Listen for window resize
-        window.addEventListener('resize', handleResponsive);
-        
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const isSmallScreen = window.innerWidth < 768;
-            const isClickOutsideSidebar = !event.target.closest('#layoutSidenav_nav');
-            const isClickToggleButton = event.target.closest('#sidebarToggle');
-            const isSidebarVisible = !document.body.classList.contains('sb-sidenav-toggled');
-            
-            if (isSmallScreen && isClickOutsideSidebar && !isClickToggleButton && isSidebarVisible) {
-                document.body.classList.add('sb-sidenav-toggled');
-            }
-        });
-
-        // Đảm bảo các modal hoạt động đúng với sidebar
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            modal.addEventListener('shown.bs.modal', function() {
-                if (window.innerWidth < 768) {
-                    document.body.classList.add('sb-sidenav-toggled');
-                }
-            });
-        });
-
-        // Đồng bộ theme toggle giữa sidebar và navbar
-        const sidebarThemeToggle = document.getElementById('sidebar-theme-toggle');
-        const sidebarLightIcon = document.getElementById('sidebar-light-icon');
-        const sidebarDarkIcon = document.getElementById('sidebar-dark-icon');
-        
-        if (sidebarThemeToggle && sidebarLightIcon && sidebarDarkIcon) {
-            sidebarThemeToggle.addEventListener('click', function() {
-                const htmlElement = document.documentElement;
-                const currentTheme = htmlElement.getAttribute('data-bs-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                
-                htmlElement.setAttribute('data-bs-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                
-                if (newTheme === 'dark') {
-                    sidebarLightIcon.style.display = 'none';
-                    sidebarDarkIcon.style.display = 'inline-block';
-                } else {
-                    sidebarLightIcon.style.display = 'inline-block';
-                    sidebarDarkIcon.style.display = 'none';
-                }
-            });
-            
-            // Đồng bộ trạng thái icon khi tải trang
-            const currentTheme = localStorage.getItem('theme') || 'light';
-            if (currentTheme === 'dark') {
-                sidebarLightIcon.style.display = 'none';
-                sidebarDarkIcon.style.display = 'inline-block';
-            } else {
-                sidebarLightIcon.style.display = 'inline-block';
-                sidebarDarkIcon.style.display = 'none';
-            }
-        }
-    });
-</script>
     
 </body>
 </html>

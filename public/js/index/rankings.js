@@ -2,32 +2,32 @@
  * Xử lý bảng xếp hạng truyện
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Các loại bảng xếp hạng và endpoint tương ứng
+    // Các loại bảng xếp hạng
     const RANKING_TYPES = {
         'most-read': {
             title: 'Truyện đọc nhiều nhất',
             metric: 'Lượt xem',
-            endpoint: '/api/rankings/most-read' // Sửa endpoint để phù hợp với API thực
+            endpoint: '/api/rankings/most-read'
         },
         'most-liked': {
             title: 'Truyện được yêu thích nhất',
             metric: 'Lượt thích',
-            endpoint: '/api/rankings/most-liked' // Giữ nguyên vì đã đúng
+            endpoint: '/api/rankings/most-liked'
         },
         'highest-rated': {
             title: 'Truyện đánh giá cao nhất',
             metric: 'Điểm đánh giá',
-            endpoint: '/api/rankings/highest-rated' // Giữ nguyên vì đã đúng
+            endpoint: '/api/rankings/highest-rated'
         },
         'weekly-top': {
             title: 'Top xem tuần',
             metric: 'Lượt xem',
-            endpoint: '/api/rankings/weekly-top' // Sửa endpoint để phù hợp với API thực
+            endpoint: '/api/rankings/weekly-top'
         },
         'daily-top': {
             title: 'Top xem ngày',
             metric: 'Lượt xem',
-            endpoint: '/api/rankings/daily-top' // Sửa endpoint để phù hợp với API thực
+            endpoint: '/api/rankings/daily-top'
         }
     };
 
@@ -39,306 +39,355 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cache DOM elements
     const rankingModal = document.getElementById('rankingModal');
     const rankingModalLabel = document.getElementById('rankingModalLabel');
+    const rankingTableBody = document.getElementById('rankingTableBody');
+    const rankingMetricHeader = document.getElementById('rankingMetricHeader');
+    const rankingTabs = document.getElementById('rankingTabs');
     
-    if (!rankingModal) {
-        console.error('Không tìm thấy modal bảng xếp hạng');
-        return;
-    }
-    
-    // Thiết lập sự kiện cho các tab
-    setupTabEvents();
-    
-    // Xử lý sự kiện khi modal mở
+    // Khởi tạo sự kiện khi modal mở
     rankingModal.addEventListener('show.bs.modal', function(event) {
-        const relatedTarget = event.relatedTarget;
-        if (relatedTarget && relatedTarget.dataset.rankingType) {
-            currentRankingType = relatedTarget.dataset.rankingType;
+        // Lấy loại xếp hạng từ liên kết được nhấp
+        const triggerElement = event.relatedTarget;
+        if (triggerElement && triggerElement.dataset.rankingType) {
+            currentRankingType = triggerElement.dataset.rankingType;
+            // Cập nhật tab đang active
+            updateActiveTab(currentRankingType);
         }
         
-        // Hiển thị tab tương ứng và tải dữ liệu
-        showTabAndLoadData(currentRankingType);
-    });
-    
-    // Thiết lập sự kiện cho các tab
-    function setupTabEvents() {
-        const tabButtons = rankingModal.querySelectorAll('.nav-link[id$="-tab"]');
-        tabButtons.forEach(tab => {
-            tab.addEventListener('shown.bs.tab', function(event) {
-                const targetId = event.target.id;
-                const rankingType = targetId.replace('-tab', '');
-                currentRankingType = rankingType;
-                
-                // Cập nhật tiêu đề modal
-                updateModalTitle();
-                
-                // Tải dữ liệu cho tab
-                loadRankingData();
-            });
-        });
-    }
-    
-    // Hiển thị tab tương ứng và tải dữ liệu
-    function showTabAndLoadData(rankingType) {
-        // Kích hoạt tab tương ứng
-        const tabToActivate = document.getElementById(`${rankingType}-tab`);
-        if (tabToActivate) {
-            const tabInstance = new bootstrap.Tab(tabToActivate);
-            tabInstance.show();
-        }
-        
-        // Cập nhật tiêu đề
+        // Cập nhật tiêu đề modal và cột đo lường
         updateModalTitle();
         
         // Tải dữ liệu
         loadRankingData();
+    });
+    
+    // Xử lý khi người dùng chuyển tab
+    if (rankingTabs) {
+        rankingTabs.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            // Kiểm tra nếu đang nhấp vào tab
+            const tabLink = event.target.closest('[data-ranking-type]');
+            if (!tabLink) return;
+            
+            // Lấy loại xếp hạng mới
+            const newRankingType = tabLink.dataset.rankingType;
+            if (newRankingType && newRankingType !== currentRankingType) {
+                currentRankingType = newRankingType;
+                
+                // Cập nhật tab đang active
+                updateActiveTab(currentRankingType);
+                
+                // Cập nhật tiêu đề modal
+                updateModalTitle();
+                
+                // Tải dữ liệu mới
+                loadRankingData();
+            }
+        });
     }
     
-    // Cập nhật tiêu đề modal
-    function updateModalTitle() {
-        if (!rankingModalLabel) return;
+    // Cập nhật tab active
+    function updateActiveTab(rankingType) {
+        // Xóa active trên tất cả các tab
+        const allTabs = rankingTabs.querySelectorAll('.nav-link');
+        allTabs.forEach(tab => tab.classList.remove('active'));
         
+        // Thêm active cho tab hiện tại
+        const currentTab = rankingTabs.querySelector(`[data-ranking-type="${rankingType}"]`);
+        if (currentTab) {
+            currentTab.classList.add('active');
+        }
+    }
+    
+    // Cập nhật tiêu đề modal và cột đo lường
+    function updateModalTitle() {
         const rankingInfo = RANKING_TYPES[currentRankingType];
         rankingModalLabel.textContent = rankingInfo.title;
+        rankingMetricHeader.textContent = rankingInfo.metric;
     }
     
-    // Tải dữ liệu bảng xếp hạng
-    function loadRankingData() {
+    // Tải dữ liệu xếp hạng từ server
+    async function loadRankingData() {
         if (isLoading) return;
         
-        const contentContainer = document.getElementById(`${currentRankingType}-content`);
-        if (!contentContainer) {
-            console.error(`Không tìm thấy container cho ${currentRankingType}`);
-            return;
-        }
-        
-        // Kiểm tra cache (chỉ cache trong 5 phút)
-        const now = new Date().getTime();
-        if (cachedData[currentRankingType] && cachedData[currentRankingType].timestamp 
-            && (now - cachedData[currentRankingType].timestamp < 5 * 60 * 1000)) {
-            renderRankingItems(contentContainer, cachedData[currentRankingType].data);
+        // Kiểm tra cache
+        if (cachedData[currentRankingType]) {
+            renderRankingData(cachedData[currentRankingType]);
             return;
         }
         
         isLoading = true;
-        showLoadingState(contentContainer);
+        showLoadingState();
         
-        // Gọi API để lấy dữ liệu thực từ database
-        fetch(RANKING_TYPES[currentRankingType].endpoint)
-            .then(response => {
-                // Debug thông tin response
-                console.log(`API response status for ${currentRankingType}:`, response.status);
-                console.log(`API response headers for ${currentRankingType}:`, [...response.headers.entries()]);
-                
+        try {
+            const rankingInfo = RANKING_TYPES[currentRankingType];
+            const endpoint = rankingInfo.endpoint;
+            
+            // Sử dụng ApiService để lấy dữ liệu thực
+            let realData;
+            
+            // Gọi API thích hợp dựa trên loại bảng xếp hạng
+            if (window.ApiService) {
+                switch (currentRankingType) {
+                    case 'most-read':
+                        realData = await ApiService.getRankingMostRead();
+                        break;
+                    case 'most-liked':
+                        realData = await ApiService.getRankingMostLiked();
+                        break;
+                    case 'highest-rated':
+                        realData = await ApiService.getRankingHighestRated();
+                        break;
+                    case 'weekly-top':
+                        realData = await ApiService.getRankingWeeklyTop();
+                        break;
+                    case 'daily-top':
+                        realData = await ApiService.getRankingDailyTop();
+                        break;
+                    default:
+                        throw new Error('Loại bảng xếp hạng không hợp lệ');
+                }
+            } else {
+                // Nếu ApiService không có sẵn, dùng fetch API
+                const response = await fetch(endpoint);
                 if (!response.ok) {
-                    throw new Error(`Không thể tải dữ liệu bảng xếp hạng: ${response.status} ${response.statusText}`);
+                    throw new Error('Không thể tải dữ liệu bảng xếp hạng');
                 }
-                return response.json();
-            })
-            .then(data => {
-                // Debug chi tiết response data
-                console.log(`API response data for ${currentRankingType}:`, data);
-                console.log(`API data structure: ${Array.isArray(data) ? 'Array' : typeof data}`);
-                console.log(`API data length: ${Array.isArray(data) ? data.length : 'N/A'}`);
-                
-                if (data && Array.isArray(data) && data.length > 0) {
-                    console.log(`Sample data item:`, data[0]);
-                    console.log(`Available fields:`, Object.keys(data[0]).join(', '));
-                }
-                
-                // Kiểm tra xem data có đúng định dạng không
-                if (!Array.isArray(data)) {
-                    console.error('API trả về dữ liệu không phải dạng mảng:', data);
-                    throw new Error('Dữ liệu không đúng định dạng');
-                }
-                
-                // Lưu vào cache với timestamp
-                cachedData[currentRankingType] = {
-                    data: data,
-                    timestamp: new Date().getTime()
-                };
-                
-                renderRankingItems(contentContainer, data);
-            })
-            .catch(error => {
-                console.error('Lỗi khi tải dữ liệu bảng xếp hạng:', error);
-                showErrorState(contentContainer);
-                
-                // Nếu gặp lỗi, sử dụng dữ liệu giả tạm thời
-                const fakeData = generateDummyData(currentRankingType);
-                renderRankingItems(contentContainer, fakeData);
-            })
-            .finally(() => {
-                isLoading = false;
-            });
+                realData = await response.json();
+            }
+            
+            // Nếu không nhận được dữ liệu, sử dụng dữ liệu giả tạm thời cho demo
+            if (!realData || realData.length === 0) {
+                console.warn('Không nhận được dữ liệu thực, sử dụng dữ liệu giả cho demo');
+                realData = generateDummyData(currentRankingType);
+            }
+            
+            // Lưu vào cache
+            cachedData[currentRankingType] = realData;
+            
+            // Hiển thị dữ liệu
+            renderRankingData(realData);
+        } catch (error) {
+            console.error('Lỗi khi tải dữ liệu bảng xếp hạng:', error);
+            showErrorState();
+        } finally {
+            isLoading = false;
+        }
     }
     
-    // Hiển thị dữ liệu bảng xếp hạng trong container
-    function renderRankingItems(container, data) {
+    // Hiển thị dữ liệu xếp hạng
+    function renderRankingData(data) {
         if (!data || data.length === 0) {
-            showEmptyState(container);
+            showEmptyState();
             return;
         }
         
-        // Tạo container nếu chưa có
-        let rankingContainer = container.querySelector('.ranking-container');
-        if (!rankingContainer) {
-            rankingContainer = document.createElement('div');
-            rankingContainer.className = 'ranking-container';
-            container.innerHTML = '';
-            container.appendChild(rankingContainer);
-        } else {
-            rankingContainer.innerHTML = '';
-        }
+        // Xóa dữ liệu cũ
+        rankingTableBody.innerHTML = '';
         
-        // Tạo các mục bảng xếp hạng
-        data.slice(0, 10).forEach((item, index) => {
-            const rankingItem = createRankingItem(item, index + 1);
-            rankingContainer.appendChild(rankingItem);
+        // Tạo các hàng mới
+        data.forEach((item, index) => {
+            const rank = index + 1;
+            const row = createRankingRow(item, rank);
+            rankingTableBody.appendChild(row);
         });
     }
     
-    // Tạo một mục trong bảng xếp hạng
-    function createRankingItem(item, rank) {
-        const div = document.createElement('div');
-        div.className = 'ranking-item';
-        div.setAttribute('data-comic-id', item.id);
-        
-        // Xác định màu nền cho số thứ tự
-        let rankClass = '';
-        if (rank === 1) rankClass = 'bg-primary';
-        else if (rank === 2) rankClass = 'bg-info';
-        else if (rank === 3) rankClass = 'bg-warning text-dark';
-        
-        // Định dạng giá trị thống kê
-        let metricDisplay = formatMetric(item.metric, currentRankingType);
-        
-        div.innerHTML = `
-            <div class="ranking-number ${rankClass}">${rank}</div>
-            <div class="ranking-image">
-                <img src="${item.coverImage || item.image}" alt="${item.title}">
-            </div>
-            <div class="ranking-info">
-                <h5>${item.title}</h5>
-                <p class="mb-1"><i class="bi bi-person-fill me-1"></i>${item.author}</p>
-                <div class="ranking-stats">
-                    <span><i class="bi bi-eye-fill me-1"></i>${metricDisplay}</span>
-                    <span><i class="bi bi-star-fill text-warning me-1"></i>${item.rating || '0'}</span>
-                </div>
-            </div>
-        `;
-        
-        // Thêm sự kiện click để đi đến trang truyện
-        div.addEventListener('click', function() {
+    // Tạo hàng cho bảng xếp hạng
+    function createRankingRow(item, rank) {
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.addEventListener('click', () => {
             window.location.href = `/comic/${item.id}`;
         });
         
-        return div;
-    }
-    
-    // Định dạng giá trị hiển thị
-    function formatMetric(value, rankingType) {
-        if (!value) return '0';
-        
-        // Với điểm đánh giá, hiển thị 1 chữ số thập phân
-        if (rankingType === 'highest-rated') {
-            return parseFloat(value).toFixed(1);
+        // Tạo badge cho 3 hạng đầu tiên
+        let rankHTML = `${rank}`;
+        if (rank <= 3) {
+            let badgeClass = '';
+            if (rank === 1) badgeClass = 'bg-warning text-dark';
+            else if (rank === 2) badgeClass = 'bg-secondary';
+            else if (rank === 3) badgeClass = 'bg-danger';
+            
+            rankHTML = `<span class="badge ${badgeClass}">${rank}</span>`;
         }
         
-        // Với các loại khác, định dạng số lớn với dấu phân cách hàng nghìn
-        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        // Tạo dấu hiệu xu hướng
+        const trendIcon = getTrendIcon(item.trend);
+        
+        tr.innerHTML = `
+            <td class="align-middle text-center">${rankHTML}</td>
+            <td class="align-middle">
+                <img src="${item.coverImage}" class="img-fluid rounded" style="max-height: 60px; width: auto;" alt="${item.title}">
+            </td>
+            <td class="align-middle">
+                <div>${item.title}</div>
+                <small class="text-muted">${trendIcon}</small>
+            </td>
+            <td class="align-middle">${item.author}</td>
+            <td class="align-middle">${item.genres.join(', ')}</td>
+            <td class="align-middle">${formatMetric(item.metric, currentRankingType)}</td>
+        `;
+        
+        return tr;
+    }
+    
+    // Lấy biểu tượng xu hướng
+    function getTrendIcon(trend) {
+        if (!trend) return '';
+        
+        let icon = '';
+        let text = '';
+        
+        switch (trend) {
+            case 'up':
+                icon = '<i class="bi bi-arrow-up-circle-fill text-success"></i>';
+                text = ' Tăng';
+                break;
+            case 'down':
+                icon = '<i class="bi bi-arrow-down-circle-fill text-danger"></i>';
+                text = ' Giảm';
+                break;
+            case 'new':
+                icon = '<i class="bi bi-patch-check-fill text-primary"></i>';
+                text = ' Mới';
+                break;
+            case 'stable':
+                icon = '<i class="bi bi-dash-circle-fill text-secondary"></i>';
+                text = ' Ổn định';
+                break;
+        }
+        
+        return `${icon} <span>${text}</span>`;
+    }
+    
+    // Định dạng giá trị đo lường
+    function formatMetric(value, rankingType) {
+        if (rankingType === 'highest-rated') {
+            // Hiển thị điểm đánh giá với 1 chữ số thập phân
+            return parseFloat(value).toFixed(1);
+        } else {
+            // Định dạng số lượt xem/thích với dấu phân cách hàng nghìn
+            return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
     }
     
     // Hiển thị trạng thái đang tải
-    function showLoadingState(container) {
-        container.innerHTML = `
-            <div class="d-flex justify-content-center align-items-center p-5">
-                <div class="spinner-border text-primary me-3" role="status">
-                    <span class="visually-hidden">Đang tải...</span>
-                </div>
-                <span>Đang tải dữ liệu bảng xếp hạng...</span>
-            </div>
+    function showLoadingState() {
+        rankingTableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                    <p class="mt-2">Đang tải dữ liệu...</p>
+                </td>
+            </tr>
         `;
     }
     
     // Hiển thị trạng thái lỗi
-    function showErrorState(container) {
-        container.innerHTML = `
-            <div class="text-center text-danger p-5">
-                <i class="bi bi-exclamation-triangle-fill fs-1 mb-3"></i>
-                <p>Không thể tải dữ liệu bảng xếp hạng. Vui lòng thử lại sau.</p>
-                <button type="button" class="btn btn-primary mt-3" onclick="loadRankingData()">
-                    <i class="bi bi-arrow-clockwise me-2"></i>Thử lại
-                </button>
-            </div>
+    function showErrorState() {
+        rankingTableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-danger">
+                    <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                    <p>Không thể tải dữ liệu bảng xếp hạng. Vui lòng thử lại sau.</p>
+                </td>
+            </tr>
         `;
     }
     
     // Hiển thị trạng thái không có dữ liệu
-    function showEmptyState(container) {
-        container.innerHTML = `
-            <div class="text-center p-5">
-                <i class="bi bi-inbox fs-1 mb-3 text-muted"></i>
-                <p class="text-muted">Không có dữ liệu cho bảng xếp hạng này.</p>
-            </div>
+    function showEmptyState() {
+        rankingTableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center">
+                    <i class="bi bi-info-circle-fill fs-4"></i>
+                    <p>Không có dữ liệu cho bảng xếp hạng này.</p>
+                </td>
+            </tr>
         `;
     }
     
-    // Tạo dữ liệu giả cho bảng xếp hạng (sử dụng khi không có API)
+    // Tạo dữ liệu giả để demo
     function generateDummyData(rankingType) {
+        const trendOptions = ['up', 'down', 'stable', 'new'];
         const comicTitles = [
             'One Piece', 'Naruto', 'Dragon Ball', 'Attack on Titan', 'Demon Slayer',
-            'My Hero Academia', 'Jujutsu Kaisen', 'Haikyuu!!', 'Bleach', 'Death Note'
+            'My Hero Academia', 'Jujutsu Kaisen', 'Haikyuu!!', 'Bleach', 'Death Note',
+            'Hunter x Hunter', 'One Punch Man', 'Tokyo Ghoul', 'Chainsaw Man', 'Black Clover',
+            'Fairy Tail', 'Fullmetal Alchemist', 'Kingdom', 'Vagabond', 'Berserk'
         ];
         
         const authors = [
             'Eiichiro Oda', 'Masashi Kishimoto', 'Akira Toriyama', 'Hajime Isayama', 'Koyoharu Gotouge',
-            'Kohei Horikoshi', 'Gege Akutami', 'Haruichi Furudate', 'Tite Kubo', 'Tsugumi Ohba'
+            'Kohei Horikoshi', 'Gege Akutami', 'Haruichi Furudate', 'Tite Kubo', 'Tsugumi Ohba',
+            'Yoshihiro Togashi', 'ONE', 'Sui Ishida', 'Tatsuki Fujimoto', 'Yūki Tabata',
+            'Hiro Mashima', 'Hiromu Arakawa', 'Yasuhisa Hara', 'Takehiko Inoue', 'Kentaro Miura'
+        ];
+        
+        const genresList = [
+            ['Hành động', 'Phiêu lưu', 'Siêu nhiên'],
+            ['Hành động', 'Võ thuật', 'Siêu nhiên'],
+            ['Võ thuật', 'Siêu nhiên', 'Phiêu lưu'],
+            ['Kinh dị', 'Hành động', 'Kỳ ảo'],
+            ['Siêu nhiên', 'Lịch sử', 'Võ thuật'],
+            ['Siêu anh hùng', 'Học đường', 'Hành động'],
+            ['Siêu nhiên', 'Hành động', 'Kinh dị'],
+            ['Thể thao', 'Học đường', 'Hài hước'],
+            ['Siêu nhiên', 'Hành động', 'Phiêu lưu'],
+            ['Trinh thám', 'Siêu nhiên', 'Tâm lý'],
+            ['Phiêu lưu', 'Hành động', 'Siêu nhiên'],
+            ['Hài hước', 'Hành động', 'Siêu anh hùng'],
+            ['Kinh dị', 'Siêu nhiên', 'Tâm lý'],
+            ['Kinh dị', 'Hành động', 'Siêu nhiên'],
+            ['Hành động', 'Phép thuật', 'Siêu nhiên'],
+            ['Phép thuật', 'Phiêu lưu', 'Hành động'],
+            ['Phiêu lưu', 'Giả kim thuật', 'Kỳ ảo'],
+            ['Lịch sử', 'Chiến tranh', 'Võ thuật'],
+            ['Võ thuật', 'Lịch sử', 'Tâm lý'],
+            ['Kinh dị', 'Hành động', 'Kỳ ảo']
         ];
         
         const result = [];
         
-        for (let i = 0; i < comicTitles.length; i++) {
+        comicTitles.forEach((title, index) => {
             let metric;
-            let rating;
             
+            // Tạo dữ liệu phù hợp với từng loại bảng xếp hạng
             switch (rankingType) {
                 case 'most-read':
-                    metric = Math.floor(1000000 / (i + 1)) + Math.floor(Math.random() * 100000);
-                    rating = (5 - (i * 0.1)).toFixed(1);
+                    metric = Math.floor(1000000 / (index + 1)) + Math.floor(Math.random() * 100000);
                     break;
                 case 'most-liked':
-                    metric = Math.floor(500000 / (i + 1)) + Math.floor(Math.random() * 50000);
-                    rating = (5 - (i * 0.1)).toFixed(1);
+                    metric = Math.floor(500000 / (index + 1)) + Math.floor(Math.random() * 50000);
                     break;
                 case 'highest-rated':
-                    metric = (5 - (i * 0.1)).toFixed(1);
-                    rating = (5 - (i * 0.1)).toFixed(1);
+                    metric = (10 - (index * 0.2)) - (Math.random() * 0.5);
+                    if (metric > 10) metric = 10;
+                    if (metric < 7) metric = 7 + Math.random();
                     break;
                 case 'weekly-top':
-                    metric = Math.floor(200000 / (i + 1)) + Math.floor(Math.random() * 20000);
-                    rating = (5 - (i * 0.1)).toFixed(1);
+                    metric = Math.floor(200000 / (index + 1)) + Math.floor(Math.random() * 20000);
                     break;
                 case 'daily-top':
-                    metric = Math.floor(50000 / (i + 1)) + Math.floor(Math.random() * 5000);
-                    rating = (5 - (i * 0.1)).toFixed(1);
+                    metric = Math.floor(50000 / (index + 1)) + Math.floor(Math.random() * 5000);
                     break;
             }
             
-            // Làm cho dữ liệu giả phù hợp với cấu trúc API thực từ rankingRoutes.js
+            // Tạo mục dữ liệu cho bảng xếp hạng
             result.push({
-                id: i + 1,
-                title: comicTitles[i],
-                author: authors[i],
-                coverImage: `https://picsum.photos/150/200?random=${i}`,
-                image: `https://picsum.photos/150/200?random=${i}`, // Trường bắt buộc để hiển thị hình ảnh
-                metric: metric,
-                rating: rating,
-                genres: ['Hành động', 'Phiêu lưu', 'Shounen'], // Đảm bảo có Shounen trong danh sách thể loại
-                trend: ['up', 'down', 'stable', 'new'][Math.floor(Math.random() * 4)],
-                link: `/comic/${i + 1}` // Trường bắt buộc cho liên kết
+                id: index + 1,
+                title: title,
+                author: authors[index],
+                genres: genresList[index],
+                coverImage: `https://picsum.photos/150/200?random=${index}`, // Ảnh bìa ngẫu nhiên
+                trend: trendOptions[Math.floor(Math.random() * trendOptions.length)],
+                metric: metric
             });
-        }
+        });
         
         return result;
     }
-});
+}); 
