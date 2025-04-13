@@ -13,11 +13,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
+            const loginMessage = document.getElementById('loginMessage');
+
+            // Kiểm tra dữ liệu đầu vào
+            if (!username || !password) {
+                loginMessage.textContent = 'Vui lòng nhập tên đăng nhập và mật khẩu';
+                loginMessage.className = 'mt-2 text-danger';
+                return;
+            }
 
             try {
+                // Hiển thị thông báo đang đăng nhập
+                loginMessage.textContent = 'Đang đăng nhập...';
+                loginMessage.className = 'mt-2 text-info';
+                
                 // Sử dụng ApiService thay vì gọi fetch trực tiếp
                 const loginData = await ApiService.login({ username, password });
 
@@ -25,53 +36,79 @@ document.addEventListener('DOMContentLoaded', () => {
                 loginMessage.className = 'mt-2 text-success';
 
                 const token = loginData.token;
+                const roleId = loginData.role_id;
+                
+                console.log('Đăng nhập thành công:', { 
+                    token: token ? 'token dài ' + token.length + ' ký tự' : 'không tìm thấy token', 
+                    roleId, 
+                    roleIdType: typeof roleId 
+                });
+                
+                // LƯU THÔNG TIN VÀO LOCALSTORAGE TRƯỚC KHI CHUYỂN HƯỚNG
+                console.log('LƯU token vào localStorage...');
                 localStorage.setItem('token', token);
+                console.log('LƯU username vào localStorage...');
                 localStorage.setItem('username', username);
-                localStorage.setItem('roleId', loginData.role_id);
+                console.log('LƯU roleId vào localStorage...');
+                localStorage.setItem('roleId', roleId.toString());
 
-                // Lưu token vào cookie
-                document.cookie = `token=${token}; path=/; max-age=3600`;
+                // Lưu token vào cookie với expiration rõ ràng
+                const date = new Date();
+                date.setTime(date.getTime() + (24 * 60 * 60 * 1000)); // hết hạn sau 24 giờ
+                const expires = date.toUTCString();
+                document.cookie = `token=${token}; path=/; expires=${expires}; SameSite=Strict`;
+                
+                console.log('Đã lưu token vào localStorage và cookie. Chuẩn bị kiểm tra quyền và chuyển hướng...');
 
+                // Giải mã token để lấy thông tin
                 const decodedToken = jwt_decode(token);
                 const userId = decodedToken.id;
-                const roleId = decodedToken.role_id;
-                console.log('Decoded token:', decodedToken);
+                console.log('Token đã giải mã:', decodedToken);
 
                 // Lấy thông tin profile để lấy avatar_url
                 try {
                     const userProfile = await ApiService.getUserProfile(userId);
                     if (userProfile && userProfile.avatar_url) {
                         localStorage.setItem('avatar_url', userProfile.avatar_url);
-                        console.log('Avatar URL saved to localStorage:', userProfile.avatar_url);
+                        console.log('Đã lưu avatar URL vào localStorage:', userProfile.avatar_url);
                     } else {
                         localStorage.removeItem('avatar_url');
                     }
                     // Cập nhật navbar với thông tin mới nhất (bao gồm avatar)
-                    updateNavbarForLoggedInUser(username, roleId, userProfile.avatar_url);
+                    updateNavbarForLoggedInUser(username, roleId.toString(), userProfile.avatar_url);
                 } catch (profileError) {
-                    console.error('Error fetching profile after login:', profileError);
+                    console.error('Lỗi khi lấy thông tin profile sau khi đăng nhập:', profileError);
                     // Vẫn cập nhật navbar nhưng không có avatar
-                    updateNavbarForLoggedInUser(username, roleId, null);
+                    updateNavbarForLoggedInUser(username, roleId.toString(), null);
                 }
 
-                if (roleId == '1') {
-                    console.log('User is admin, redirecting to /admin-web');
+                // KIỂM TRA QUYỀN VÀ CHUYỂN HƯỚNG SAU KHI LƯU TOKEN
+                if (roleId == '1' || roleId === 1) {
+                    console.log('Người dùng là admin, chuẩn bị đóng modal và chuyển hướng đến /admin-web');
+                    
+                    // Đóng modal trước khi chuyển hướng
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('login'));
+                    if (modal) modal.hide();
+                    
+                    // Cho phép modal đóng hoàn toàn trước khi chuyển hướng
                     setTimeout(() => {
+                        console.log('CHUYỂN HƯỚNG người dùng admin đến trang quản trị');
                         window.location.href = '/admin-web';
-                    }, 1000);
+                    }, 500);
                 } else {
-                    console.log('User is not admin, closing login modal');
+                    console.log('Người dùng không phải admin, đóng modal đăng nhập');
                     setTimeout(() => {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('login'));
                         if (modal) modal.hide();
-                    }, 1000);
+                    }, 500);
                 }
 
-                checkLoginStatus();
+                // Không cần gọi checkLoginStatus() ngay lập tức ở đây vì trang sẽ được tải lại sau khi chuyển hướng
+                // checkLoginStatus();
             } catch (error) {
-                loginMessage.textContent = error.message || 'Đăng nhập thất bại!';
+                console.error('Lỗi đăng nhập:', error);
+                loginMessage.textContent = error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.';
                 loginMessage.className = 'mt-2 text-danger';
-                console.error('Lỗi chi tiết:', error);
             }
         });
     }
@@ -309,6 +346,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function checkLoginStatus() {
+    // Nếu đang ở trang admin-web, không chạy hàm này trong login.js
+    if (window.location.pathname.startsWith('/admin-web')) {
+        console.log('[checkLoginStatus in login.js] Đang ở trang admin, không thực hiện kiểm tra tại đây.');
+        return; 
+    }
+    
     console.log("--- Running checkLoginStatus ---");
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
@@ -322,11 +365,33 @@ function checkLoginStatus() {
         avatar_url
     });
 
+    // Gọi hàm debug token để kiểm tra chi tiết
+    debugToken();
+
     if (token && username) {
         // Kiểm tra token có hợp lệ không
         try {
             const decoded = jwt_decode(token);
             const userId = decoded.id;
+            
+            // Đảm bảo thông tin vai trò được lưu chính xác
+            if (decoded.role_id) {
+                localStorage.setItem('roleId', decoded.role_id.toString());
+                console.log(`Cập nhật roleId thành ${decoded.role_id.toString()} từ token đã giải mã`);
+            }
+            
+            // Cập nhật roleId từ token nếu cần
+            const tokenRoleId = decoded.role_id ? decoded.role_id.toString() : '0';
+            if (roleId !== tokenRoleId) {
+                console.log(`Updating roleId in localStorage from ${roleId} to ${tokenRoleId}`);
+                localStorage.setItem('roleId', tokenRoleId);
+            }
+            
+            // Đảm bảo token được lưu trong cookie
+            if (!document.cookie.includes('token=')) {
+                console.log('Token không tồn tại trong cookie, thêm vào cookie');
+                document.cookie = `token=${token}; path=/; max-age=3600`;
+            }
             
             // Lấy thông tin profile để đảm bảo có avatar_url mới nhất
             ApiService.getUserProfile(userId)
@@ -335,23 +400,31 @@ function checkLoginStatus() {
                     if (userProfile && userProfile.avatar_url) {
                         localStorage.setItem('avatar_url', userProfile.avatar_url);
                         console.log("Updated avatar_url in localStorage:", userProfile.avatar_url);
-                        updateNavbarForLoggedInUser(username, roleId, userProfile.avatar_url);
+                        updateNavbarForLoggedInUser(username, tokenRoleId, userProfile.avatar_url);
                     } else {
                         console.log("No avatar_url in user profile, using stored value:", avatar_url);
-                        updateNavbarForLoggedInUser(username, roleId, avatar_url);
+                        updateNavbarForLoggedInUser(username, tokenRoleId, avatar_url);
                     }
                 })
                 .catch(error => {
                     console.error("Error fetching user profile:", error);
-                    updateNavbarForLoggedInUser(username, roleId, avatar_url);
+                    updateNavbarForLoggedInUser(username, tokenRoleId, avatar_url);
                 });
 
-            if (roleId == '1') {
+            // Kiểm tra và chuyển hướng nếu là admin
+            if (tokenRoleId === '1') {
                 if (window.location.pathname === '/') {
-                    console.log('User is admin, redirecting from index to /admin-web');
+                    console.log('Người dùng admin, chuyển hướng đến /admin-web');
                     window.location.href = '/admin-web';
                 } else if (window.location.pathname === '/admin-web') {
-                    console.log('User is admin, already on /admin-web, no redirect needed');
+                    console.log('Người dùng admin đã ở trang /admin-web, không cần chuyển hướng');
+                } else if (window.location.pathname.startsWith('/admin-web/')) {
+                    console.log('Người dùng admin đang ở trang admin phụ, không cần chuyển hướng');
+                }
+            } else {
+                if (window.location.pathname.includes('/admin')) {
+                    console.log('Người dùng không phải admin truy cập trang admin, chuyển hướng về trang chủ');
+                    window.location.href = '/';
                 }
             }
         } catch (error) {
@@ -361,6 +434,8 @@ function checkLoginStatus() {
     } else {
         console.log("User is not logged in. Calling updateNavbarForLoggedOutUser.");
         updateNavbarForLoggedOutUser();
+        
+        // Không cần chuyển hướng khỏi trang admin ở đây nữa vì đã chặn ở đầu hàm
     }
 }
 
@@ -560,6 +635,81 @@ if (userProfileModal) {
                 initials.textContent = 'U';
                 initials.style.display = '';
             }
+
+            // Thiết lập xử lý tải lên avatar
+            const avatarInput = document.getElementById('avatarInput');
+            avatarInput.onchange = async function(event) {
+                if (!avatarInput.files || !avatarInput.files[0]) {
+                    console.log('Không có file được chọn');
+                    return;
+                }
+                
+                const file = avatarInput.files[0];
+                console.log('File được chọn:', file.name, 'Kích thước:', file.size);
+                
+                // Kiểm tra loại file
+                if (!file.type.startsWith('image/')) {
+                    await showAlert('Lỗi', 'Vui lòng chọn file ảnh hợp lệ (jpg, png, gif).', 'error');
+                    avatarInput.value = '';
+                    return;
+                }
+                
+                // Kiểm tra kích thước file (tối đa 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    await showAlert('Lỗi', 'Kích thước file không được vượt quá 2MB.', 'error');
+                    avatarInput.value = '';
+                    return;
+                }
+                
+                try {
+                    // Hiển thị ảnh preview trước khi tải lên
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        avatarPreview.style.backgroundImage = `url('${e.target.result}')`;
+                        initials.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    // Tạo FormData để gửi lên server
+                    const formData = new FormData();
+                    formData.append('avatar', file);
+                    
+                    // Hiển thị thông báo đang tải lên
+                    Swal.fire({
+                        title: 'Đang tải lên...',
+                        text: 'Vui lòng đợi trong giây lát',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Gửi request tải lên avatar
+                    const result = await ApiService.uploadAvatar(userId, formData);
+                    console.log('Kết quả tải lên avatar:', result);
+                    
+                    // Đóng thông báo loading
+                    Swal.close();
+                    
+                    // Hiển thị thông báo thành công
+                    await showAlert('Thành công', 'Ảnh đại diện đã được cập nhật!', 'success');
+                    
+                    // Cập nhật avatar trên navbar
+                    const avatar_url = result.avatar_url;
+                    localStorage.setItem('avatar_url', avatar_url);
+                    updateNavbarForLoggedInUser(
+                        localStorage.getItem('username'),
+                        localStorage.getItem('roleId'),
+                        avatar_url
+                    );
+                } catch (error) {
+                    console.error('Lỗi khi tải lên avatar:', error);
+                    Swal.close();
+                    await showAlert('Lỗi', `Không thể tải lên avatar: ${error.message || 'Lỗi không xác định'}`, 'error');
+                    // Reset input
+                    avatarInput.value = '';
+                }
+            };
 
             // Lấy danh sách truyện yêu thích
             const favorites = await ApiService.getUserFavorites(userId);
@@ -771,4 +921,45 @@ function showConfirm(title, text, icon = 'warning') {
             content: 'swal-text'
         }
     });
+}
+
+// Thêm hàm kiểm tra hợp lệ của token, đặt ở cuối file, trước dòng cuối
+function debugToken() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error('KHÔNG TÌM THẤY TOKEN TRONG LOCALSTORAGE');
+        return;
+    }
+    
+    console.log('JWT TOKEN ĐƯỢC TÌM THẤY!');
+    console.log('Token đầy đủ:', token);
+    
+    try {
+        const decoded = jwt_decode(token);
+        console.log('Thông tin giải mã từ token:', decoded);
+        console.log('ID người dùng:', decoded.id);
+        console.log('Tên người dùng:', decoded.username);
+        console.log('Vai trò:', decoded.role_id);
+        console.log('Thời gian hết hạn:', new Date(decoded.exp * 1000).toLocaleString('vi-VN'));
+    } catch (error) {
+        console.error('LỖI KHI GIẢI MÃ TOKEN:', error);
+    }
+    
+    // Kiểm tra xem token có trong cookie không
+    const cookies = document.cookie.split(';');
+    let tokenInCookie = null;
+    for (const cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'token') {
+            tokenInCookie = value;
+            break;
+        }
+    }
+    
+    if (tokenInCookie) {
+        console.log('Token đã được tìm thấy trong cookie');
+        console.log('Token trong cookie có khớp với localStorage:', tokenInCookie === token);
+    } else {
+        console.log('KHÔNG TÌM THẤY TOKEN TRONG COOKIE!!!');
+    }
 }

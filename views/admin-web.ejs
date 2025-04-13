@@ -595,8 +595,7 @@
         <script type="module" src="/js/admin-web/genres.js"></script>
         <script type="module" src="/js/admin-web/dashboard.js"></script>
         <script type="module" src="/js/admin-web/reports.js"></script>
-        <script src="/js/index/login.js"></script>
-        <script>
+        <script type="module">
             // Khai báo các biến toàn cục
             window.selectedGenres = [];
             window.editSelectedGenres = [];
@@ -606,38 +605,58 @@
         
             // Hàm khởi tạo danh sách thể loại
             window.initializeGenreList = async function() {
+                console.log('[Debug] Khởi tạo danh sách thể loại');
                 try {
                     const token = localStorage.getItem('token');
-                    if (!token) throw new Error('Không tìm thấy token');
+                    if (!token) {
+                        console.error('[Debug] Không tìm thấy token khi khởi tạo danh sách thể loại');
+                        throw new Error('Không tìm thấy token');
+                    }
         
                     // Kiểm tra xem allGenres đã có chưa
                     if (!window.allGenres || window.allGenres.length === 0) {
+                        console.log('[Debug] Tải danh sách thể loại từ API');
                         const response = await fetch('/api/genres', {
                             headers: {
                                 'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
+                                'Cache-Control': 'no-cache'
                             }
                         });
         
-                        if (!response.ok) throw new Error('Lỗi khi lấy danh sách thể loại');
+                        if (!response.ok) {
+                            console.error('[Debug] Lỗi khi tải danh sách thể loại:', response.status, response.statusText);
+                            throw new Error('Lỗi khi lấy danh sách thể loại');
+                        }
                         window.allGenres = await response.json();
+                        console.log('[Debug] Đã tải được', window.allGenres.length, 'thể loại');
                     }
         
                     setupGenreAutocomplete();
                     updateSelectedGenresList();
                 } catch (error) {
-                    console.error('Lỗi trong initializeGenreList:', error);
+                    console.error('[Debug] Lỗi trong initializeGenreList:', error);
                     alert('Không thể tải danh sách thể loại: ' + error.message);
                 }
             };
         
             // Hàm thiết lập autocomplete cho input thể loại
             function setupGenreAutocomplete() {
+                console.log('[Debug] Thiết lập autocomplete cho input thể loại');
                 const genreInput = document.getElementById('genreInput');
                 const suggestionsList = document.getElementById('genreSuggestions');
+                
+                if (!genreInput || !suggestionsList) {
+                    console.error('[Debug] Không tìm thấy phần tử genreInput hoặc genreSuggestions');
+                    return;
+                }
         
-                // Xóa event listener cũ
-                genreInput.oninput = function() {
+                // Xóa event listener cũ nếu có
+                const newGenreInput = genreInput.cloneNode(true);
+                genreInput.parentNode.replaceChild(newGenreInput, genreInput);
+                
+                // Thêm event listener mới
+                newGenreInput.addEventListener('input', function() {
                     const searchTerm = this.value.toLowerCase();
                     if (searchTerm.length < 1) {
                         suggestionsList.style.display = 'none';
@@ -660,35 +679,47 @@
                     } else {
                         suggestionsList.style.display = 'none';
                     }
-                };
+                });
         
                 // Xóa event listener cũ và thêm mới cho suggestions
-                suggestionsList.onclick = function(e) {
+                const newSuggestionsList = suggestionsList.cloneNode(true);
+                suggestionsList.parentNode.replaceChild(newSuggestionsList, suggestionsList);
+                
+                // Thêm event listener mới
+                newSuggestionsList.addEventListener('click', function(e) {
                     e.preventDefault();
                     if (e.target.tagName === 'A') {
                         const genreId = e.target.dataset.genreId;
                         const genreName = e.target.dataset.genreName;
                         addGenreToSelection(genreId, genreName);
-                        genreInput.value = '';
-                        suggestionsList.style.display = 'none';
+                        document.getElementById('genreInput').value = '';
+                        this.style.display = 'none';
                     }
-                };
+                });
         
                 // Xử lý nút thêm thể loại
-                document.getElementById('addGenreToList').onclick = function() {
-                    const searchTerm = genreInput.value.toLowerCase();
-                    const matchedGenre = window.allGenres.find(genre => 
-                        genre.genre_name.toLowerCase() === searchTerm
-                    );
-                    if (matchedGenre) {
-                        addGenreToSelection(matchedGenre.genre_id, matchedGenre.genre_name);
-                        genreInput.value = '';
-                    }
-                };
+                const addGenreButton = document.getElementById('addGenreToList');
+                if (addGenreButton) {
+                    const newAddGenreButton = addGenreButton.cloneNode(true);
+                    addGenreButton.parentNode.replaceChild(newAddGenreButton, addGenreButton);
+                    
+                    newAddGenreButton.addEventListener('click', function() {
+                        const genreInput = document.getElementById('genreInput');
+                        const searchTerm = genreInput.value.toLowerCase();
+                        const matchedGenre = window.allGenres.find(genre => 
+                            genre.genre_name.toLowerCase() === searchTerm
+                        );
+                        if (matchedGenre) {
+                            addGenreToSelection(matchedGenre.genre_id, matchedGenre.genre_name);
+                            genreInput.value = '';
+                        }
+                    });
+                }
             }
         
             // Hàm thêm thể loại vào danh sách đã chọn
             function addGenreToSelection(genreId, genreName) {
+                console.log('[Debug] Thêm thể loại vào danh sách:', genreId, genreName);
                 const targetArray = window.isEditMode ? window.editSelectedGenres : window.selectedGenres;
                 if (!targetArray.includes(genreId)) {
                     targetArray.push(genreId);
@@ -698,7 +729,13 @@
         
             // Hàm cập nhật hiển thị danh sách thể loại đã chọn
             window.updateSelectedGenresList = function() {
+                console.log('[Debug] Cập nhật hiển thị danh sách thể loại đã chọn');
                 const selectedGenresList = document.getElementById('selectedGenresList');
+                if (!selectedGenresList) {
+                    console.error('[Debug] Không tìm thấy phần tử selectedGenresList');
+                    return;
+                }
+                
                 const targetArray = window.isEditMode ? window.editSelectedGenres : window.selectedGenres;
         
                 if (!window.allGenres || window.allGenres.length === 0) {
@@ -723,6 +760,7 @@
         
             // Hàm xóa thể loại khỏi danh sách đã chọn
             window.removeGenre = function(genreId) {
+                console.log('[Debug] Xóa thể loại khỏi danh sách:', genreId);
                 const targetArray = window.isEditMode ? window.editSelectedGenres : window.selectedGenres;
                 const index = targetArray.indexOf(genreId);
                 if (index > -1) {
@@ -731,58 +769,56 @@
                 }
             };
         
-            // Khởi tạo modal events
-            const comicModal = document.getElementById('addComicModal');
-            
-            // Xóa event listeners cũ
-            const newComicModal = comicModal.cloneNode(true);
-            comicModal.parentNode.replaceChild(newComicModal, comicModal);
-
-            // Thêm event listeners mới
-            newComicModal.addEventListener('show.bs.modal', async () => {
-                console.log('Modal opening, isEditMode:', window.isEditMode);
-                await window.initializeGenreList();
-            }, { once: true });
-
-            newComicModal.addEventListener('hidden.bs.modal', () => {
-                // Xóa backdrop và reset body
-                document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-
-                // Reset form và biến nếu không phải chế độ sửa
-                if (!window.isEditMode) {
-                    window.selectedGenres = [];
-                    document.getElementById('comicId').value = '';
-                    document.getElementById('comicTitle').value = '';
-                    document.getElementById('comicImage').value = '';
-                    document.getElementById('comicContent').value = '';
-                    document.getElementById('comicLink').value = '';
-                    document.getElementById('addComicModalLabel').textContent = 'Thêm Truyện Mới';
-                    document.getElementById('comicSubmitButton').textContent = 'Thêm';
-                }
-                document.getElementById('genreInput').value = '';
-                document.getElementById('genreSuggestions').style.display = 'none';
-                updateSelectedGenresList();
-            });
-        
-            // Thêm sự kiện cho nút đóng modal
-            const closeButtons = newComicModal.querySelectorAll('[data-bs-dismiss="modal"]');
-            closeButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // Xóa backdrop và reset body
-                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-                    document.body.classList.remove('modal-open');
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-                });
-            });
-        
-            // Khởi tạo khi DOM được tải
+            // Thiết lập modal events khi DOM được tải
             document.addEventListener('DOMContentLoaded', () => {
-                console.log('DOM fully loaded and parsed');
-            }, { once: true });
+                console.log('[Debug] DOM đã được tải');
+                
+                const comicModal = document.getElementById('addComicModal');
+                if (comicModal) {
+                    comicModal.addEventListener('show.bs.modal', async () => {
+                        console.log('[Debug] Modal đang mở, isEditMode:', window.isEditMode);
+                        await window.initializeGenreList();
+                    });
+    
+                    comicModal.addEventListener('hidden.bs.modal', () => {
+                        console.log('[Debug] Modal đã đóng');
+                        // Reset form và biến nếu không phải chế độ sửa
+                        if (!window.isEditMode) {
+                            window.selectedGenres = [];
+                            const comicIdEl = document.getElementById('comicId');
+                            if (comicIdEl) comicIdEl.value = '';
+                            
+                            const comicTitleEl = document.getElementById('comicTitle');
+                            if (comicTitleEl) comicTitleEl.value = '';
+                            
+                            const comicImageEl = document.getElementById('comicImage');
+                            if (comicImageEl) comicImageEl.value = '';
+                            
+                            const comicContentEl = document.getElementById('comicContent');
+                            if (comicContentEl) comicContentEl.value = '';
+                            
+                            const comicLinkEl = document.getElementById('comicLink');
+                            if (comicLinkEl) comicLinkEl.value = '';
+                            
+                            const modalLabelEl = document.getElementById('addComicModalLabel');
+                            if (modalLabelEl) modalLabelEl.textContent = 'Thêm Truyện Mới';
+                            
+                            const submitButtonEl = document.getElementById('comicSubmitButton');
+                            if (submitButtonEl) submitButtonEl.textContent = 'Thêm';
+                        }
+                        
+                        const genreInputEl = document.getElementById('genreInput');
+                        if (genreInputEl) genreInputEl.value = '';
+                        
+                        const genreSuggestionsEl = document.getElementById('genreSuggestions');
+                        if (genreSuggestionsEl) genreSuggestionsEl.style.display = 'none';
+                        
+                        updateSelectedGenresList();
+                    });
+                } else {
+                    console.error('[Debug] Không tìm thấy modal addComicModal');
+                }
+            });
         </script>
     </body>
 </html>

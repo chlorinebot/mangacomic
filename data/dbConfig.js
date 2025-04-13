@@ -155,15 +155,14 @@ const initializeDb = async () => {
             CREATE TABLE IF NOT EXISTS reports (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 user_id INT NOT NULL,
-                card_id INT NOT NULL,
-                chapter_id INT,
-                type VARCHAR(50) NOT NULL,
+                title VARCHAR(255) NOT NULL,
                 content TEXT NOT NULL,
-                status VARCHAR(20) DEFAULT 'pending',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
-                FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE
+                email VARCHAR(255),
+                reported_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                status ENUM('pending', 'processed') DEFAULT 'pending',
+                processed_at DATETIME DEFAULT NULL,
+                notes TEXT DEFAULT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         `);
 

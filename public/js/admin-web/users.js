@@ -4,24 +4,44 @@ const ITEMS_PER_PAGE = 5; // Số lượng người dùng mỗi trang
 let currentPage = 1; // Trang hiện tại
 
 export async function fetchUsers() {
+    console.log('[Users] Bắt đầu tải danh sách người dùng');
     try {
         const token = localStorage.getItem('token');
+        if (!token) {
+            console.error('[Users] Lỗi: Không tìm thấy token');
+            throw new Error('Không tìm thấy token xác thực');
+        }
+        console.log('[Users] Sử dụng token:', token.substring(0, 15) + '...');
+
+        console.log('[Users] Gửi request đến /api/users');
         const response = await fetch('/api/users', {
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
             }
         });
+
+        console.log('[Users] Phản hồi API:', response.status, response.statusText);
         if (!response.ok) {
-            throw new Error('Lỗi khi lấy danh sách người dùng: ' + response.statusText);
+            const errorText = await response.text();
+            console.error('[Users] Lỗi API:', errorText);
+            throw new Error(`Không thể tải người dùng: ${response.statusText}`);
         }
+
         const users = await response.json();
+        console.log(`[Users] Đã nhận được ${users.length} người dùng`);
+        console.log('[Users] Dữ liệu mẫu người dùng đầu tiên:', users.length > 0 ? JSON.stringify(users[0]).substring(0, 100) + '...' : 'Không có dữ liệu');
+        
         originalUsers = users; // Lưu trữ dữ liệu gốc
         currentPage = 1; // Reset về trang đầu tiên
+        
+        console.log('[Users] Gọi renderUsers() để hiển thị dữ liệu');
         renderUsers(users); // Hiển thị danh sách ban đầu
+        console.log('[Users] Quá trình tải danh sách người dùng hoàn tất');
     } catch (error) {
-        console.error('Lỗi trong fetchUsers:', error);
-        alert('Đã xảy ra lỗi khi lấy danh sách người dùng: ' + error.message);
+        console.error('[Users] Lỗi khi tải người dùng:', error);
+        alert('Không thể tải danh sách người dùng: ' + error.message);
     }
 }
 
@@ -117,31 +137,35 @@ function renderPagination(container, totalPages, currentPage, onPageChange) {
 }
 
 export async function deleteUser(button) {
-    if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-        try {
-            const row = button.closest('tr');
-            const id = row.dataset.id;
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/users/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (response.ok) {
-                row.remove();
-                // Cập nhật lại danh sách gốc sau khi xóa
-                originalUsers = originalUsers.filter(user => user.id != id);
-                renderUsers(originalUsers);
-            } else {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Lỗi khi xóa người dùng');
+    if (!confirm('Bạn có chắc muốn xóa người dùng này?')) {
+        return;
+    }
+    console.log(`[Users] Bắt đầu xóa người dùng ID: ${button.dataset.id}`);
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('Không tìm thấy token xác thực');
+        console.log('[Users] Xóa người dùng với token...');
+
+        const response = await fetch(`/api/users/${button.dataset.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        } catch (error) {
-            console.error('Lỗi khi xóa người dùng:', error);
-            alert('Lỗi khi xóa người dùng: ' + error.message);
+        });
+
+        console.log('[Users] Phản hồi API xóa:', response.status, response.statusText);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[Users] Lỗi API khi xóa:', errorText);
+            throw new Error(`Không thể xóa người dùng: ${response.statusText}`);
         }
+
+        alert('Xóa người dùng thành công');
+        originalUsers = originalUsers.filter(user => user.id != button.dataset.id);
+        renderUsers(originalUsers);
+    } catch (error) {
+        console.error('[Users] Lỗi khi xóa người dùng:', error);
+        alert('Lỗi: ' + error.message);
     }
 }
 
@@ -202,4 +226,37 @@ export function searchUsers() {
 
     currentPage = 1; // Reset về trang đầu tiên khi tìm kiếm
     renderUsers(filteredUsers); // Hiển thị danh sách đã lọc
+}
+
+export async function updateUserRole(userId, newRoleId) {
+    console.log(`[Users] Bắt đầu cập nhật vai trò cho user ID: ${userId} thành role ID: ${newRoleId}`);
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('Không tìm thấy token xác thực');
+        console.log('[Users] Cập nhật vai trò với token...');
+
+        const response = await fetch(`/api/users/${userId}/role`, { // Đảm bảo endpoint đúng
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ role_id: newRoleId })
+        });
+
+        console.log('[Users] Phản hồi API cập nhật vai trò:', response.status, response.statusText);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[Users] Lỗi API khi cập nhật vai trò:', errorText);
+            throw new Error(`Không thể cập nhật vai trò: ${response.statusText}`);
+        }
+
+        alert('Cập nhật vai trò thành công');
+        fetchUsers(); // Tải lại danh sách
+    } catch (error) {
+        console.error('[Users] Lỗi khi cập nhật vai trò:', error);
+        alert('Lỗi: ' + error.message);
+        // Cân nhắc tải lại danh sách để hiển thị trạng thái cũ nếu lỗi
+        fetchUsers(); 
+    }
 }

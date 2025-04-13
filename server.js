@@ -81,9 +81,9 @@ app.get('/api/chapters', checkDbConnection, getChapters);
 app.post('/api/chapters', checkDbConnection, saveChapterData);
 app.delete('/api/chapters', checkDbConnection, deleteChapterData);
 
-// API cho users
-app.get('/api/users', checkDbConnection, getUsers);
-app.delete('/api/users/:id', checkDbConnection, deleteUserData);
+// API cho users (BẢO VỆ BẰNG checkAdminAuth)
+app.get('/api/users', checkDbConnection, checkAdminAuth, getUsers);
+app.delete('/api/users/:id', checkDbConnection, checkAdminAuth, deleteUserData);
 
 // API đổi mật khẩu người dùng (phải đặt trước route động /api/users/:id)
 app.put('/api/users/change-password', [checkDbConnection, verifyToken], async (req, res) => {
@@ -113,11 +113,11 @@ app.put('/api/users/change-password', [checkDbConnection, verifyToken], async (r
 // API cập nhật thông tin người dùng
 app.put('/api/users/:id', checkDbConnection, updateUserData);
 
-// API cho genres
-app.get('/api/genres', checkDbConnection, getGenres);
-app.post('/api/genres', checkDbConnection, createGenre);
-app.put('/api/genres/:id', checkDbConnection, updateGenre);
-app.delete('/api/genres/:id', checkDbConnection, deleteGenre);
+// API cho genres (BẢO VỆ BẰNG checkAdminAuth)
+app.get('/api/genres', checkDbConnection, checkAdminAuth, getGenres);
+app.post('/api/genres', checkDbConnection, checkAdminAuth, createGenre);
+app.put('/api/genres/:id', checkDbConnection, checkAdminAuth, updateGenre);
+app.delete('/api/genres/:id', checkDbConnection, checkAdminAuth, deleteGenre);
 
 // API cho favorites
 app.get('/api/favorites/:userId/:cardId', checkDbConnection, checkFavoriteStatus);
