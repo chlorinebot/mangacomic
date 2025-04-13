@@ -270,4 +270,75 @@
     #mangaImageContainer {
         min-height: 300px;
     }
-} 
+}
+
+/* SweetAlert2 Customization */
+.swal-wide {
+    width: 400px !important;
+    padding: 1.5rem !important;
+    border-radius: 12px !important;
+    font-family: inherit !important;
+}
+
+.swal-title {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    color: #333 !important;
+    margin-bottom: 1rem !important;
+}
+
+.swal-text {
+    font-size: 1rem !important;
+    color: #666 !important;
+    line-height: 1.5 !important;
+}
+
+.swal2-popup {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.swal2-confirm {
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    transition: all 0.2s ease !important;
+}
+
+.swal2-confirm:hover {
+    transform: translateY(-1px) !important;
+}
+
+.swal2-cancel {
+    padding: 0.5rem 1.5rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    transition: all 0.2s ease !important;
+}
+
+.swal2-cancel:hover {
+    transform: translateY(-1px) !important;
+}
+
+.swal2-icon {
+    margin: 1rem auto !important;
+}
+
+/* Animation cho SweetAlert2 */
+.swal2-popup {
+    animation: swal2-show 0.3s !important;
+}
+
+.swal2-icon {
+    animation: swal2-icon-show 0.5s !important;
+}
+
+@keyframes swal2-icon-show {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

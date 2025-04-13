@@ -6,7 +6,9 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MangaComic</title>
+    <title>Trang chủ</title>
+    <!-- Thêm SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- CSS Bootstrap -->
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -438,15 +440,24 @@
                             Trang chủ
                         </a>
                         
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseGenres" aria-expanded="false" aria-controls="collapseGenres">
+                        <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#genresOffcanvas">
                             <div class="sb-nav-link-icon"><i class="bi bi-tags"></i></div>
                             Thể loại
-                            <div class="sb-sidenav-collapse-arrow"><i class="bi bi-chevron-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseGenres" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav" id="genreDropdownMenu">
-                                <!-- Danh sách thể loại sẽ được đổ động bằng JavaScript -->
-                            </nav>
+
+                        <!-- Offcanvas Thể loại -->
+                        <div class="offcanvas offcanvas-start" tabindex="-1" id="genresOffcanvas" aria-labelledby="genresOffcanvasLabel">
+                            <div class="offcanvas-header bg-dark text-white">
+                                <h5 class="offcanvas-title" id="genresOffcanvasLabel">
+                                    <i class="bi bi-tags me-2"></i>Thể loại
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                            </div>
+                            <div class="offcanvas-body">
+                                <div class="list-group list-group-flush" id="genreList">
+                                    <!-- Danh sách thể loại sẽ được thêm vào đây bằng JavaScript -->
+                                </div>
+                            </div>
                         </div>
                         
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseRankings" aria-expanded="false" aria-controls="collapseRankings">
@@ -479,7 +490,7 @@
                             </nav>
                         </div>
                         
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#historyModal">
+                        <a class="nav-link" id="sidebarHistoryLink" href="#" data-bs-toggle="modal" data-bs-target="#userProfileModal" data-show-tab="history-tab">
                             <div class="sb-nav-link-icon"><i class="bi bi-clock-history"></i></div>
                             Lịch sử đọc truyện
                         </a>
@@ -654,29 +665,29 @@
                 <div class="modal-body">
                     <form id="registerForm" class="pure-form pure-form-aligned">
                         <fieldset>
-                            <div class="pure-control-group">
+                            <div class="pure-control-group mb-4">
                                 <label for="registerUsername" class="form-label">Tên người dùng</label>
-                                <input id="registerUsername" type="text" placeholder="Tên người dùng" required>
+                                <input id="registerUsername" type="text" placeholder="Tên người dùng" required class="form-control" data-check-exists="true">
                                 <span class="pure-form-message-inline">Chỉ chấp nhận chữ thường và số, tối đa 15 ký tự.</span>
                                 <div class="error-message text-danger"></div>
                             </div>
-                            <div class="pure-control-group">
+                            <div class="pure-control-group mb-4">
                                 <label for="registerPassword" class="form-label">Mật khẩu</label>
-                                <input id="registerPassword" type="password" placeholder="Mật khẩu" required>
+                                <input id="registerPassword" type="password" placeholder="Mật khẩu" required class="form-control">
                                 <label class="ms-3 pure-checkbox">
                                     <input id="showPassword" type="checkbox"> Hiển thị mật khẩu
                                 </label>
                                 <span class="pure-form-message-inline">Độ dài 8-20, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</span>
                                 <div class="error-message text-danger"></div>
                             </div>
-                            <div class="pure-control-group">
+                            <div class="pure-control-group mb-4">
                                 <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
-                                <input id="confirmPassword" type="password" placeholder="Xác nhận mật khẩu" required>
+                                <input id="confirmPassword" type="password" placeholder="Xác nhận mật khẩu" required class="form-control">
                                 <div class="error-message text-danger"></div>
                             </div>
-                            <div class="pure-control-group">
+                            <div class="pure-control-group mb-4">
                                 <label for="registerEmail" class="form-label">Email</label>
-                                <input id="registerEmail" type="email" placeholder="Email Address" required>
+                                <input id="registerEmail" type="email" placeholder="Email Address" required class="form-control" data-check-exists="true">
                                 <span class="pure-form-message-inline">Chúng tôi sẽ không chia sẻ email của bạn.</span>
                                 <div class="error-message text-danger"></div>
                             </div>
@@ -685,7 +696,7 @@
                                     <input id="termsCheck" type="checkbox" required> Tôi đồng ý với các <a href="#" data-bs-toggle="modal" data-bs-target="#dieukhoandv">điều khoản dịch vụ</a> & <a href="#" data-bs-toggle="modal" data-bs-target="#quyenriengtu">quyền riêng tư</a> của Website!!!
                                 </label>
                                 <div class="error-message text-danger"></div>
-                                <button type="submit" class="pure-button pure-button-primary">Đăng ký</button>
+                                <button type="submit" class="pure-button pure-button-primary" disabled>Đăng ký</button>
                             </div>
                         </fieldset>
                         <div id="registerMessage" class="mt-2 text-danger"></div>
@@ -1037,7 +1048,6 @@ Lưu ý cuối cùng:<br>
                                             <h5 class="card-title" id="comicTitle">Tên truyện</h5>
                                             <p class="card-text" id="comicAuthor">Tên tác giả.</p>
                                             <p class="card-text" id="comicGenre">Thể loại.</p>
-                                            <p class="card-text" id="comicHashtags">Hashtags: <span id="comicHashtagsContent">Chưa có hashtag</span></p>
                                             <p class="card-text"><small class="text-body-secondary" id="comicContent">Nội dung truyện</small></p>
                                             <!-- Nút Chia sẻ -->
                                             <button type="button" class="btn btn-outline-primary mt-2" id="shareComicBtn">
@@ -1326,13 +1336,16 @@ Lưu ý cuối cùng:<br>
                 <!-- Hồ sơ -->
                 <div class="tab-pane fade show active" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
                   <div class="d-flex flex-column flex-md-row">
-                    <div class="text-center me-md-4 mb-3 mb-md-0">
-                      <div class="avatar-container mb-3">
-                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-size: 48px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                    <div class="text-center me-md-4 mb-3 mb-md-0 position-relative avatar-wrapper">
+                      <div class="avatar-container mb-2">
+                        <div id="profileAvatarPreview" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-size: 48px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); background-size: cover; background-position: center;">
                           <span id="profileInitials"></span>
                         </div>
+                        <label for="avatarInput" id="changeAvatarButton" class="change-avatar-button">
+                          <i class="bi bi-camera-fill"></i>
+                        </label>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
                       </div>
-                      <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil me-1"></i>Chỉnh sửa</button>
                     </div>
                     <div class="flex-grow-1">
                       <div class="card border-0 shadow-sm mb-3">
@@ -1546,6 +1559,28 @@ Lưu ý cuối cùng:<br>
     align-items: center;
     font-weight: 500;
   }
+  
+  /* Style cho biểu tượng camera */
+  .change-avatar-button {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: #0d6efd;
+    color: #fff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+  
+  .change-avatar-button:hover {
+    opacity: 1;
+  }
 </style>
 
     
@@ -1642,19 +1677,25 @@ Lưu ý cuối cùng:<br>
                 </li>
             </ul>
             <!-- User dropdown -->
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown ms-5">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
-                        </svg>
-                        Đăng nhập/Đăng ký
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="avatar-container" style="width: 35px; height: 35px; overflow: hidden; border-radius: 50%; margin-right: 8px; display: inline-flex; align-items: center; justify-content: center;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                            </svg>
+                        </div>
+                        <span>Đăng nhập/Đăng ký</span>
                     </a>
-                    <ul class="dropdown-menu">
-                        <button type="button" class="btn btn-success ms-5" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập</button>
-                        <li><hr class="dropdown-divider"></li>
-                        <button type="button" class="btn btn-outline-success ms-5" data-bs-toggle="modal" data-bs-target="#logup" style="width: 105px;">Đăng ký</button>
+                    <ul class="dropdown-menu dropdown-menu-end py-2" style="min-width: 200px;">
+                        <li class="px-3 mb-2">
+                            <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập</button>
+                        </li>
+                        <li><hr class="dropdown-divider mx-2"></li>
+                        <li class="px-3">
+                            <button type="button" class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#logup">Đăng ký</button>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -1837,6 +1878,51 @@ Lưu ý cuối cùng:<br>
                 sidebarLightIcon.style.display = 'inline-block';
                 sidebarDarkIcon.style.display = 'none';
             }
+        }
+    });
+</script>
+
+<script>
+    // Xử lý mở modal profile và kích hoạt tab từ sidebar
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarHistoryLink = document.getElementById('sidebarHistoryLink');
+        const profileModalElement = document.getElementById('userProfileModal');
+        
+        if (sidebarHistoryLink && profileModalElement) {
+            sidebarHistoryLink.addEventListener('click', function(event) {
+                event.preventDefault(); // Ngăn hành vi mặc định (mở modal ngay lập tức)
+
+                // 1. Kiểm tra đăng nhập
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    // Nếu chưa đăng nhập, mở modal đăng nhập thay thế
+                    const loginModal = new bootstrap.Modal(document.getElementById('login'));
+                    loginModal.show();
+                    return; // Dừng thực thi
+                }
+
+                // 2. Lấy ID tab cần hiển thị từ thuộc tính data
+                const tabTargetId = this.getAttribute('data-show-tab');
+                if (!tabTargetId) return;
+
+                // 3. Lấy instance của modal profile
+                const profileModal = bootstrap.Modal.getOrCreateInstance(profileModalElement);
+
+                // 4. Tìm nút tab tương ứng
+                const targetTabButton = profileModalElement.querySelector(`.nav-link[data-bs-target="#${tabTargetId}-pane"]`);
+                
+                if (targetTabButton) {
+                    // 5. Kích hoạt tab bằng Bootstrap API
+                    const tab = new bootstrap.Tab(targetTabButton);
+                    tab.show();
+                } else {
+                    console.warn('Không tìm thấy nút tab cho:', tabTargetId);
+                    // Nếu không tìm thấy tab, vẫn mở modal nhưng ở tab mặc định
+                }
+
+                // 6. Hiển thị modal profile
+                profileModal.show();
+            });
         }
     });
 </script>

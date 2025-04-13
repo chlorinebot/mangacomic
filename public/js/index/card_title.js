@@ -76,31 +76,64 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // Hàm đổ danh sách thể loại vào dropdown
 function populateGenreDropdown() {
-    const genreDropdownMenu = document.getElementById('genreDropdownMenu');
-    if (!genreDropdownMenu) {
-        console.error('Không tìm thấy dropdown menu thể loại!');
+    const genreList = document.getElementById('genreList');
+    if (!genreList) {
+        console.error('Không tìm thấy phần tử genreList!');
         return;
     }
 
-    // Thêm tùy chọn "Thể loại" để hiển thị toàn bộ truyện
-    const defaultItem = document.createElement('li');
-    defaultItem.innerHTML = '<a class="dropdown-item" href="#" data-genre-id="all">Tất cả</a>';
-    genreDropdownMenu.appendChild(defaultItem);
+    // Xóa nội dung cũ
+    genreList.innerHTML = '';
+
+    // Thêm tùy chọn "Tất cả" đầu tiên
+    const allGenresItem = document.createElement('a');
+    allGenresItem.href = '#';
+    allGenresItem.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+    allGenresItem.setAttribute('data-genre-id', 'all');
+    allGenresItem.innerHTML = `
+        <span><i class="bi bi-grid-fill me-2"></i>Tất cả</span>
+        <span class="badge bg-primary rounded-pill">${originalCardData.length}</span>
+    `;
+    genreList.appendChild(allGenresItem);
 
     // Thêm các thể loại từ API
     genres.forEach(genre => {
-        const li = document.createElement('li');
-        li.innerHTML = `<a class="dropdown-item" href="#" data-genre-id="${genre.genre_id}">${genre.genre_name}</a>`;
-        genreDropdownMenu.appendChild(li);
+        const genreCount = originalCardData.filter(card => {
+            const genreNames = card.genre_names ? card.genre_names.split(',') : [];
+            return genreNames.includes(genre.genre_name);
+        }).length;
+
+        const item = document.createElement('a');
+        item.href = '#';
+        item.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+        item.setAttribute('data-genre-id', genre.genre_id);
+        item.innerHTML = `
+            <span><i class="bi bi-tag-fill me-2"></i>${genre.genre_name}</span>
+            <span class="badge bg-secondary rounded-pill">${genreCount}</span>
+        `;
+        genreList.appendChild(item);
     });
 
-    // Thêm sự kiện cho các mục trong dropdown
-    genreDropdownMenu.addEventListener('click', (e) => {
+    // Thêm sự kiện click cho các thể loại
+    genreList.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = e.target;
-        if (target.classList.contains('dropdown-item')) {
+        const target = e.target.closest('.list-group-item');
+        if (target) {
             const genreId = target.getAttribute('data-genre-id');
+            // Xóa active class từ tất cả các item
+            document.querySelectorAll('.list-group-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            // Thêm active class cho item được chọn
+            target.classList.add('active');
+            // Lọc truyện theo thể loại
             filterCardsByGenre(genreId);
+            // Đóng offcanvas sau khi chọn
+            const offcanvas = document.getElementById('genresOffcanvas');
+            const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvas);
+            if (bsOffcanvas) {
+                bsOffcanvas.hide();
+            }
         }
     });
 }
