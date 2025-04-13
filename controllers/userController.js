@@ -1,5 +1,5 @@
 // controllers/userController.js
-const { getAllUsers, deleteUser, updateUser, countUsers: getUsersCount } = require('../service/userService');
+const { getAllUsers, deleteUser, updateUser, countUsers: getUsersCount, addToBlacklist, removeFromBlacklist, getBlacklist, checkBlacklist } = require('../service/userService');
 const { dbPool } = require('../data/dbConfig');
 const fs = require('fs').promises;
 const path = require('path');
@@ -180,11 +180,77 @@ const uploadAvatar = async (req, res) => {
     }
 };
 
+// Thêm người dùng vào blacklist
+const addUserToBlacklist = async (req, res) => {
+    try {
+        const { userId, reason } = req.body;
+        
+        if (!userId) {
+            return res.status(400).json({ error: 'ID người dùng là bắt buộc' });
+        }
+        
+        const result = await addToBlacklist(userId, reason || 'Không có lý do');
+        res.json(result);
+    } catch (err) {
+        console.error('Lỗi khi thêm người dùng vào blacklist:', err);
+        res.status(400).json({ error: 'Lỗi khi thêm người dùng vào blacklist', details: err.message });
+    }
+};
+
+// Xóa người dùng khỏi blacklist
+const removeUserFromBlacklist = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        if (!userId) {
+            return res.status(400).json({ error: 'ID người dùng là bắt buộc' });
+        }
+        
+        const result = await removeFromBlacklist(userId);
+        res.json(result);
+    } catch (err) {
+        console.error('Lỗi khi xóa người dùng khỏi blacklist:', err);
+        res.status(400).json({ error: 'Lỗi khi xóa người dùng khỏi blacklist', details: err.message });
+    }
+};
+
+// Lấy danh sách người dùng trong blacklist
+const getBlacklistUsers = async (req, res) => {
+    try {
+        const blacklist = await getBlacklist();
+        res.json(blacklist);
+    } catch (err) {
+        console.error('Lỗi khi lấy danh sách blacklist:', err);
+        res.status(500).json({ error: 'Lỗi khi lấy danh sách blacklist', details: err.message });
+    }
+};
+
+// Kiểm tra xem người dùng có trong blacklist không
+const checkUserBlacklist = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        if (!userId) {
+            return res.status(400).json({ error: 'ID người dùng là bắt buộc' });
+        }
+        
+        const result = await checkBlacklist(userId);
+        res.json(result);
+    } catch (err) {
+        console.error('Lỗi khi kiểm tra blacklist:', err);
+        res.status(500).json({ error: 'Lỗi khi kiểm tra blacklist', details: err.message });
+    }
+};
+
 module.exports = {
     getUsers,
     deleteUserData,
     updateUser: updateUserData,
     countUsers,
     uploadAvatar,
-    getUserStats
+    getUserStats,
+    addUserToBlacklist,
+    removeUserFromBlacklist,
+    getBlacklistUsers,
+    checkUserBlacklist
 };

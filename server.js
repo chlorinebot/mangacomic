@@ -2,7 +2,7 @@ const express = require('express');
 const { dbPool, checkDbConnection, initializeDb } = require('./data/dbConfig');
 const { getCards, saveCardData, deleteCardData, updateCard, countCards } = require('./controllers/cardController');
 const { getChapters, saveChapterData, deleteChapterData, countChapters } = require('./controllers/chapterController');
-const { getUsers, deleteUserData, updateUser: updateUserData, countUsers, getUserStats } = require('./controllers/userController');
+const { getUsers, deleteUserData, updateUser: updateUserData, countUsers, getUserStats, addUserToBlacklist, removeUserFromBlacklist, getBlacklistUsers, checkUserBlacklist } = require('./controllers/userController');
 const { register, login } = require('./controllers/authController');
 const { getGenres, createGenre, updateGenre, deleteGenre, getCardGenres, updateCardGenres, countGenres } = require('./controllers/genreController');
 const { checkFavoriteStatus, addToFavorites, removeFromFavorites } = require('./controllers/favoriteController');
@@ -85,6 +85,12 @@ app.delete('/api/chapters', checkDbConnection, deleteChapterData);
 app.get('/api/users', checkDbConnection, checkAdminAuth, getUsers);
 app.delete('/api/users/:id', checkDbConnection, checkAdminAuth, deleteUserData);
 
+// API cho blacklist (BẢO VỆ BẰNG checkAdminAuth)
+app.get('/api/blacklist', checkDbConnection, checkAdminAuth, getBlacklistUsers);
+app.post('/api/blacklist', checkDbConnection, checkAdminAuth, addUserToBlacklist);
+app.delete('/api/blacklist/:userId', checkDbConnection, checkAdminAuth, removeUserFromBlacklist);
+app.get('/api/blacklist/:userId', checkDbConnection, checkAdminAuth, checkUserBlacklist);
+
 // API đổi mật khẩu người dùng (phải đặt trước route động /api/users/:id)
 app.put('/api/users/change-password', [checkDbConnection, verifyToken], async (req, res) => {
     try {
@@ -147,8 +153,31 @@ app.get('/api/comments/:commentId/replies', checkDbConnection, getCommentReplies
 app.post('/api/comments/:commentId/replies', checkDbConnection, verifyToken, addCommentReply);
 
 // Route admin
-app.get('/admin-web', checkDbConnection, checkAdminAuth, (req, res) => {
-    res.render('admin-web', { user: req.user });
+app.get('/admin-web', checkDbConnection, checkAdminAuth, async (req, res) => {
+    try {
+        // Lấy thông tin đầy đủ của người dùng từ database
+        const connection = await dbPool.getConnection();
+        try {
+            const [rows] = await connection.query(
+                'SELECT id, username, email, avatar, role_id FROM users WHERE id = ?',
+                [req.user.id || req.user.userId]
+            );
+            
+            if (rows.length === 0) {
+                return res.status(404).render('401', { error: 'Không tìm thấy thông tin người dùng' });
+            }
+            
+            const user = rows[0];
+            console.log('Thông tin người dùng từ database:', user);
+            
+            res.render('admin-web', { user: user });
+        } finally {
+            connection.release();
+        }
+    } catch (error) {
+        console.error('Lỗi khi lấy thông tin người dùng:', error);
+        res.status(500).render('401', { error: 'Lỗi khi lấy thông tin người dùng' });
+    }
 });
 
 // Route cho trang lỗi
