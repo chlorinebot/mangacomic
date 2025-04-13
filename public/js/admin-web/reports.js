@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 function initReportManagement() {
     // Thêm tab listener
     document.querySelector('a[href="#report-management"]').addEventListener('click', () => {
-        console.log('[Report Tab Clicked] Gọi loadReports()');
         loadReports();
     });
 
@@ -59,94 +58,32 @@ function initReportManagement() {
     document.getElementById('markAsPendingButton').addEventListener('click', () => updateReportStatus('pending'));
     document.getElementById('deleteReportButton').addEventListener('click', deleteReport);
 
-    // Kiểm tra token ngay trước khi gọi loadReports lần đầu
-    const initialToken = localStorage.getItem('token');
-    console.log(`[initReportManagement] Kiểm tra token trước khi gọi loadReports: ${initialToken ? 'TÌM THẤY TOKEN' : 'KHÔNG TÌM THẤY TOKEN'}`);
-    if(initialToken) {
-        console.log('[initReportManagement] Token ban đầu:', initialToken.substring(0, 15) + '...');
-    }
-
-    // Load báo cáo ban đầu với độ trễ nhỏ để đảm bảo localStorage đã được cập nhật
-    console.log('[initReportManagement] Gọi loadReports() sau 100ms...');
-    setTimeout(() => {
-        loadReports();
-    }, 100); 
+    // Load báo cáo ban đầu
+    loadReports();
 }
 
 /**
  * Lấy danh sách báo cáo từ API
  */
 async function loadReports() {
-    console.log('===== BẮT ĐẦU TẢI DANH SÁCH BÁO CÁO =====');
     try {
-        // Lấy token từ localStorage
         const token = localStorage.getItem('token');
-        if (!token) {
-            console.error('KHÔNG TÌM THẤY TOKEN TRONG LOCALSTORAGE');
-            
-            // Kiểm tra token trong cookie
-            let tokenInCookie = null;
-            document.cookie.split(';').forEach(cookie => {
-                const [name, value] = cookie.trim().split('=');
-                if (name === 'token') tokenInCookie = value;
-            });
-            
-            if (tokenInCookie) {
-                console.log('Tìm thấy token trong cookie, lưu vào localStorage');
-                localStorage.setItem('token', tokenInCookie);
-                token = tokenInCookie;
-            } else {
-                throw new Error('Không tìm thấy token');
-            }
-        }
+        if (!token) throw new Error('Không tìm thấy token');
 
-        console.log('Sử dụng token:', token.substring(0, 15) + '...' + token.substring(token.length - 10));
-        
-        // Đảm bảo token được lưu trong cookie
-        if (!document.cookie.includes('token=')) {
-            console.log('Thêm token vào cookie');
-            document.cookie = `token=${token}; path=/; max-age=3600`;
-        }
-
-        // Gửi request với token trong header Authorization
-        console.log('Gửi request API tới /report');
         const response = await fetch('/report', {
-            method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache' // Tránh cache
+                'Authorization': `Bearer ${token}`
             }
-        });
-
-        console.log('Nhận phản hồi từ API:', {
-            status: response.status,
-            statusText: response.statusText
         });
 
         if (!response.ok) {
-            let errorText = '';
-            try {
-                const errorData = await response.text();
-                errorText = errorData;
-                console.error('Nội dung lỗi từ server:', errorData);
-            } catch (e) {
-                console.error('Không thể đọc nội dung lỗi:', e);
-            }
-            throw new Error(`Không thể tải danh sách báo cáo: ${response.status} ${response.statusText}. ${errorText}`);
+            throw new Error('Không thể tải danh sách báo cáo');
         }
 
-        const data = await response.json();
-        console.log(`Đã nhận được ${data.length} báo cáo từ API`);
-        
-        // Lưu dữ liệu vào biến toàn cục
-        reports = data;
-        
-        // Hiển thị báo cáo
+        reports = await response.json();
         renderReports();
-        console.log('===== KẾT THÚC TẢI DANH SÁCH BÁO CÁO =====');
     } catch (error) {
-        console.error('===== LỖI KHI TẢI DANH SÁCH BÁO CÁO =====', error);
+        console.error('Lỗi khi tải báo cáo:', error);
         alert('Không thể tải danh sách báo cáo: ' + error.message);
     }
 }
@@ -212,7 +149,7 @@ function renderReports() {
                 <td>${report.username || 'Không xác định'}</td>
                 <td>${report.title}</td>
                 <td class="text-truncate" style="max-width: 150px;" title="${report.content}">${report.content}</td>
-                <td>${report.email || '—'}</td>
+                <td>${report.email}</td>
                 <td>${reportedAt}</td>
                 <td><span class="badge ${statusClass}">${statusText}</span></td>
                 <td>${processedAt}</td>
@@ -377,7 +314,7 @@ function handleSearch(e) {
     filteredReports = filteredReports.filter(report => 
         report.title.toLowerCase().includes(searchTerm) ||
         report.content.toLowerCase().includes(searchTerm) ||
-        (report.email && report.email.toLowerCase().includes(searchTerm)) ||
+        report.email.toLowerCase().includes(searchTerm) ||
         (report.username && report.username.toLowerCase().includes(searchTerm))
     );
     
@@ -425,7 +362,7 @@ function handleSearch(e) {
                 <td>${report.username || 'Không xác định'}</td>
                 <td>${report.title}</td>
                 <td class="text-truncate" style="max-width: 150px;" title="${report.content}">${report.content}</td>
-                <td>${report.email || '—'}</td>
+                <td>${report.email}</td>
                 <td>${reportedAt}</td>
                 <td><span class="badge ${statusClass}">${statusText}</span></td>
                 <td>${processedAt}</td>

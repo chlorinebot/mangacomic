@@ -5,47 +5,24 @@ let currentPage = 1; // Trang hiện tại
 
 // Hàm lấy danh sách thể loại từ API
 export async function fetchGenres() {
-    console.log('[Thể loại] Bắt đầu tải danh sách thể loại');
     try {
         const token = localStorage.getItem('token');
-        if (!token) {
-            console.error('[Thể loại] Lỗi: Không tìm thấy token');
-            throw new Error('Không tìm thấy token xác thực');
-        }
-        console.log('[Thể loại] Sử dụng token:', token.substring(0, 15) + '...');
-
-        console.log('[Thể loại] Gửi request đến /api/genres');
         const response = await fetch('/api/genres', {
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache'
+                'Content-Type': 'application/json'
             }
         });
-
-        console.log('[Thể loại] Phản hồi API:', response.status, response.statusText);
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('[Thể loại] Lỗi API:', errorText);
-            throw new Error(`Không thể tải thể loại: ${response.statusText}`);
+            throw new Error('Lỗi khi lấy danh sách thể loại: ' + response.statusText);
         }
-
         const genres = await response.json();
-        console.log(`[Thể loại] Đã nhận được ${genres.length} thể loại`);
-        console.log('[Thể loại] Dữ liệu mẫu thể loại đầu tiên:', genres.length > 0 ? JSON.stringify(genres[0]).substring(0, 100) + '...' : 'Không có dữ liệu');
-        
         originalGenres = genres; // Lưu trữ dữ liệu gốc
         currentPage = 1; // Reset về trang đầu tiên
-        
-        console.log('[Thể loại] Gọi renderGenres() để hiển thị dữ liệu');
         renderGenres(genres); // Hiển thị danh sách ban đầu
-        console.log('[Thể loại] Quá trình tải danh sách thể loại hoàn tất');
-        
-        return genres;
     } catch (error) {
-        console.error('[Thể loại] Lỗi khi tải thể loại:', error);
-        alert('Không thể tải danh sách thể loại: ' + error.message);
-        return [];
+        console.error('Lỗi trong fetchGenres:', error);
+        alert('Đã xảy ra lỗi khi lấy danh sách thể loại: ' + error.message);
     }
 }
 

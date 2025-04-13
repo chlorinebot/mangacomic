@@ -33,18 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 tabLink.classList.remove('active');
             });
             link.classList.add('active');
-
-            // Tải dữ liệu mới khi chuyển tab
-            if (targetTab === '#user-management') {
-                console.log('[manager.js] Tab Người Dùng được nhấp, gọi fetchUsers()');
-                fetchUsers();
-            } else if (targetTab === '#genre-management') {
-                console.log('[manager.js] Tab Thể Loại được nhấp, gọi fetchGenres()');
-                fetchGenres();
-            } else if (targetTab === '#comic-management') {
-                console.log('[manager.js] Tab Truyện được nhấp, gọi fetchComics()');
-                fetchComics();
-            }
         });
     });
 
