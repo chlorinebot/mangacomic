@@ -10,13 +10,39 @@ document.addEventListener('DOMContentLoaded', async function () {
     
     // Lấy danh sách thể loại từ API
     try {
-        const response = await fetch('http://localhost:3000/api/cards');
-        if (!response.ok) throw new Error('Lỗi khi lấy dữ liệu từ API');
-        const cards = await response.json();
-        console.log('Genre.js: Đã nhận được dữ liệu từ API, có', cards.length, 'cards');
+        // Sử dụng ApiService để lấy dữ liệu card nếu có
+        let cards;
+        if (typeof ApiService !== 'undefined' && typeof ApiService.getCards === 'function') {
+            cards = await ApiService.getCards();
+            console.log('Genre.js: Đã nhận được dữ liệu từ ApiService, có', cards.length, 'cards');
+        } else {
+            const response = await fetch('/api/cards');
+            if (!response.ok) throw new Error('Lỗi khi lấy dữ liệu từ API');
+            cards = await response.json();
+            console.log('Genre.js: Đã nhận được dữ liệu từ API, có', cards.length, 'cards');
+        }
+        
+        // Lưu dữ liệu card vào biến toàn cục để sử dụng sau này
+        window.cardData = cards;
 
         // Lấy danh sách thể loại duy nhất (loại bỏ trùng lặp)
-        const genres = [...new Set(cards.map(card => card.genre_name).filter(genre => genre))]; // Sử dụng genre_name
+        // Xử lý cả trường hợp genre là mảng và trường hợp genre_name là chuỗi
+        const allGenres = [];
+        cards.forEach(card => {
+            if (Array.isArray(card.genre)) {
+                card.genre.forEach(g => {
+                    if (g && !allGenres.includes(g)) {
+                        allGenres.push(g);
+                    }
+                });
+            } else if (card.genre_name) {
+                if (card.genre_name && !allGenres.includes(card.genre_name)) {
+                    allGenres.push(card.genre_name);
+                }
+            }
+        });
+        
+        const genres = allGenres.sort(); // Sắp xếp theo bảng chữ cái
         console.log('Genre.js: Các thể loại đã tìm thấy:', genres);
 
         // Hiển thị thể loại trong dropdown
@@ -42,16 +68,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             const allA = document.createElement('a');
             allA.className = 'dropdown-item';
             allA.href = '#';
+            allA.textContent = 'Tất cả';
             
             allA.setAttribute('data-original-genre', 'all');
             allA.addEventListener('click', function (e) {
                 e.preventDefault();
                 console.log('Genre.js: Đã chọn "Tất cả"');
-                if (typeof displayAllCards === 'function') {
-                    displayAllCards();
-                } else {
-                    console.error('Genre.js: Hàm displayAllCards không tồn tại');
-                }
+                filterComicsByGenre('all');
             });
             allLi.appendChild(allA);
             genreDropdown.appendChild(allLi);
@@ -74,7 +97,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'Đời thường': 'Slice of Life',
                     'Trinh thám': 'Mystery',
                     'Siêu nhiên': 'Supernatural',
-                    'Drama': 'Drama'
+                    'Drama': 'Drama',
+                    'Hậu tận thế': 'Post-Apocalyptic',
+                    'Hành động viễn tưởng': 'Action Sci-Fi',
+                    'Đam mỹ': 'Boys Love',
+                    'Ẩm thực': 'Cooking',
+                    'Khám phá': 'Exploration'
                     // Thêm các thể loại khác nếu cần
                 },
                 'zh': {
@@ -93,7 +121,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                     'Đời thường': '日常',
                     'Trinh thám': '侦探',
                     'Siêu nhiên': '超自然',
-                    'Drama': '戏剧'
+                    'Drama': '戏剧',
+                    'Hậu tận thế': '后末日',
+                    'Hành động viễn tưởng': '动作科幻',
+                    'Đam mỹ': '耽美',
+                    'Ẩm thực': '美食',
+                    'Khám phá': '探索'
                     // Thêm các thể loại khác nếu cần
                 }
             };
@@ -164,7 +197,12 @@ function addGenreTranslationSupport(genreDropdown) {
             'Đời thường': 'Slice of Life',
             'Trinh thám': 'Mystery',
             'Siêu nhiên': 'Supernatural',
-            'Drama': 'Drama'
+            'Drama': 'Drama',
+            'Hậu tận thế': 'Post-Apocalyptic',
+            'Hành động viễn tưởng': 'Action Sci-Fi',
+            'Đam mỹ': 'Boys Love',
+            'Ẩm thực': 'Cooking',
+            'Khám phá': 'Exploration'
         },
         'zh': {
             'Tất cả': '全部',
@@ -182,7 +220,12 @@ function addGenreTranslationSupport(genreDropdown) {
             'Đời thường': '日常',
             'Trinh thám': '侦探',
             'Siêu nhiên': '超自然',
-            'Drama': '戏剧'
+            'Drama': '戏剧',
+            'Hậu tận thế': '后末日',
+            'Hành động viễn tưởng': '动作科幻',
+            'Đam mỹ': '耽美',
+            'Ẩm thực': '美食',
+            'Khám phá': '探索'
         }
     };
     
@@ -200,50 +243,75 @@ function addGenreTranslationSupport(genreDropdown) {
         const newLang = e.detail.language;
         console.log('Genre.js: Ngôn ngữ đã thay đổi thành', newLang);
         
-        // Cập nhật tên hiển thị của các thể loại
-        const genreItems = genreDropdown.querySelectorAll('.dropdown-item');
-        genreItems.forEach(item => {
+        // Cập nhật text cho tất cả các mục trong dropdown
+        const items = genreDropdown.querySelectorAll('.dropdown-item');
+        items.forEach(item => {
             const originalGenre = item.getAttribute('data-original-genre');
-            
-            if (newLang === 'vi') {
-                item.textContent = originalGenre;
-            } else if (genreTranslations[newLang] && genreTranslations[newLang][originalGenre]) {
-                item.textContent = genreTranslations[newLang][originalGenre];
-            } else {
-                item.textContent = originalGenre; // Mặc định nếu không có bản dịch
+            if (originalGenre) {
+                if (newLang === 'vi') {
+                    item.textContent = originalGenre;
+                } else if (genreTranslations[newLang] && genreTranslations[newLang][originalGenre]) {
+                    item.textContent = genreTranslations[newLang][originalGenre];
+                }
+                // Nếu không có bản dịch, giữ nguyên
             }
         });
     };
     
-    // Xóa hết sự kiện cũ trước khi thêm mới để tránh trùng lặp
-    window.removeEventListener('languageChanged', languageChangedHandler);
-    window.addEventListener('languageChanged', languageChangedHandler);
+    // Đăng ký sự kiện
+    document.removeEventListener('languageChanged', languageChangedHandler); // Tránh đăng ký trùng lặp
+    document.addEventListener('languageChanged', languageChangedHandler);
+    
     console.log('Genre.js: Đã thêm hỗ trợ dịch cho dropdown thể loại');
 }
 
-// Hàm lọc truyện theo thể loại (sử dụng genre_name)
+// Hàm lọc truyện theo thể loại
 function filterComicsByGenre(genre) {
     console.log('Genre.js: Đang lọc truyện theo thể loại:', genre);
     
+    // Lấy dữ liệu card từ biến toàn cục
+    const cardData = window.cardData;
+    
     // Kiểm tra xem biến cardData có tồn tại không
-    if (typeof cardData === 'undefined') {
-        console.error('Genre.js: Biến cardData không tồn tại!');
+    if (!cardData || !Array.isArray(cardData)) {
+        console.error('Genre.js: Không có dữ liệu card hợp lệ!');
+        return;
+    }
+    
+    // Tìm container để hiển thị cards
+    const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
+    if (!cardContainer) {
+        console.error('Genre.js: Không tìm thấy container để hiển thị cards!');
         return;
     }
     
     if (genre === 'all') {
         // Nếu là "Tất cả", hiển thị lại toàn bộ
-        if (typeof displayAllCards === 'function') {
-            displayAllCards();
-        } else {
-            console.error('Genre.js: Không tìm thấy hàm displayAllCards!');
-        }
+        displayCards(cardData);
         return;
     }
     
-    const filteredCards = cardData.filter(card => card.genre_name === genre);
+    // Lọc cards theo thể loại
+    const filteredCards = cardData.filter(card => {
+        // Xử lý trường hợp genre là mảng
+        if (Array.isArray(card.genre)) {
+            return card.genre.some(g => g.toLowerCase() === genre.toLowerCase());
+        }
+        // Xử lý trường hợp genre_name là chuỗi
+        else if (card.genre_name) {
+            return card.genre_name.toLowerCase() === genre.toLowerCase();
+        }
+        return false;
+    });
+    
     console.log('Genre.js: Đã lọc được', filteredCards.length, 'truyện với thể loại', genre);
     
+    // Hiển thị kết quả
+    displayCards(filteredCards);
+}
+
+// Hàm hiển thị danh sách cards
+function displayCards(cards) {
     const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
     if (!cardContainer) {
         console.error('Genre.js: Không tìm thấy container để hiển thị cards!');
@@ -253,20 +321,21 @@ function filterComicsByGenre(genre) {
     cardContainer.innerHTML = ''; // Xóa nội dung cũ
 
     // Kiểm tra nếu không có kết quả
-    if (filteredCards.length === 0) {
+    if (!cards || cards.length === 0) {
         const noResultsDiv = document.createElement('div');
         noResultsDiv.className = 'col-12 text-center py-5';
         noResultsDiv.innerHTML = `
             <div class="alert alert-info">
                 <i class="bi bi-info-circle me-2"></i>
-                Không tìm thấy truyện nào thuộc thể loại "${genre}".
+                Không tìm thấy truyện nào phù hợp với tiêu chí tìm kiếm.
             </div>
         `;
         cardContainer.appendChild(noResultsDiv);
         return;
     }
 
-    filteredCards.forEach(data => {
+    // Hiển thị cards
+    cards.forEach(data => {
         const colDiv = document.createElement('div');
         colDiv.className = 'col';
 
@@ -292,8 +361,25 @@ function filterComicsByGenre(genre) {
             cardText.textContent = cardText.textContent.substring(0, 60) + '...';
         }
 
-        cardBody.appendChild(cardTitle);
-        cardBody.appendChild(cardText);
+        // Thêm thể loại nếu có
+        if (Array.isArray(data.genre) && data.genre.length > 0) {
+            const genreDiv = document.createElement('div');
+            genreDiv.className = 'mb-2';
+            
+            data.genre.forEach(genre => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary me-1';
+                badge.textContent = genre;
+                genreDiv.appendChild(badge);
+            });
+            
+            cardBody.appendChild(cardTitle);
+            cardBody.appendChild(genreDiv);
+            cardBody.appendChild(cardText);
+        } else {
+            cardBody.appendChild(cardTitle);
+            cardBody.appendChild(cardText);
+        }
 
         cardDiv.appendChild(img);
         cardDiv.appendChild(cardBody);
@@ -301,8 +387,11 @@ function filterComicsByGenre(genre) {
         cardDiv.style.cursor = 'pointer';
         cardDiv.setAttribute('data-comic-id', data.id);
         cardDiv.addEventListener('click', function () {
+            // Kiểm tra nếu có hàm openCardModal
             if (typeof openCardModal === 'function') {
                 openCardModal(data);
+            } else if (typeof window.openCardModal === 'function') {
+                window.openCardModal(data);
             } else {
                 console.error('Genre.js: Không tìm thấy hàm openCardModal!');
             }

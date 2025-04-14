@@ -4,9 +4,11 @@
 <head>
     <script src="/assets/js/color-modes.js"></script>
 
+    <link rel="icon" type="image/svg+xml" href="/images/logo/Head.svg" />
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang chủ</title>
+    <title>Truyện huyền thoại ở đây :3</title>
     <!-- Thêm SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- CSS Bootstrap -->
@@ -16,7 +18,7 @@
     <!-- Theme CSS -->
     <link rel="stylesheet" href="/css/color-modes.css">
     <!-- PURE-CSS từ Github -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
     
     <link rel="stylesheet" href="/css/for-index.css">
 
@@ -454,6 +456,15 @@
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                             </div>
                             <div class="offcanvas-body">
+                                <!-- Dropdown menu for genres -->
+                                <div class="dropdown mb-3">
+                                    <button class="btn btn-primary dropdown-toggle w-100" type="button" id="genreDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Chọn thể loại
+                                    </button>
+                                    <ul class="dropdown-menu w-100" id="genreDropdownMenu" aria-labelledby="genreDropdownButton">
+                                        <!-- Genre items will be added here by JavaScript -->
+                                    </ul>
+                                </div>
                                 <div class="list-group list-group-flush" id="genreList">
                                     <!-- Danh sách thể loại sẽ được thêm vào đây bằng JavaScript -->
                                 </div>
@@ -555,33 +566,35 @@
             <footer class="py-4 bg-dark text-white mt-auto">
                 <div class="container-fluid px-4">
                   <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <h5 class="text-uppercase mb-3">MANGA COMIC</h5>
-                            <p class="small">Website đọc truyện tranh online với nhiều thể loại đa dạng, cập nhật liên tục. Mang đến trải nghiệm tốt nhất cho người dùng.</p>
+                        <div class="col-md-4 mb-3 d-flex flex-column align-items-center align-items-md-start">
+                            <div class="logo-container mb-3" style="max-width: 250px; max-height: 100px; overflow: hidden;">
+                                <img src="/images/logo/LogoDark.svg" alt="GardenToon" style="width: 100%; height: auto; object-fit: contain;" />
+                            </div>
+                            <p class="small text-center text-md-start">Website đọc truyện tranh online với nhiều thể loại đa dạng, cập nhật liên tục. Mang đến trải nghiệm tốt nhất cho người dùng.</p>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-4 mb-3 d-flex flex-column align-items-center align-items-md-start">
                             <h5 class="text-uppercase mb-3">Liên Kết</h5>
-                            <ul class="list-unstyled">
-                                <li><a href="#" class="text-white-50 text-decoration-none">Điều khoản sử dụng</a></li>
-                                <li><a href="#" class="text-white-50 text-decoration-none">Chính sách bảo mật</a></li>
-                                <li><a href="#" class="text-white-50 text-decoration-none">Về chúng tôi</a></li>
-                                <li><a href="#" class="text-white-50 text-decoration-none">Liên hệ</a></li>
+                            <ul class="list-unstyled text-center text-md-start">
+                                <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Điều khoản sử dụng</a></li>
+                                <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Chính sách bảo mật</a></li>
+                                <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Về chúng tôi</a></li>
+                                <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Liên hệ</a></li>
                             </ul>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-4 mb-3 d-flex flex-column align-items-center align-items-md-start">
                             <h5 class="text-uppercase mb-3">Kết Nối</h5>
                             <div class="d-flex gap-3">
                                 <a href="#" class="text-white"><i class="bi bi-facebook fs-4"></i></a>
                                 <a href="#" class="text-white"><i class="bi bi-twitter fs-4"></i></a>
                                 <a href="#" class="text-white"><i class="bi bi-instagram fs-4"></i></a>
                                 <a href="#" class="text-white"><i class="bi bi-discord fs-4"></i></a>
-                        </div>
+                            </div>
                         </div>
                       </div>
                     <hr class="my-3 bg-secondary">
                     <div class="row align-items-center">
                         <div class="col-md-6 small">
-                            Copyright &copy; MangaComic 2024. All rights reserved.
+                            Copyright &copy; GardenToon 2024. All rights reserved.
                     </div>
                         <div class="col-md-6 text-md-end small">
                             <a href="#" class="text-white-50 text-decoration-none me-3">Privacy Policy</a>
@@ -733,12 +746,12 @@ Chào mừng bạn đến với KVT - trang web cung cấp dịch vụ đọc tr
 1. Chấp nhận Điều khoản<br>
 Bằng cách truy cập hoặc sử dụng trang web KVT, bạn xác nhận rằng bạn đã đọc, hiểu và đồng ý bị ràng buộc bởi các Điều khoản Dịch vụ này. Nếu bạn không đồng ý, vui lòng không sử dụng trang web.
 <br><br>
-2. Quyền Sở hữu Trí tuệ<br>
-Tất cả nội dung trên KVT, bao gồm nhưng không giới hạn ở văn bản, hình ảnh, truyện tranh, sách, thiết kế và logo, là tài sản trí tuệ của KimTuan hoặc các bên cấp phép, được bảo vệ bởi luật bản quyền © Copyright 2025 by KimTuan. All Rights Reserved.<br>
-Người dùng không được phép sao chép, tái tạo, phân phối, tải xuống, chỉnh sửa hoặc sử dụng bất kỳ hình ảnh, nội dung truyện tranh hoặc sách nào từ KVT dưới bất kỳ hình thức nào mà không có sự cho phép bằng văn bản từ KimTuan.
+2. Quyền Sở hữ Trí tuệ<br>
+Tất cả nội dung trên KVT, bao gồm nhưng không giới hạn ở văn bản, hình ảnh, truyện tranh, sách, thiết kế và logo, là tài sản trí tuệ của KimTuan hoặc các bên cấp phép, được bảo vệ bởi luật bản quyền &copy; Copyright 2025 by KimTuan. All Rights Reserved.<br>
+Người dùng không được phép sao chép, tái tạo, phân phối, tải xuống, chỉnh sửa hoặc sử dụng bất kỳ hình ảnh, nội dung truyện tranh hoặc sách nào từ KVT dước bất kỳ hình thức nào mà không có sự cho phép bằng văn bản từ KimTuan.
 <br><br>
 3. Những Điều Người Dùng Nên Làm<br>
-Sử dụng trang web để đọc truyện tranh và sách một cách hợp pháp và tôn trọng quyền sở hữu trí tuệ.<br>
+Sử dụng trang web để đọc truyện tranh và sách một cách hợp pháp và tôn trọng quyền sở hữ trí tuệ.<br>
 Báo cáo bất kỳ lỗi hoặc vi phạm nào bạn phát hiện trên trang web qua kênh liên hệ chính thức.<br>
 Tôn trọng cộng đồng người dùng khác và không tham gia vào các hành vi quấy rối hoặc gây rối.<br><br>
 4. Những Điều Người Dùng Không Được Làm<br>
@@ -760,7 +773,7 @@ Các Điều khoản Dịch vụ này được điều chỉnh bởi luật phá
 <br>
 Lưu ý cuối cùng:<br>
 <br>
-© Copyright 2025 by KimTuan. All Rights Reserved. Mọi hành vi sao chép, tái sử dụng hoặc phân phối nội dung từ KVT mà không được phép đều bị nghiêm cấm và có thể bị xử lý theo pháp luật.
+&copy; Copyright 2025 by KimTuan. All Rights Reserved. Mọi hành vi sao chép, tái sử dụng hoặc phân phối nội dung từ KVT mà không được phép đều bị nghiêm cấm và có thể bị xử lý theo pháp luật.
                         </p>
                     </div>
                 </div>
@@ -804,7 +817,7 @@ Lưu ý cuối cùng:<br>
                     <p>Khi bạn sử dụng trang web của chúng tôi, chúng tôi tự động thu thập:</p>
                     <ul>
                         <li>Thông tin về thiết bị: Loại thiết bị, hệ điều hành, trình duyệt web, địa chỉ IP.</li>
-                        <li>Thông tin sử dụng: Lịch sử đọc truyện, sở thích truyện, thời gian truy cập, trang bạn đã xem.</li>
+                        <li>Thông tin sử dụng: Lịch sử đọc truyện, sở thích truyện, thởi gian truy cập, trang bạn đã xem.</li>
                         <li>Dữ liệu tương tác: Cách bạn tương tác với trang web, bao gồm các liên kết bạn nhấp vào và hành động bạn thực hiện.</li>
                         <li>Vị trí: Thông tin vị trí địa lý dựa trên địa chỉ IP hoặc GPS (nếu bạn cho phép).</li>
                     </ul>
@@ -832,7 +845,7 @@ Lưu ý cuối cùng:<br>
                     <h3>3.2. Cá nhân hóa trải nghiệm</h3>
                     <ul>
                         <li>Điều chỉnh giao diện người dùng theo tùy chọn của bạn.</li>
-                        <li>Cung cấp nội dung phù hợp với độ tuổi (đặc biệt quan trọng đối với người dùng dưới 13 tuổi).</li>
+                        <li>Cung cấp nội dung phù hợp với độ tuổi (đặc biệt quan trọng đối với người dùng dướ 13 tuổi).</li>
                     </ul>
 
                     <h3>3.3. Liên lạc với bạn</h3>
@@ -842,7 +855,7 @@ Lưu ý cuối cùng:<br>
                         <li>Gửi thông tin tiếp thị nếu bạn đã đồng ý nhận.</li>
                     </ul>
 
-                    <h3>3.4. Phân tích và nghiên cứu</h3>
+                    <h3>3.4. Phân tích và nghiện cứu</h3>
                     <ul>
                         <li>Phân tích cách người dùng sử dụng trang web để cải thiện dịch vụ.</li>
                         <li>Tạo báo cáo thống kê về xu hướng đọc truyện.</li>
@@ -938,13 +951,13 @@ Lưu ý cuối cùng:<br>
                     <p>Để thực hiện bất kỳ quyền nào nêu trên, vui lòng liên hệ với chúng tôi qua thông tin liên hệ ở phần sau.</p>
 
                     <h2>8. Bảo vệ trẻ em</h2>
-                    <p>Chúng tôi cam kết bảo vệ quyền riêng tư của trẻ em dưới 13 tuổi. Trang web của chúng tôi có các biện pháp đặc biệt để bảo vệ trẻ em:</p>
+                    <p>Chúng tôi cam kết bảo vệ quyền riêng tư của trẻ em dướ 13 tuổi. Trang web của chúng tôi có các biện pháp đặc biệt để bảo vệ trẻ em:</p>
 
                     <h3>8.1. Nội dung phù hợp với độ tuổi</h3>
-                    <p>Trẻ em dưới 13 tuổi chỉ được phép xem các mẫu truyện đã được phê duyệt và phù hợp với độ tuổi. Chúng tôi áp dụng hệ thống phân loại nội dung để đảm bảo trẻ em không tiếp cận với nội dung không phù hợp.</p>
+                    <p>Trẻ em dướ 13 tuổi chỉ được phép xem các mẫu truyện đã được phê duyệt và phù hợp với độ tuổi. Chúng tôi áp dụng hệ thống phân loại nội dung để đảm bảo trẻ em không tiếp cận với nội dung không phù hợp.</p>
 
                     <h3>8.2. Thu thập thông tin hạn chế</h3>
-                    <p>Chúng tôi chỉ thu thập thông tin tối thiểu cần thiết từ người dùng dưới 13 tuổi. Trước khi thu thập bất kỳ thông tin cá nhân nào từ trẻ em, chúng tôi yêu cầu sự đồng ý xác thực từ phụ huynh hoặc người giám hộ.</p>
+                    <p>Chúng tôi chỉ thu thập thông tin tối thiểu cần thiết từ người dùng dướ 13 tuổi. Trước khi thu thập bất kỳ thông tin cá nhân nào từ trẻ em, chúng tôi yêu cầu sự đồng ý xác thực từ phụ huynh hoặc người giám hộ.</p>
 
                     <h3>8.3. Quyền của phụ huynh</h3>
                     <p>Phụ huynh hoặc người giám hộ có quyền:</p>
@@ -968,7 +981,7 @@ Lưu ý cuối cùng:<br>
                     <p>Khi chuyển giao dữ liệu cá nhân ra ngoài Việt Nam, chúng tôi đảm bảo rằng việc chuyển giao tuân thủ các quy định pháp luật hiện hành và có các biện pháp bảo vệ thích hợp.</p>
 
                     <h2>10. Thay đổi chính sách</h2>
-                    <p>Chúng tôi có thể cập nhật Chính sách Quyền riêng tư này theo thời gian để phản ánh những thay đổi trong thực tiễn kinh doanh, dịch vụ mới hoặc yêu cầu pháp lý. Khi có thay đổi quan trọng, chúng tôi sẽ:</p>
+                    <p>Chúng tôi có thể cập nhật Chính sách Quyền riêng tư này theo thởi gian để phản ánh những thay đổi trong thực tiễn kinh doanh, dịch vụ mới hoặc yêu cầu pháp lý. Khi có thay đổi quan trọng, chúng tôi sẽ:</p>
                     <ul>
                         <li>Đăng thông báo nổi bật trên trang web.</li>
                         <li>Gửi email thông báo cho bạn (nếu chúng tôi có địa chỉ email của bạn).</li>
@@ -983,7 +996,7 @@ Lưu ý cuối cùng:<br>
                         <li><strong>Điện thoại:</strong> +84973336178</li>
                         <li><strong>Địa chỉ:</strong> 3036 - Vườn Đầy Sao - Sao Hỏa - Hệ Mặt Trời</li>
                     </ul>
-                    <p>Chúng tôi cam kết giải quyết mọi thắc mắc hoặc khiếu nại của bạn một cách kịp thời và hiệu quả.</p>
+                    <p>Chúng tôi cam kết giải quyết mọi thắc mắc hoặc khiếu nại của bạn một cách kịp thởi và hiệu quả.</p>
                     <p>Bằng việc sử dụng trang web của chúng tôi, bạn xác nhận rằng bạn đã đọc và hiểu Chính sách này.</p>
                 </div>
             </div>
@@ -1194,7 +1207,7 @@ Lưu ý cuối cùng:<br>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Quản lý phần cài đặt tài khoản và trạng nghiệm kết nối trên các công nghệ của MangaComic.</p>
+                <p>Quản lý phần cài đặt tài khoản và trạng nghiệm kết nối trên các công nghệ của GardenToon.</p>
                 <div class="list-group">
                     <a href="#" class="list-group-item list-group-item-action">
                         <i class="bi bi-person"></i> Thông tin cá nhân
@@ -1599,7 +1612,7 @@ Lưu ý cuối cùng:<br>
       <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
     </symbol>
     <symbol id="sun-fill" viewBox="0 0 16 16">
-      <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+      <path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.415a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
     </symbol>
   </svg>
 
@@ -1611,7 +1624,9 @@ Lưu ý cuối cùng:<br>
 
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         
-        <a class="navbar-brand ps-3" href="#">MANGA COMIC</a>
+        <a class="navbar-brand ps-3" href="#">
+            <img src="/images/logo/LogoDark.svg" alt="GardenToon" style="height: 75px; width: auto; object-fit: contain; margin-top: -10px; margin-bottom: -10px;" />
+        </a>
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
             <i class="bi bi-list"></i>
         </button>
@@ -1641,7 +1656,7 @@ Lưu ý cuối cùng:<br>
             </ul>
             
             <!-- Thêm các nút Tin nhắn và Thông báo (ẩn ban đầu) -->
-            <ul class="navbar-nav me-2 mb-2 mb-lg-0 d-none ms-5" id="userActions">
+            <ul class="navbar-nav me-2 mb-2 mb-lg-0 d-none" id="userActions">
                 <li class="nav-item position-relative">
                     <a class="nav-link" href="#" id="messagesButton">
                         <i class="bi bi-chat-dots"></i>
@@ -1781,9 +1796,6 @@ Lưu ý cuối cùng:<br>
             }
         });
     </script>
-
-
-
 
 
 

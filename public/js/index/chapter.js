@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                             const firstChapter = originalChapters[0]; // Chương đầu tiên
                             openReadModal(firstChapter);
                         } else {
-                            alert('Không có chương nào để đọc!');
+                            showToast('Không có chương nào để đọc', 'warning');
                         }
                     });
                 }
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                             const latestChapter = originalChapters[originalChapters.length - 1]; // Chương cuối cùng
                             openReadModal(latestChapter);
                         } else {
-                            alert('Không có chương nào để đọc!');
+                            showToast('Không có chương nào để đọc', 'warning');
                         }
                     });
                 }
@@ -592,6 +592,68 @@ async function loadChapter(cardId, chapterId) {
 }
 
 // Hàm submit đánh giá chương
+// Hiển thị cảnh báo khi người dùng bị khóa tài khoản
+function showBlacklistWarning(reason) {
+    // Tạo modal cảnh báo
+    const modalId = 'blacklist-warning-modal';
+    
+    // Kiểm tra xem modal đã tồn tại chưa
+    let modalElement = document.getElementById(modalId);
+    
+    if (!modalElement) {
+        // Tạo modal mới nếu chưa tồn tại
+        modalElement = document.createElement('div');
+        modalElement.className = 'modal fade';
+        modalElement.id = modalId;
+        modalElement.setAttribute('tabindex', '-1');
+        modalElement.setAttribute('aria-labelledby', `${modalId}-label`);
+        modalElement.setAttribute('aria-hidden', 'true');
+        
+        modalElement.innerHTML = `
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="${modalId}-label">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Tài khoản bị khóa
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="fs-1 text-danger me-3">
+                                <i class="fas fa-user-lock"></i>
+                            </div>
+                            <div>
+                                <p class="mb-1 fw-bold">Tài khoản của bạn đã bị khóa!</p>
+                                <p class="text-muted mb-0">Bạn không thể đánh giá truyện cho đến khi tài khoản được mở khóa.</p>
+                            </div>
+                        </div>
+                        <div class="alert alert-secondary">
+                            <h6 class="alert-heading">Lý do khóa tài khoản:</h6>
+                            <p id="blacklist-reason" class="mb-0"></p>
+                        </div>
+                        <p class="small text-muted">Nếu bạn cho rằng đây là một lỗi, vui lòng liên hệ với quản trị viên.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Thoát</button>
+                        <a href="/contact" class="btn btn-primary">Liên hệ hỗ trợ</a>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modalElement);
+    }
+    
+    // Cập nhật lý do khóa tài khoản
+    const reasonElement = modalElement.querySelector('#blacklist-reason');
+    reasonElement.textContent = reason || 'Không có lý do được cung cấp.';
+    
+    // Hiển thị modal
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+}
+
 async function submitChapterRating(cardId, chapterId, rating) {
     try {
         const token = localStorage.getItem('token');
@@ -626,12 +688,21 @@ async function submitChapterRating(cardId, chapterId, rating) {
             })
         });
 
+        const responseData = await response.json();
+        
         if (response.ok) {
-            const result = await response.json();
             showToast('Cảm ơn bạn đã đánh giá!', 'success');
         } else {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Lỗi khi gửi đánh giá');
+            // Kiểm tra nếu người dùng bị khóa tài khoản
+            if (responseData.isBlacklisted) {
+                const reason = responseData.reason ? `Lý do: ${responseData.reason}` : '';
+                showToast(`Tài khoản của bạn đã bị khóa. ${reason}`, 'error', 10000);
+                
+                // Hiển thị modal cảnh báo chi tiết hơn (nếu cần)
+                showBlacklistWarning(responseData.reason);
+            } else {
+                throw new Error(responseData.error || 'Lỗi khi gửi đánh giá');
+            }
         }
     } catch (error) {
         console.error('Lỗi khi đánh giá:', error);
@@ -682,7 +753,7 @@ async function checkUserRating(cardId, chapterId) {
 }
 
 // Hiển thị thông báo
-function showToast(message, type = 'info') {
+function showToast(message, type = 'info', duration = 2000) {
     const toastContainer = document.getElementById('toast-container');
     
     if (!toastContainer) {
@@ -711,7 +782,7 @@ function showToast(message, type = 'info') {
     toastContainerEl.appendChild(toastElement);
     
     const toast = new bootstrap.Toast(toastElement, {
-        delay: 2000
+        delay: duration
     });
     
     toast.show();
@@ -1249,7 +1320,7 @@ function createCommentElement(comment) {
                                         showToast('Đã cập nhật phản hồi thành công', 'success');
                                     } catch (error) {
                                         console.error('Lỗi khi cập nhật phản hồi:', error);
-                                        showToast(error.message || 'Có lỗi xảy ra khi cập nhật phản hồi', 'error');
+                                        showToast('Có lỗi xảy ra khi cập nhật phản hồi', 'error');
                                         replyContent.textContent = currentContent;
                                     }
                                 });
@@ -1305,7 +1376,7 @@ function createCommentElement(comment) {
                                     showToast('Đã xóa phản hồi thành công', 'success');
             } catch (error) {
                                     console.error('Lỗi khi xóa phản hồi:', error);
-                                    showToast(error.message || 'Có lỗi xảy ra khi xóa phản hồi', 'error');
+                                    showToast('Có lỗi xảy ra khi xóa phản hồi', 'error');
                                 }
                             });
                         }

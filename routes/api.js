@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { dbPool } = require('../data/dbConfig');
+const { checkBlacklist } = require('../service/userService');
 
 // Lấy thông tin chapter theo cardId và chapterNumber
 router.get('/chapters/:cardId/:chapterNumber', async (req, res) => {
@@ -69,6 +70,21 @@ router.post('/ratings', async (req, res) => {
     
     if (rating < 1 || rating > 5) {
         return res.status(400).json({ error: 'Điểm đánh giá phải từ 1-5' });
+    }
+    
+    // Kiểm tra xem người dùng có bị khóa tài khoản không
+    try {
+        const blacklistStatus = await checkBlacklist(user_id);
+        if (blacklistStatus.isBlacklisted) {
+            return res.status(403).json({ 
+                error: 'Tài khoản của bạn đã bị khóa', 
+                reason: blacklistStatus.blacklistInfo.reason,
+                isBlacklisted: true
+            });
+        }
+    } catch (error) {
+        console.error('Lỗi khi kiểm tra blacklist:', error);
+        return res.status(500).json({ error: 'Đã xảy ra lỗi khi kiểm tra trạng thái tài khoản' });
     }
     
     const connection = await dbPool.getConnection();

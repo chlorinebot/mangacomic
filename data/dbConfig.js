@@ -2,11 +2,11 @@
 const mysql = require('mysql2/promise');
 
 const dbPool = mysql.createPool({
-    host: 'shuttle.proxy.rlwy.net', // Thay bằng host MySQL của bạn
+    host: 'crossover.proxy.rlwy.net', // Thay bằng host MySQL của bạn
     user: 'root', // Thay bằng username MySQL của bạn
-    password: 'WKYnbtwtuHNhuTOIlQgFlwrOpnHOqCxr', // Thay bằng mật khẩu MySQL của bạn
+    password: 'UfLbHIusxLkfkhNjHLtMyVcngTWqhkhG', // Thay bằng mật khẩu MySQL của bạn
     database: 'ebook', //Thay bằng tên database của bạn
-    port: 39675, // Thay bằng port MySQL của bạn
+    port: 24147, // Thay bằng port MySQL của bạn
     connectionLimit: 20,// Số lượng kết nối tối đa
     waitForConnections: true, // Cho phép chờ kết nối nếu không có kết nối nào trống
     queueLimit: 0
