@@ -10,7 +10,7 @@ function isLoggedIn() {
 // Hàm kiểm tra xem truyện đã được yêu thích hay chưa
 async function checkFavoriteStatus(userId, cardId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/favorites/${userId}/${cardId}`, {
+        const response = await fetch(`https://gardentoon.up.railway.app/api/favorites/${userId}/${cardId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ async function checkFavoriteStatus(userId, cardId) {
 // Hàm thêm truyện vào danh sách yêu thích
 async function addToFavorites(userId, cardId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/favorites`, {
+        const response = await fetch(`https://gardentoon.up.railway.app/api/favorites`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ async function addToFavorites(userId, cardId) {
 // Hàm xóa truyện khỏi danh sách yêu thích
 async function removeFromFavorites(userId, cardId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/favorites/${userId}/${cardId}`, {
+        const response = await fetch(`https://gardentoon.up.railway.app/api/favorites/${userId}/${cardId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

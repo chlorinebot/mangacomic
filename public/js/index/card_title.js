@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Lấy danh sách thể loại từ API
     try {
-        const genreResponse = await fetch('http://localhost:3000/api/genres');
+        const genreResponse = await fetch('https://gardentoon.up.railway.app/api/genres');
         if (!genreResponse.ok) throw new Error('Lỗi khi lấy danh sách thể loại');
         genres = await genreResponse.json();
         console.log('Genres loaded:', genres);
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Lấy danh sách truyện từ API
     try {
-        const cardResponse = await fetch('http://localhost:3000/api/cards');
+        const cardResponse = await fetch('https://gardentoon.up.railway.app/api/cards');
         if (!cardResponse.ok) throw new Error('Lỗi khi lấy danh sách truyện');
         cardData = await cardResponse.json();
         originalCardData = [...cardData]; // Lưu trữ dữ liệu gốc
