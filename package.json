@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/chlorinebot/mangacomic#readme",
   "dependencies": {
-    "bcryptjs": "^3.0.2",
+    "bcrypt": "^5.1.1",
     "bootstrap": "^5.3.3",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
