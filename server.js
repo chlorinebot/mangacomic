@@ -15,6 +15,8 @@ const rankingRoutes = require('./routes/rankingRoutes');
 const { addComment, getComments, updateComment, deleteComment, getCommentReplies, addCommentReply } = require('./controllers/commentController');
 const jwt = require('jsonwebtoken');
 const userRoutes = require('./routes/userRoutes'); 
+const bcrypt = require('bcryptjs');
+
 // Cố gắng import cookie-parser nếu đã cài đặt, nếu không thì xử lý thủ công
 let cookieParser;
 try {
