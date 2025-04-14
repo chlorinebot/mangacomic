@@ -1,15 +1,19 @@
 // data/dbConfig.js
 const mysql = require('mysql2/promise');
+require('dotenv').config();
 
+// Sử dụng biến môi trường hoặc giá trị mặc định
 const dbPool = mysql.createPool({
-    host: 'crossover.proxy.rlwy.net', // Thay bằng host MySQL của bạn
-    user: 'root', // Thay bằng username MySQL của bạn
-    password: 'UfLbHIusxLkfkhNjHLtMyVcngTWqhkhG', // Thay bằng mật khẩu MySQL của bạn
-    database: 'ebook', //Thay bằng tên database của bạn
-    port: 24147, // Thay bằng port MySQL của bạn
-    connectionLimit: 20,// Số lượng kết nối tối đa
-    waitForConnections: true, // Cho phép chờ kết nối nếu không có kết nối nào trống
-    queueLimit: 0
+    host: process.env.DB_HOST || 'crossover.proxy.rlwy.net',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || 'UfLbHIusxLkfkhNjHLtMyVcngTWqhkhG',
+    database: process.env.DB_NAME || 'ebook',
+    port: process.env.DB_PORT || 24147,
+    connectionLimit: 20,
+    waitForConnections: true,
+    queueLimit: 0,
+    timezone: '+07:00', // Múi giờ GMT+7 cho Việt Nam
+    dateStrings: true // Đảm bảo ngày tháng được trả về dưới dạng chuỗi
 });
 
 // Middleware kiểm tra kết nối database
@@ -180,7 +184,7 @@ const initializeDb = async () => {
 
         console.log('Khởi tạo database thành công');
     } catch (err) {
-        console.error('Lỗi khi khởi tạo database:', err);
+        console.error('Lỗi khởi tạo database:', err.stack);
         throw err;
     } finally {
         connection.release();
