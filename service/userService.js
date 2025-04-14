@@ -1,6 +1,6 @@
 // models/userModel.js
 const { dbPool } = require('../data/dbConfig');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const SALT_ROUNDS = 10;
 
