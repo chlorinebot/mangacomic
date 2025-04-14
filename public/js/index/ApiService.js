@@ -215,7 +215,15 @@ class ApiService {
             // return await response.json();
             
             // Giả lập dữ liệu thể loại
-            
+            return [
+                { genre_id: 1, genre_name: "Hậu tận thế" },
+                { genre_id: 2, genre_name: "Trinh thám" },
+                { genre_id: 3, genre_name: "Hành động viễn tưởng" },
+                { genre_id: 4, genre_name: "Đam mỹ" },
+                { genre_id: 5, genre_name: "Ẩm thực" },
+                { genre_id: 6, genre_name: "Khám phá" },
+                { genre_id: 7, genre_name: "Võ thuật" }
+            ];
         } catch (error) {
             console.error('Lỗi khi lấy danh sách thể loại', error);
             return [];
