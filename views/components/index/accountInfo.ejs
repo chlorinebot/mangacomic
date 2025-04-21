@@ -1,0 +1,195 @@
+<div class="modal fade" id="userProfileModal" tabindex="-1" aria-labelledby="userProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="userProfileModalLabel"><i class="bi bi-person-circle me-2"></i>Thông tin tài khoản</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <!-- Tabs -->
+          <ul class="nav nav-tabs nav-fill" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="true">
+                <i class="bi bi-person me-1"></i>Hồ sơ
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="favorites-tab" data-bs-toggle="tab" data-bs-target="#favorites-tab-pane" type="button" role="tab" aria-controls="favorites-tab-pane" aria-selected="false">
+                <i class="bi bi-heart me-1"></i>Truyện yêu thích
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-tab-pane" type="button" role="tab" aria-controls="history-tab-pane" aria-selected="false">
+                <i class="bi bi-clock-history me-1"></i>Lịch sử đọc
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats-tab-pane" type="button" role="tab" aria-controls="stats-tab-pane" aria-selected="false">
+                <i class="bi bi-bar-chart me-1"></i>Thống kê
+              </button>
+            </li>
+          </ul>
+          
+          <!-- Tab content -->
+          <div class="tab-content p-3" id="profileTabsContent">
+            <!-- Hồ sơ -->
+            <div class="tab-pane fade show active" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+              <div class="d-flex flex-column flex-md-row">
+                <div class="text-center me-md-4 mb-3 mb-md-0 position-relative avatar-wrapper">
+                  <div class="avatar-container mb-2">
+                    <div id="profileAvatarPreview" class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-size: 48px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); background-size: cover; background-position: center;">
+                      <span id="profileInitials"></span>
+                    </div>
+                    <label for="avatarInput" id="changeAvatarButton" class="change-avatar-button">
+                      <i class="bi bi-camera-fill"></i>
+                    </label>
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
+                      <h5 class="border-bottom pb-2 mb-3">Thông tin cá nhân</h5>
+                      <div class="row mb-2">
+                        <div class="col-md-4"><strong><i class="bi bi-person-fill me-2"></i>Tên người dùng:</strong></div>
+                        <div class="col-md-8"><span id="profileUsername" class="text-primary"></span></div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-md-4"><strong><i class="bi bi-envelope-fill me-2"></i>Email:</strong></div>
+                        <div class="col-md-8"><span id="profileEmail"></span></div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-md-4"><strong><i class="bi bi-calendar-date me-2"></i>Ngày tham gia:</strong></div>
+                        <div class="col-md-8"><span id="profileJoinDate"></span></div>
+                      </div>
+                      <div class="row mb-2">
+                        <div class="col-md-4"><strong><i class="bi bi-shield-fill me-2"></i>Vai trò:</strong></div>
+                        <div class="col-md-8"><span id="profileRole" class="badge bg-success"></span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                      <i class="bi bi-shield-lock me-1"></i>Đổi mật khẩu
+                    </button>
+                    <button type="button" class="btn btn-outline-primary">
+                      <i class="bi bi-gear me-1"></i>Cài đặt tài khoản
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Truyện yêu thích -->
+            <div class="tab-pane fade" id="favorites-tab-pane" role="tabpanel" aria-labelledby="favorites-tab" tabindex="0">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0"><i class="bi bi-heart-fill text-danger me-2"></i>Truyện yêu thích</h5>
+                <div class="input-group" style="max-width: 250px;">
+                  <input type="text" class="form-control form-control-sm" placeholder="Tìm truyện..." id="searchFavorites">
+                  <button class="btn btn-outline-secondary btn-sm" type="button"><i class="bi bi-search"></i></button>
+                </div>
+              </div>
+              
+              <div id="favoriteComicsList" class="row row-cols-1 row-cols-md-3 g-3">
+                <!-- Danh sách truyện yêu thích sẽ được thêm động -->
+              </div>
+              
+              <div id="noFavoritesMessage" class="text-center py-5 d-none">
+                <i class="bi bi-heart text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3">Chưa có truyện nào trong danh sách yêu thích.</p>
+                <button class="btn btn-primary mt-2">Khám phá truyện</button>
+              </div>
+            </div>
+            
+            <!-- Thống kê -->
+            <div class="tab-pane fade" id="stats-tab-pane" role="tabpanel" aria-labelledby="stats-tab" tabindex="0">
+              <h5 class="border-bottom pb-2 mb-3"><i class="bi bi-bar-chart-fill me-2"></i>Thống kê hoạt động</h5>
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-3">
+                  <div class="card border-0 bg-primary text-white shadow-sm card-stats">
+                    <div class="card-body text-center">
+                      <i class="bi bi-heart-fill mb-2" style="font-size: 2rem;"></i>
+                      <h6 class="card-title">Đã thích</h6>
+                      <h3 id="favoritesCount">0</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                  <div class="card border-0 bg-success text-white shadow-sm card-stats">
+                    <div class="card-body text-center">
+                      <i class="bi bi-book-fill mb-2" style="font-size: 2rem;"></i>
+                      <h6 class="card-title">Đã đọc</h6>
+                      <h3 id="readCount">0</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                  <div class="card border-0 bg-info text-white shadow-sm card-stats">
+                    <div class="card-body text-center">
+                      <i class="bi bi-chat-fill mb-2" style="font-size: 2rem;"></i>
+                      <h6 class="card-title">Bình luận</h6>
+                      <h3 id="commentCount">0</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                  <div class="card border-0 bg-warning text-white shadow-sm card-stats">
+                    <div class="card-body text-center">
+                      <i class="bi bi-share-fill mb-2" style="font-size: 2rem;"></i>
+                      <h6 class="card-title">Chia sẻ</h6>
+                      <h3 id="shareCount">0</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <h5 class="border-bottom pb-2 mb-3 mt-4">Thể loại yêu thích</h5>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="progress-stacked">
+                    <div class="progress" role="progressbar" aria-label="Hành động" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width: 30%">
+                      <div class="progress-bar bg-danger">Hành động</div>
+                    </div>
+                    <div class="progress" role="progressbar" aria-label="Phiêu lưu" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
+                      <div class="progress-bar bg-success">Phiêu lưu</div>
+                    </div>
+                    <div class="progress" role="progressbar" aria-label="Hài hước" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100" style="width: 15%">
+                      <div class="progress-bar bg-primary">Hài hước</div>
+                    </div>
+                    <div class="progress" role="progressbar" aria-label="Khác" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100" style="width: 35%">
+                      <div class="progress-bar bg-secondary">Khác</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Lịch sử đọc -->
+            <div class="tab-pane fade" id="history-tab-pane" role="tabpanel" aria-labelledby="history-tab" tabindex="0">
+              <div class="px-3 py-2">
+                <h4 class="mb-3">
+                    <i class="bi bi-clock-history"></i> Lịch sử đọc truyện
+                    <button id="clearHistoryBtn" class="btn btn-sm btn-outline-danger float-end">
+                        <i class="bi bi-trash"></i> Xóa tất cả
+                    </button>
+                </h4>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <input type="text" id="searchHistory" class="form-control" placeholder="Tìm kiếm trong lịch sử..." aria-label="Tìm kiếm" aria-describedby="searchHistoryBtn">
+                        <button class="btn btn-outline-primary" type="button" id="searchHistoryBtn"><i class="bi bi-search"></i></button>
+                    </div>
+                </div>
+                <div id="noHistoryMessage" class="alert alert-warning d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>Bạn chưa có lịch sử đọc truyện hoặc chưa đăng nhập. Vui lòng đăng nhập để xem lịch sử!</div>
+                </div>
+                <div id="readingHistoryList" class="list-group"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
