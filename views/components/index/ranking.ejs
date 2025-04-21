@@ -1,0 +1,54 @@
+<div class="modal fade" id="rankingModal" tabindex="-1" aria-labelledby="rankingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rankingModalLabel">Bảng xếp hạng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <ul class="nav nav-pills" id="rankingTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-ranking-type="most-read" href="#">Đọc nhiều nhất</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-ranking-type="most-liked" href="#">Yêu thích nhất</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-ranking-type="highest-rated" href="#">Đánh giá cao nhất</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-ranking-type="weekly-top" href="#">Top tuần</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-ranking-type="daily-top" href="#">Top ngày</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col" width="5%">Hạng</th>
+                                <th scope="col" width="15%">Ảnh bìa</th>
+                                <th scope="col" width="35%">Tên truyện</th>
+                                <th scope="col" width="15%">Tác giả</th>
+                                <th scope="col" width="15%">Thể loại</th>
+                                <th scope="col" width="15%" id="rankingMetricHeader">Lượt xem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankingTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

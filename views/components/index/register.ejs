@@ -1,0 +1,54 @@
+<div class="modal fade" id="logup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Đăng ký người dùng mới</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm" class="pure-form pure-form-aligned">
+                    <fieldset>
+                        <div class="pure-control-group mb-4">
+                            <label for="registerUsername" class="form-label">Tên người dùng</label>
+                            <input id="registerUsername" type="text" placeholder="Tên người dùng" required class="form-control" data-check-exists="true">
+                            <span class="pure-form-message-inline">Chỉ chấp nhận chữ thường và số, tối đa 15 ký tự.</span>
+                            <div class="error-message text-danger"></div>
+                        </div>
+                        <div class="pure-control-group mb-4">
+                            <label for="registerPassword" class="form-label">Mật khẩu</label>
+                            <input id="registerPassword" type="password" placeholder="Mật khẩu" required class="form-control">
+                            <label class="ms-3 pure-checkbox">
+                                <input id="showPassword" type="checkbox"> Hiển thị mật khẩu
+                            </label>
+                            <span class="pure-form-message-inline">Độ dài 8-20, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.</span>
+                            <div class="error-message text-danger"></div>
+                        </div>
+                        <div class="pure-control-group mb-4">
+                            <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                            <input id="confirmPassword" type="password" placeholder="Xác nhận mật khẩu" required class="form-control">
+                            <div class="error-message text-danger"></div>
+                        </div>
+                        <div class="pure-control-group mb-4">
+                            <label for="registerEmail" class="form-label">Email</label>
+                            <input id="registerEmail" type="email" placeholder="Email Address" required class="form-control" data-check-exists="true">
+                            <span class="pure-form-message-inline">Chúng tôi sẽ không chia sẻ email của bạn.</span>
+                            <div class="error-message text-danger"></div>
+                        </div>
+                        <div class="pure-controls">
+                            <label class="pure-checkbox">
+                                <input id="termsCheck" type="checkbox" required> Tôi đồng ý với các <a href="#" data-bs-toggle="modal" data-bs-target="#dieukhoandv">điều khoản dịch vụ</a> & <a href="#" data-bs-toggle="modal" data-bs-target="#quyenriengtu">quyền riêng tư</a> của Website!!!
+                            </label>
+                            <div class="error-message text-danger"></div>
+                            <button type="submit" class="pure-button pure-button-primary" disabled>Đăng ký</button>
+                        </div>
+                    </fieldset>
+                    <div id="registerMessage" class="mt-2 text-danger"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#login">Bạn có tài khoản?</button>
+            </div>
+        </div>
+    </div>
+</div>

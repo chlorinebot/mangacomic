@@ -1,0 +1,33 @@
+<div class="modal fade" id="login" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Đăng nhập</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="loginUsername" class="form-label">Tên người dùng</label>
+                        <input type="text" class="form-control" id="loginUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="loginPassword" class="form-label">Mật khẩu</label>
+                        <input type="password" class="form-control" id="loginPassword" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Lưu lại mật khẩu</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                    <span class="pure-form-message-inline ms-2">Nếu bạn đăng nhập thì đã đồng ý các <a href="#" data-bs-toggle="modal" data-bs-target="#dieukhoandv">điều khoản dịch vụ</a> & <a href="#" data-bs-toggle="modal" data-bs-target="#quyenriengtu">quyền riêng tư</a> của chúng tôi!</span>
+                    <div id="loginMessage" class="mt-2 text-danger"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#logup">Chưa có tài khoản?</button>
+            </div>
+        </div>
+    </div>
+</div>

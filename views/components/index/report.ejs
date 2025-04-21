@@ -1,0 +1,27 @@
+<div class="modal fade" id="reportIssueModal" tabindex="-1" aria-labelledby="reportIssueModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportIssueModalLabel">Báo cáo sự cố</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reportIssueForm" method="POST" action="/report">
+                    <div class="mb-3">
+                        <label for="reportTitle" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="reportTitle" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="issueDescription" class="form-label">Mô tả sự cố</label>
+                        <textarea class="form-control" id="issueDescription" name="content" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactEmail" class="form-label">Email liên hệ</label>
+                        <input type="email" class="form-control" id="contactEmail" name="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Gửi báo cáo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

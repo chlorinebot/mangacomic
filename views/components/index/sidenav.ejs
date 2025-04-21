@@ -1,0 +1,107 @@
+<div id="layoutSidenav_nav">
+    <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+        <div class="sb-sidenav-menu">
+            <div class="nav">
+                <div class="sb-sidenav-menu-heading">MENU</div>
+                <a class="nav-link active" href=".">
+                    <div class="sb-nav-link-icon"><i class="bi bi-house-door"></i></div>
+                    Trang chủ
+                </a>
+                
+                <a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#genresOffcanvas">
+                    <div class="sb-nav-link-icon"><i class="bi bi-tags"></i></div>
+                    Thể loại
+                </a>
+
+                <!-- Offcanvas Thể loại -->
+                <div class="offcanvas offcanvas-start" tabindex="-1" id="genresOffcanvas" aria-labelledby="genresOffcanvasLabel">
+                    <div class="offcanvas-header bg-dark text-white">
+                        <h5 class="offcanvas-title" id="genresOffcanvasLabel">
+                            <i class="bi bi-tags me-2"></i>Thể loại
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <!-- Dropdown menu for genres -->
+                        <div class="dropdown mb-3">
+                            <button class="btn btn-primary dropdown-toggle w-100" type="button" id="genreDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Chọn thể loại
+                            </button>
+                            <ul class="dropdown-menu w-100" id="genreDropdownMenu" aria-labelledby="genreDropdownButton">
+                                <!-- Genre items will be added here by JavaScript -->
+                            </ul>
+                        </div>
+                        <div class="list-group list-group-flush" id="genreList">
+                            <!-- Danh sách thể loại sẽ được thêm vào đây bằng JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseRankings" aria-expanded="false" aria-controls="collapseRankings">
+                    <div class="sb-nav-link-icon"><i class="bi bi-trophy"></i></div>
+                    Bảng xếp hạng
+                    <div class="sb-sidenav-collapse-arrow"><i class="bi bi-chevron-down"></i></div>
+                </a>
+                <div class="collapse" id="collapseRankings" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
+                    <nav class="sb-sidenav-menu-nested nav">
+                        <a class="nav-link" href="#" data-ranking-type="most-read" data-bs-toggle="modal" data-bs-target="#rankingModal">
+                            <div class="sb-nav-link-icon"><i class="bi bi-eye"></i></div>
+                            Đọc nhiều nhất
+                        </a>
+                        <a class="nav-link" href="#" data-ranking-type="most-liked" data-bs-toggle="modal" data-bs-target="#rankingModal">
+                            <div class="sb-nav-link-icon"><i class="bi bi-heart"></i></div>
+                            Yêu thích nhất
+                        </a>
+                        <a class="nav-link" href="#" data-ranking-type="highest-rated" data-bs-toggle="modal" data-bs-target="#rankingModal">
+                            <div class="sb-nav-link-icon"><i class="bi bi-star"></i></div>
+                            Đánh giá cao nhất
+                        </a>
+                        <a class="nav-link" href="#" data-ranking-type="weekly-top" data-bs-toggle="modal" data-bs-target="#rankingModal">
+                            <div class="sb-nav-link-icon"><i class="bi bi-calendar-week"></i></div>
+                            Top xem tuần
+                        </a>
+                        <a class="nav-link" href="#" data-ranking-type="daily-top" data-bs-toggle="modal" data-bs-target="#rankingModal">
+                            <div class="sb-nav-link-icon"><i class="bi bi-calendar-day"></i></div>
+                            Top xem ngày
+                        </a>
+                    </nav>
+                </div>
+                
+                <a class="nav-link" id="sidebarHistoryLink" href="#" data-bs-toggle="modal" data-bs-target="#userProfileModal" data-show-tab="history-tab">
+                    <div class="sb-nav-link-icon"><i class="bi bi-clock-history"></i></div>
+                    Lịch sử đọc truyện
+                </a>
+                
+                <div class="sb-sidenav-menu-heading">CÀI ĐẶT</div>
+                
+                
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLanguages" aria-expanded="false" aria-controls="collapseLanguages">
+                    <div class="sb-nav-link-icon"><i class="bi bi-globe"></i></div>
+                    Ngôn ngữ
+                    <div class="sb-sidenav-collapse-arrow"><i class="bi bi-chevron-down"></i></div>
+                </a>
+                <div class="collapse" id="collapseLanguages" aria-labelledby="headingThree" data-bs-parent="#sidenavAccordion">
+                    <nav class="sb-sidenav-menu-nested nav">
+                        <a class="nav-link language-option" href="#" data-lang="vi">
+                            <div class="sb-nav-link-icon"><span class="flag-icon flag-icon-vi"></span></div>
+                            Tiếng Việt
+                        </a>
+                        <a class="nav-link language-option" href="#" data-lang="en">
+                            <div class="sb-nav-link-icon"><span class="flag-icon flag-icon-en"></span></div>
+                            English
+                        </a>
+                        <a class="nav-link language-option" href="#" data-lang="zh">
+                            <div class="sb-nav-link-icon"><span class="flag-icon flag-icon-zh"></span></div>
+                            中文
+                        </a>
+                    </nav>
+                </div>
+                
+                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#reportIssueModal">
+                    <div class="sb-nav-link-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                    Báo cáo sự cố
+                </a>
+            </div>
+        </div>
+    </nav>
+</div>
