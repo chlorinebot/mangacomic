@@ -1,0 +1,28 @@
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Thêm Người Dùng Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <input type="hidden" id="userId">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">Tên Tài Khoản</label>
+                        <input type="text" class="form-control" id="userName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="userEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="userPassword" class="form-label">Mật Khẩu</label>
+                        <input type="password" class="form-control" id="userPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="userSubmitButton">Thêm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

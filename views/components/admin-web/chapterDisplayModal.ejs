@@ -1,0 +1,40 @@
+<div class="modal fade" id="chapterModal" tabindex="-1" aria-labelledby="chapterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chapterModalTitle">Danh Sách Chương</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Thanh tìm kiếm -->
+                <div class="search-container">
+                    <input type="text" id="chapterSearch" class="form-control" placeholder="Tìm kiếm theo ID chương hoặc tiêu đề...">
+                </div>
+                <div class="table-responsive">
+                    <div id="chapterTableBodyContainer">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Số Chương</th>
+                                    <th>Tiêu Đề</th>
+                                    <th>Nội Dung</th>
+                                    <th>Thư Mục Hình Ảnh</th>
+                                    <th>Số Lượng Hình Ảnh</th>
+                                    <th>Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chapterTableBody">
+                                <tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Container cho Pagination -->
+                <div id="chapterPagination" class="d-flex justify-content-center mt-3"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addChapterModal">Thêm Chương Mới</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
