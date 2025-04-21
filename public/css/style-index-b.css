@@ -1,0 +1,253 @@
+/* Layout CSS */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.sb-nav-fixed {
+    padding-top: 56px;
+}
+
+.sb-nav-fixed #layoutSidenav #layoutSidenav_nav {
+    width: 225px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 56px;
+    z-index: 1038;
+}
+
+.sb-nav-fixed #layoutSidenav #layoutSidenav_content {
+    padding-left: 225px;
+    padding-top: 1rem;
+    top: 56px;
+}
+
+/* Top navbar */
+.sb-topnav {
+    height: 56px;
+    z-index: 1039;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    padding: 0;
+}
+
+/* Sidenav */
+#layoutSidenav {
+    display: flex;
+    flex: 1;
+}
+
+#layoutSidenav_nav {
+    flex-basis: 225px;
+    flex-shrink: 0;
+    transition: transform 0.15s ease-in-out;
+    z-index: 1038;
+    transform: translateX(0);
+}
+
+#layoutSidenav_content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+    flex-grow: 1;
+    min-height: calc(100vh - 56px);
+    margin-left: 0;
+    transition: margin 0.15s ease-in-out;
+}
+
+.sb-sidenav-toggled #layoutSidenav_nav {
+    transform: translateX(-225px);
+}
+
+.sb-sidenav-toggled #layoutSidenav_content {
+    margin-left: -225px;
+}
+
+@media (max-width: 767.98px) {
+    #layoutSidenav_nav {
+        transform: translateX(-225px);
+    }
+    
+    #layoutSidenav_content {
+        margin-left: -225px;
+    }
+    
+    .sb-sidenav-toggled #layoutSidenav_nav {
+        transform: translateX(0);
+    }
+    
+    .sb-sidenav-toggled #layoutSidenav_content {
+        margin-left: 0;
+    }
+}
+
+/* Sidenav menu styling */
+.sb-sidenav {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex-wrap: nowrap;
+}
+
+.sb-sidenav .sb-sidenav-menu {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.sb-sidenav .sb-sidenav-menu .nav {
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+.sb-sidenav .sb-sidenav-menu .nav .sb-sidenav-menu-heading {
+    padding: 1.75rem 1rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.sb-sidenav .sb-sidenav-menu .nav .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    transition: color 0.15s ease;
+}
+
+.sb-sidenav .sb-sidenav-menu .nav .nav-link:hover {
+    color: #fff;
+    padding-left: 1.25rem;
+}
+
+.sb-sidenav .sb-sidenav-menu .nav .nav-link.active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sb-sidenav .sb-sidenav-menu .nav .nav-link .sb-nav-link-icon {
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    width: 1.5rem;
+    text-align: center;
+}
+
+.sb-sidenav .sb-sidenav-menu .nav .nav-link .sb-sidenav-collapse-arrow {
+    display: inline-block;
+    margin-left: auto;
+    transition: transform 0.15s ease;
+}
+
+.sb-sidenav .sb-sidenav-menu .nav .nav-link.collapsed .sb-sidenav-collapse-arrow {
+    transform: rotate(-90deg);
+}
+
+.sb-sidenav .sb-sidenav-menu .nav .sb-sidenav-menu-nested {
+    margin-left: 1.5rem;
+    flex-direction: column;
+}
+
+.sb-sidenav .sb-sidenav-footer {
+    padding: 0.75rem;
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+/* Color schemes */
+.sb-sidenav-dark {
+    background-color: #212529;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .sb-sidenav-menu-heading {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .nav-link {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .nav-link:hover {
+    color: #fff;
+}
+
+.sb-sidenav-dark .sb-sidenav-menu .nav-link.active {
+    color: #fff;
+}
+
+.sb-sidenav-dark .sb-sidenav-footer {
+    background-color: #343a40;
+}
+
+/* Content area styling */
+.content-wrapper {
+    padding: 1.5rem;
+    min-height: calc(100vh - 56px);
+}
+
+#comicList {
+    margin-top: 1rem;
+}
+
+/* Grid layout */
+.row-cols-md-6 > * {
+    flex: 0 0 auto;
+    width: 16.666667% !important; /* Force 6 columns */
+}
+
+@media (max-width: 767.98px) {
+    .row-cols-md-6 > * {
+        width: 33.333333% !important; /* 3 columns on tablet */
+    }
+}
+
+@media (max-width: 576px) {
+    .row-cols-md-6 > * {
+        width: 50% !important; /* 2 columns on mobile */
+    }
+}
+
+
+
+/* Footer positioning */
+.footer {
+    margin-top: auto;
+    background-color: #f8f9fa;
+}
+
+/* Ensure content doesn't overlap with navbar */
+#layoutSidenav_content {
+    margin-top: 0;
+}
+
+/* Pagination positioning */
+.pagination-container {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Spacing */
+.col {
+    padding: 0.5rem;
+}
+
+/* Container */
+.container-fluid {
+    max-width: 1800px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Limit to 12 cards (2 rows x 6 columns) */
+#cardContainer .col:nth-child(n+13) {
+    display: none;
+}
