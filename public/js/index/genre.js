@@ -26,11 +26,19 @@ document.addEventListener('DOMContentLoaded', async function () {
         window.cardData = cards;
 
         // Lấy danh sách thể loại duy nhất (loại bỏ trùng lặp)
-        // Xử lý cả trường hợp genre là mảng và trường hợp genre_name là chuỗi
+        // Xử lý cả trường hợp genre là mảng và trường hợp genre_names là chuỗi
         const allGenres = [];
         cards.forEach(card => {
             if (Array.isArray(card.genre)) {
                 card.genre.forEach(g => {
+                    if (g && !allGenres.includes(g)) {
+                        allGenres.push(g);
+                    }
+                });
+            } else if (card.genre_names) {
+                // Xử lý trường hợp genre_names là chuỗi (phân tách bằng dấu phẩy)
+                const genreArray = card.genre_names.split(',').map(g => g.trim());
+                genreArray.forEach(g => {
                     if (g && !allGenres.includes(g)) {
                         allGenres.push(g);
                     }
@@ -297,6 +305,11 @@ function filterComicsByGenre(genre) {
         if (Array.isArray(card.genre)) {
             return card.genre.some(g => g.toLowerCase() === genre.toLowerCase());
         }
+        // Xử lý trường hợp genre_names là chuỗi
+        else if (card.genre_names) {
+            const genreArray = card.genre_names.split(',').map(g => g.trim());
+            return genreArray.some(g => g.toLowerCase() === genre.toLowerCase());
+        }
         // Xử lý trường hợp genre_name là chuỗi
         else if (card.genre_name) {
             return card.genre_name.toLowerCase() === genre.toLowerCase();
@@ -376,6 +389,26 @@ function displayCards(cards) {
             cardBody.appendChild(cardTitle);
             cardBody.appendChild(genreDiv);
             cardBody.appendChild(cardText);
+        } else if (data.genre_names) {
+            const genreArray = data.genre_names.split(',').map(g => g.trim());
+            if (genreArray.length > 0) {
+                const genreDiv = document.createElement('div');
+                genreDiv.className = 'mb-2';
+                
+                genreArray.forEach(genre => {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-primary me-1';
+                    badge.textContent = genre;
+                    genreDiv.appendChild(badge);
+                });
+                
+                cardBody.appendChild(cardTitle);
+                cardBody.appendChild(genreDiv);
+                cardBody.appendChild(cardText);
+            } else {
+                cardBody.appendChild(cardTitle);
+                cardBody.appendChild(cardText);
+            }
         } else {
             cardBody.appendChild(cardTitle);
             cardBody.appendChild(cardText);
