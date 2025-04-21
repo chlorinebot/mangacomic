@@ -1,0 +1,95 @@
+<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        
+    <a class="navbar-brand ps-3" href="#">
+        <img src="/images/logo/LogoDark.svg" alt="GardenToon" style="height: 75px; width: auto; object-fit: contain; margin-top: -10px; margin-bottom: -10px;" />
+    </a>
+    <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+        <i class="bi bi-list"></i>
+    </button>
+
+
+    <div class="d-flex align-items-center ms-auto">
+        <form class="d-flex" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button" style="width: 70px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                </svg>
+            </button>
+        </form>
+
+        
+
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <!-- Nút Theme Toggle trong navbar -->
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center" href="#" id="navbar-theme-toggle">
+                    <i class="bi bi-sun-fill" id="navbar-light-icon" style="font-size: 1.2rem; display: none;"></i>
+                    <i class="bi bi-moon-stars-fill" id="navbar-dark-icon" style="font-size: 1.2rem;"></i>
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Thêm các nút Tin nhắn và Thông báo (ẩn ban đầu) -->
+        <ul class="navbar-nav me-2 mb-2 mb-lg-0 d-none" id="userActions">
+            <li class="nav-item position-relative">
+                <a class="nav-link" href="#" id="messagesButton">
+                    <i class="bi bi-chat-dots"></i>
+                    <!-- Badge for unread messages -->
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="messagesBadge">
+                        0
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item position-relative">
+                <a class="nav-link" href="#" id="notificationsButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-bell"></i>
+                    <!-- Badge for unread notifications -->
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notificationsBadge">
+                        0
+                        <span class="visually-hidden">unread notifications</span>
+                    </span>
+                </a>
+                <!-- Dropdown menu cho thông báo -->
+                <div class="dropdown-menu dropdown-menu-end notification-dropdown p-0" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                    <div class="p-2 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Thông báo</h6>
+                        <button class="btn btn-sm text-primary" id="markAllReadBtn">Đánh dấu đã đọc</button>
+                    </div>
+                    <div class="notification-list">
+                        <!-- Thông báo sẽ được thêm vào đây động bằng JavaScript -->
+                    </div>
+                    <div class="p-2 border-top text-center">
+                        <a href="#" class="text-decoration-none" id="viewAllNotifications">Xem tất cả thông báo</a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <!-- User dropdown -->
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="avatar-container" style="width: 35px; height: 35px; overflow: hidden; border-radius: 50%; margin-right: 8px; display: inline-flex; align-items: center; justify-content: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                        </svg>
+                    </div>
+                    <span>Đăng nhập/Đăng ký</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end py-2" style="min-width: 200px;">
+                    <li class="px-3 mb-2">
+                        <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#login">Đăng nhập</button>
+                    </li>
+                    <li><hr class="dropdown-divider mx-2"></li>
+                    <li class="px-3">
+                        <button type="button" class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#logup">Đăng ký</button>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+</nav>
