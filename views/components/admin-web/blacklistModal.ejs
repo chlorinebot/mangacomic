@@ -1,0 +1,23 @@
+<div class="modal fade" id="addBlacklistModal" tabindex="-1" aria-labelledby="addBlacklistModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBlacklistModalLabel">Thêm Người Dùng Vào Danh Sách Đen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addBlacklistForm">
+                    <div class="mb-3">
+                        <label for="blacklistUserId" class="form-label">ID Người Dùng</label>
+                        <input type="number" class="form-control" id="blacklistUserId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="blacklistReason" class="form-label">Lý Do</label>
+                        <textarea class="form-control" id="blacklistReason" rows="3" placeholder="Nhập lý do khóa tài khoản..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger" id="blacklistSubmitButton">Thêm Vào Danh Sách Đen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

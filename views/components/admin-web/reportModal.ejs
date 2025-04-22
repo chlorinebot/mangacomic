@@ -1,0 +1,60 @@
+<div class="modal fade" id="reportDetailModal" tabindex="-1" aria-labelledby="reportDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportDetailModalLabel">Chi Tiết Báo Cáo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6>ID Báo Cáo</h6>
+                            <p id="detailReportId" class="form-control bg-light">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Người Dùng</h6>
+                            <p id="detailUsername" class="form-control bg-light">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Email</h6>
+                            <p id="detailEmail" class="form-control bg-light">-</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h6>Thời Gian Báo Cáo</h6>
+                            <p id="detailReportedAt" class="form-control bg-light">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Trạng Thái</h6>
+                            <p id="detailStatus" class="form-control bg-light">-</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Thời Gian Xử Lý</h6>
+                            <p id="detailProcessedAt" class="form-control bg-light">-</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6>Tiêu Đề</h6>
+                    <p id="detailTitle" class="form-control bg-light">-</p>
+                </div>
+                <div class="mb-3">
+                    <h6>Nội Dung</h6>
+                    <div id="detailContent" class="form-control bg-light" style="min-height: 150px; overflow-y: auto;">-</div>
+                </div>
+                <div class="mb-3">
+                    <h6>Ghi Chú Xử Lý</h6>
+                    <textarea id="detailNotes" class="form-control" rows="3" placeholder="Nhập ghi chú xử lý..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning" id="markAsPendingButton">Đánh Dấu Chờ Xử Lý</button>
+                <button type="button" class="btn btn-success" id="markAsProcessedButton">Đánh Dấu Đã Xử Lý</button>
+                <button type="button" class="btn btn-danger" id="deleteReportButton">Xóa Báo Cáo</button>
+            </div>
+        </div>
+    </div>
+</div>
