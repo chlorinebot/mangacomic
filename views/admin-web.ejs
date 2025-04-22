@@ -535,10 +535,72 @@
                                 </table>
                             </div>
                         </div>
+                        
+                        <!-- Form sửa chương inline (ẩn mặc định) -->
+                        <div id="inlineEditChapterForm" class="card card-body mb-3 mt-3" style="display:none;">
+                            <h5 class="card-title">Sửa Chương</h5>
+                            <form id="editChapterForm">
+                                <input type="hidden" id="editChapterId">
+                                <div class="mb-3">
+                                    <label for="editChapterNumber" class="form-label">Số Chương</label>
+                                    <input type="number" class="form-control" id="editChapterNumber" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editChapterTitle" class="form-label">Tiêu Đề Chương</label>
+                                    <input type="text" class="form-control" id="editChapterTitle">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editChapterContent" class="form-label">Nội Dung</label>
+                                    <textarea class="form-control" id="editChapterContent"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editChapterImageFolder" class="form-label">Thư Mục Hình Ảnh</label>
+                                    <input type="text" class="form-control" id="editChapterImageFolder">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editChapterImageCount" class="form-label">Số Lượng Hình Ảnh</label>
+                                    <input type="number" class="form-control" id="editChapterImageCount" min="0">
+                                </div>
+                                <button type="submit" class="btn btn-success">Lưu</button>
+                                <button type="button" class="btn btn-secondary ms-2" id="cancelEditChapter">Hủy</button>
+                            </form>
+                        </div>
+                        
+                        <!-- Form thêm chương inline (ẩn mặc định) -->
+                        <div id="inlineAddChapterForm" class="card card-body mb-3 mt-3" style="display:none;">
+                            <h5 class="card-title">Thêm Chương Mới</h5>
+                            <form id="addChapterFormInline">
+                                <input type="hidden" id="addChapterCardId">
+                                <div class="mb-3">
+                                    <label for="addChapterNumber" class="form-label">Số Chương</label>
+                                    <input type="number" class="form-control" id="addChapterNumber" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="addChapterTitle" class="form-label">Tiêu Đề Chương</label>
+                                    <input type="text" class="form-control" id="addChapterTitle">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="addChapterContent" class="form-label">Nội Dung</label>
+                                    <textarea class="form-control" id="addChapterContent"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="addChapterImageFolder" class="form-label">Thư Mục Hình Ảnh</label>
+                                    <input type="text" class="form-control" id="addChapterImageFolder">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="addChapterImageCount" class="form-label">Số Lượng Hình Ảnh</label>
+                                    <input type="number" class="form-control" id="addChapterImageCount" min="0" value="0">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Thêm</button>
+                                <button type="button" class="btn btn-secondary ms-2" id="cancelAddChapter">Hủy</button>
+                            </form>
+                        </div>
+                        
                         <!-- Container cho Pagination -->
                         <div id="chapterPagination" class="d-flex justify-content-center mt-3"></div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addChapterModal">Thêm Chương Mới</button>
+                            <button type="button" class="btn btn-primary" id="showAddChapterBtn" onclick="window.showAddChapterForm()">Thêm Chương Mới</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                         </div>
                     </div>
                 </div>
@@ -961,6 +1023,136 @@
             document.addEventListener('DOMContentLoaded', () => {
                 console.log('DOM fully loaded and parsed');
             }, { once: true });
+            
+            // Xử lý hiển thị/ẩn form thêm/sửa chương trong modal chương
+            document.addEventListener('DOMContentLoaded', function() {
+                // Lấy các phần tử DOM
+                const showAddChapterBtn = document.getElementById('showAddChapterBtn');
+                const inlineAddChapterForm = document.getElementById('inlineAddChapterForm');
+                const inlineEditChapterForm = document.getElementById('inlineEditChapterForm');
+                const cancelAddChapter = document.getElementById('cancelAddChapter');
+                const cancelEditChapter = document.getElementById('cancelEditChapter');
+                
+                // Hiển thị form thêm chương khi bấm nút "Thêm Chương Mới"
+                if (showAddChapterBtn) {
+                    showAddChapterBtn.addEventListener('click', function() {
+                        // Ẩn form sửa nếu đang hiển thị
+                        inlineEditChapterForm.style.display = 'none';
+                        // Hiển thị form thêm
+                        inlineAddChapterForm.style.display = 'block';
+                        
+                        // Lấy ID truyện từ modal hiện tại (nếu có)
+                        const comicId = document.querySelector('#chapterModal').getAttribute('data-comic-id');
+                        if (comicId) {
+                            document.getElementById('addChapterCardId').value = comicId;
+                        }
+                    });
+                }
+                
+                // Ẩn form thêm chương khi bấm nút "Hủy"
+                if (cancelAddChapter) {
+                    cancelAddChapter.addEventListener('click', function() {
+                        inlineAddChapterForm.style.display = 'none';
+                    });
+                }
+                
+                // Ẩn form sửa chương khi bấm nút "Hủy"
+                if (cancelEditChapter) {
+                    cancelEditChapter.addEventListener('click', function() {
+                        inlineEditChapterForm.style.display = 'none';
+                    });
+                }
+                
+                // Xử lý submit form thêm chương
+                const addChapterFormInline = document.getElementById('addChapterFormInline');
+                if (addChapterFormInline) {
+                    addChapterFormInline.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        // Lấy dữ liệu từ form
+                        const chapterData = {
+                            card_id: document.getElementById('addChapterCardId').value,
+                            number: document.getElementById('addChapterNumber').value,
+                            title: document.getElementById('addChapterTitle').value,
+                            content: document.getElementById('addChapterContent').value,
+                            image_folder: document.getElementById('addChapterImageFolder').value,
+                            image_count: document.getElementById('addChapterImageCount').value
+                        };
+                        
+                        // Gửi request API thêm chương (giữ nguyên logic cũ)
+                        addChapter(chapterData);
+                    });
+                }
+                
+                // Xử lý submit form sửa chương
+                const editChapterForm = document.getElementById('editChapterForm');
+                if (editChapterForm) {
+                    editChapterForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        // Lấy dữ liệu từ form
+                        const chapterId = document.getElementById('editChapterId').value;
+                        const chapterData = {
+                            number: document.getElementById('editChapterNumber').value,
+                            title: document.getElementById('editChapterTitle').value,
+                            content: document.getElementById('editChapterContent').value,
+                            image_folder: document.getElementById('editChapterImageFolder').value,
+                            image_count: document.getElementById('editChapterImageCount').value
+                        };
+                        
+                        // Gửi request API cập nhật chương (giữ nguyên logic cũ)
+                        updateChapter(chapterId, chapterData);
+                    });
+                }
+            });
+            
+            // Hàm hiển thị form sửa chương với dữ liệu
+            function showEditChapterForm(chapter) {
+                // Ẩn form thêm nếu đang hiển thị
+                document.getElementById('inlineAddChapterForm').style.display = 'none';
+                
+                // Điền dữ liệu vào form sửa
+                document.getElementById('editChapterId').value = chapter.id || '';
+                document.getElementById('editChapterNumber').value = chapter.number || '';
+                document.getElementById('editChapterTitle').value = chapter.title || '';
+                document.getElementById('editChapterContent').value = chapter.content || '';
+                document.getElementById('editChapterImageFolder').value = chapter.image_folder || '';
+                document.getElementById('editChapterImageCount').value = chapter.image_count || '';
+                
+                // Hiển thị form sửa
+                document.getElementById('inlineEditChapterForm').style.display = 'block';
+            }
+            
+            // Cập nhật hàm loadChapters để thêm sự kiện cho nút Sửa
+            function updateChapterEditButtons() {
+                // Lấy tất cả nút Sửa trong bảng chương
+                const editButtons = document.querySelectorAll('.edit-chapter-btn');
+                
+                // Thêm sự kiện click cho từng nút
+                editButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // Lấy dữ liệu chương từ data attributes
+                        const chapterId = this.getAttribute('data-id');
+                        const chapterNumber = this.getAttribute('data-number');
+                        const chapterTitle = this.getAttribute('data-title');
+                        const chapterContent = this.getAttribute('data-content');
+                        const chapterImageFolder = this.getAttribute('data-image-folder');
+                        const chapterImageCount = this.getAttribute('data-image-count');
+                        
+                        // Hiển thị form sửa với dữ liệu
+                        showEditChapterForm({
+                            id: chapterId,
+                            number: chapterNumber,
+                            title: chapterTitle,
+                            content: chapterContent,
+                            image_folder: chapterImageFolder,
+                            image_count: chapterImageCount
+                        });
+                    });
+                });
+            }
         </script>
     </body>
 </html>
