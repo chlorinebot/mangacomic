@@ -397,42 +397,6 @@
                                 <!-- Container cho Pagination -->
                                 <div id="blacklistPagination" class="d-flex justify-content-center mt-3"></div>
                             </div>
-
-                            <!-- Quản Lý Chương -->
-                            <div class="tab-pane fade" id="chapter-management">
-                                <h2>Quản Lý Chương</h2>
-                                <div class="search-container">
-                                    <input type="text" id="chapterSearch" class="form-control" placeholder="Tìm kiếm theo ID chương hoặc tiêu đề...">
-                                </div>
-                                <div class="table-responsive">
-                                    <div id="chapterTableBodyContainer">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Số Chương</th>
-                                                    <th>Tiêu Đề</th>
-                                                    <th>Nội Dung</th>
-                                                    <th>Thư Mục Hình Ảnh</th>
-                                                    <th>Số Lượng Hình Ảnh</th>
-                                                    <th>Hành Động</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="chapterTableBody">
-                                                <tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                <!-- Form sửa chương inline (ẩn mặc định) -->
-                                <div id="inlineEditChapterForm" class="card card-body mb-3" style="display:none;"></div>
-                                <!-- Form thêm chương inline (ẩn mặc định) -->
-                                <div id="inlineAddChapterForm" class="card card-body mb-3" style="display:none;"></div>
-                                <!-- Container cho Pagination -->
-                                <div id="chapterPagination" class="d-flex justify-content-center mt-3"></div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" id="showAddChapterInlineBtn">Thêm Chương Mới</button>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </main>
@@ -492,6 +456,90 @@
                             </div>
                             <button type="submit" class="btn btn-primary" id="comicSubmitButton">Thêm</button>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Thêm/Chỉnh Sửa Chương -->
+        <div class="modal fade" id="addChapterModal" tabindex="-1" aria-labelledby="addChapterModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addChapterModalLabel">Thêm Chương Mới</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addChapterForm">
+                            <input type="hidden" id="chapterCardIdHidden">
+                            <div class="mb-3">
+                                <label for="chapterCardId" class="form-label">ID Truyện</label>
+                                <input type="number" class="form-control" id="chapterCardId" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="chapterNumber" class="form-label">Số Chương</label>
+                                <input type="number" class="form-control" id="chapterNumber" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="chapterTitle" class="form-label">Tiêu Đề Chương</label>
+                                <input type="text" class="form-control" id="chapterTitle">
+                            </div>
+                            <div class="mb-3">
+                                <label for="chapterContent" class="form-label">Nội Dung</label>
+                                <textarea class="form-control" id="chapterContent"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="chapterImageFolder" class="form-label">Thư Mục Hình Ảnh</label>
+                                <input type="text" class="form-control" id="chapterImageFolder">
+                            </div>
+                            <div class="mb-3">
+                                <label for="chapterImageCount" class="form-label">Số Lượng Hình Ảnh</label>
+                                <input type="number" class="form-control" id="chapterImageCount" min="0" value="0">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="chapterSubmitButton">Thêm</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Hiển Thị Chương -->
+        <div class="modal fade" id="chapterModal" tabindex="-1" aria-labelledby="chapterModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="chapterModalTitle">Danh Sách Chương</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Thanh tìm kiếm -->
+                        <div class="search-container">
+                            <input type="text" id="chapterSearch" class="form-control" placeholder="Tìm kiếm theo ID chương hoặc tiêu đề...">
+                        </div>
+                        <div class="table-responsive">
+                            <div id="chapterTableBodyContainer">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Số Chương</th>
+                                            <th>Tiêu Đề</th>
+                                            <th>Nội Dung</th>
+                                            <th>Thư Mục Hình Ảnh</th>
+                                            <th>Số Lượng Hình Ảnh</th>
+                                            <th>Hành Động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="chapterTableBody">
+                                        <tr><td colspan="6" class="text-center">Đang tải dữ liệu...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- Container cho Pagination -->
+                        <div id="chapterPagination" class="d-flex justify-content-center mt-3"></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addChapterModal">Thêm Chương Mới</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -913,93 +961,6 @@
             document.addEventListener('DOMContentLoaded', () => {
                 console.log('DOM fully loaded and parsed');
             }, { once: true });
-        
-            // --- Inline Add/Edit Chapter Form Logic ---
-            const editChapterFormHtml = `
-                <form id="editChapterForm">
-                    <input type="hidden" id="editChapterId">
-                    <div class="mb-3">
-                        <label for="editChapterNumber" class="form-label">Số Chương</label>
-                        <input type="number" class="form-control" id="editChapterNumber" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editChapterTitle" class="form-label">Tiêu Đề Chương</label>
-                        <input type="text" class="form-control" id="editChapterTitle">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editChapterContent" class="form-label">Nội Dung</label>
-                        <textarea class="form-control" id="editChapterContent"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editChapterImageFolder" class="form-label">Thư Mục Hình Ảnh</label>
-                        <input type="text" class="form-control" id="editChapterImageFolder">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editChapterImageCount" class="form-label">Số Lượng Hình Ảnh</label>
-                        <input type="number" class="form-control" id="editChapterImageCount" min="0">
-                    </div>
-                    <button type="submit" class="btn btn-success">Lưu</button>
-                    <button type="button" class="btn btn-secondary ms-2" onclick="hideEditChapterForm()">Hủy</button>
-                </form>
-            `;
-            const addChapterFormHtml = `
-                <form id="addChapterFormInline">
-                    <div class="mb-3">
-                        <label for="addChapterNumber" class="form-label">Số Chương</label>
-                        <input type="number" class="form-control" id="addChapterNumber" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addChapterTitle" class="form-label">Tiêu Đề Chương</label>
-                        <input type="text" class="form-control" id="addChapterTitle">
-                    </div>
-                    <div class="mb-3">
-                        <label for="addChapterContent" class="form-label">Nội Dung</label>
-                        <textarea class="form-control" id="addChapterContent"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="addChapterImageFolder" class="form-label">Thư Mục Hình Ảnh</label>
-                        <input type="text" class="form-control" id="addChapterImageFolder">
-                    </div>
-                    <div class="mb-3">
-                        <label for="addChapterImageCount" class="form-label">Số Lượng Hình Ảnh</label>
-                        <input type="number" class="form-control" id="addChapterImageCount" min="0">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Thêm</button>
-                    <button type="button" class="btn btn-secondary ms-2" onclick="hideAddChapterForm()">Hủy</button>
-                </form>
-            `;
-            // Hiển thị form thêm chương
-            function showAddChapterForm() {
-                document.getElementById('inlineEditChapterForm').style.display = 'none';
-                document.getElementById('inlineAddChapterForm').innerHTML = addChapterFormHtml;
-                document.getElementById('inlineAddChapterForm').style.display = 'block';
-            }
-            // Ẩn form thêm chương
-            function hideAddChapterForm() {
-                document.getElementById('inlineAddChapterForm').style.display = 'none';
-            }
-            // Hiển thị form sửa chương với dữ liệu truyền vào
-            function showEditChapterForm(chapter) {
-                document.getElementById('inlineAddChapterForm').style.display = 'none';
-                document.getElementById('inlineEditChapterForm').innerHTML = editChapterFormHtml;
-                document.getElementById('inlineEditChapterForm').style.display = 'block';
-                // Điền dữ liệu chương
-                document.getElementById('editChapterId').value = chapter.id || '';
-                document.getElementById('editChapterNumber').value = chapter.number || '';
-                document.getElementById('editChapterTitle').value = chapter.title || '';
-                document.getElementById('editChapterContent').value = chapter.content || '';
-                document.getElementById('editChapterImageFolder').value = chapter.imageFolder || '';
-                document.getElementById('editChapterImageCount').value = chapter.imageCount || '';
-            }
-            // Ẩn form sửa chương
-            function hideEditChapterForm() {
-                document.getElementById('inlineEditChapterForm').style.display = 'none';
-            }
-            // Sự kiện nút thêm chương mới
-            if(document.getElementById('showAddChapterInlineBtn')) {
-                document.getElementById('showAddChapterInlineBtn').onclick = showAddChapterForm;
-            }
-            // TODO: Gắn sự kiện cho nút Sửa ở từng dòng chương để gọi showEditChapterForm(chapter)
         </script>
     </body>
 </html>
