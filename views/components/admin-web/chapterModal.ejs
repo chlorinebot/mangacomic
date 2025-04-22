@@ -1,0 +1,40 @@
+<div class="modal fade" id="addChapterModal" tabindex="-1" aria-labelledby="addChapterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addChapterModalLabel">Thêm Chương Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addChapterForm">
+                    <input type="hidden" id="chapterCardIdHidden">
+                    <div class="mb-3">
+                        <label for="chapterCardId" class="form-label">ID Truyện</label>
+                        <input type="number" class="form-control" id="chapterCardId" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chapterNumber" class="form-label">Số Chương</label>
+                        <input type="number" class="form-control" id="chapterNumber" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chapterTitle" class="form-label">Tiêu Đề Chương</label>
+                        <input type="text" class="form-control" id="chapterTitle">
+                    </div>
+                    <div class="mb-3">
+                        <label for="chapterContent" class="form-label">Nội Dung</label>
+                        <textarea class="form-control" id="chapterContent"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chapterImageFolder" class="form-label">Thư Mục Hình Ảnh</label>
+                        <input type="text" class="form-control" id="chapterImageFolder">
+                    </div>
+                    <div class="mb-3">
+                        <label for="chapterImageCount" class="form-label">Số Lượng Hình Ảnh</label>
+                        <input type="number" class="form-control" id="chapterImageCount" min="0" value="0">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="chapterSubmitButton">Thêm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
