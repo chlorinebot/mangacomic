@@ -455,38 +455,31 @@
 /* Tạo kiểu cho nút Menu */
 #sidebarToggle {
     color: #fff;
-    background-color: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: #28a745;
+    border: 1px solid #28a745;
     border-radius: 4px;
     padding: 0.375rem 0.75rem;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
 }
 
 #sidebarToggle:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+    background-color: #218838;
+    border-color: #1e7e34;
 }
 
 #sidebarToggle:active {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: #1e7e34;
+    border-color: #1c7430;
 }
 
-/* Thêm hiệu ứng khi menu đang mở */
-body:not(.sb-sidenav-toggled) #sidebarToggle {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Điều chỉnh kích thước icon và chữ Menu */
+/* Điều chỉnh kích thước chữ Menu */
 #sidebarToggle span {
     font-size: 0.875rem;
     font-weight: 500;
-}
-
-#sidebarToggle i {
-    font-size: 1.25rem;
 }
 
 /* Đảm bảo nút Menu hiển thị đúng trên điện thoại */
@@ -494,10 +487,8 @@ body:not(.sb-sidenav-toggled) #sidebarToggle {
     #sidebarToggle {
         padding: 0.25rem 0.5rem;
         margin-right: 0.5rem !important;
-    }
-    
-    #sidebarToggle i {
-        font-size: 1.5rem;
+        background-color: #28a745;
+        color: white;
     }
     
     /* Đảm bảo menu luôn đóng trên mobile trừ khi được nhấn */

@@ -30,6 +30,11 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.add('sb-sidenav-toggled');
     }
     
+    // Đảm bảo menu đóng khi tải trang trên điện thoại
+    if (window.innerWidth < 768) {
+        document.body.classList.add('sb-sidenav-toggled');
+    }
+    
     // Mobile responsive handling
     function handleResponsive() {
         if (window.innerWidth < 768) {
