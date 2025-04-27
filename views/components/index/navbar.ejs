@@ -9,7 +9,8 @@
 
 
     <div class="d-flex align-items-center ms-auto">
-        <form class="d-flex" role="search">
+        <!-- Form tìm kiếm đầy đủ - hiển thị trên màn hình lớn -->
+        <form class="d-none d-md-flex search-form-desktop" role="search">
             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
             <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button" style="width: 70px;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
@@ -17,9 +18,26 @@
                 </svg>
             </button>
         </form>
-
         
-
+        <!-- Nút tìm kiếm thu gọn - hiển thị trên điện thoại -->
+        <div class="d-md-none me-2">
+            <button class="btn btn-outline-success mobile-search-toggle" type="button" aria-expanded="false" aria-label="Toggle search">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+        
+        <!-- Form tìm kiếm cho điện thoại - ban đầu ẩn đi -->
+        <div class="mobile-search-form-container position-absolute top-100 start-0 end-0 bg-dark p-2 d-none">
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button">
+                    <i class="bi bi-search"></i>
+                </button>
+                <button class="btn btn-outline-secondary ms-1 mobile-search-close" type="button">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </form>
+        </div>
 
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <!-- Nút Theme Toggle trong navbar -->
