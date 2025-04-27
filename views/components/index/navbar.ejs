@@ -28,9 +28,9 @@
         
         <!-- Form tìm kiếm cho điện thoại - ban đầu ẩn đi -->
         <div class="mobile-search-form-container position-absolute top-100 start-0 end-0 bg-dark p-2 d-none">
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button">
+            <form class="d-flex" role="search" id="mobileSearchForm">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="mobileSearchInput">
+                <button class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" type="button" id="mobileSearchButton">
                     <i class="bi bi-search"></i>
                 </button>
                 <button class="btn btn-outline-secondary ms-1 mobile-search-close" type="button">
