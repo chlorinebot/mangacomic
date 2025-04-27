@@ -489,7 +489,17 @@ body:not(.sb-sidenav-toggled) #sidebarToggle {
     font-size: 1.25rem;
 }
 
+/* Đảm bảo nút Menu hiển thị đúng trên điện thoại */
 @media (max-width: 767.98px) {
+    #sidebarToggle {
+        padding: 0.25rem 0.5rem;
+        margin-right: 0.5rem !important;
+    }
+    
+    #sidebarToggle i {
+        font-size: 1.5rem;
+    }
+    
     /* Đảm bảo menu luôn đóng trên mobile trừ khi được nhấn */
     body.sb-sidenav-toggled #layoutSidenav_nav {
         transform: translateX(-225px);
@@ -501,5 +511,10 @@ body:not(.sb-sidenav-toggled) #sidebarToggle {
     
     #layoutSidenav_nav {
         transition: transform 0.3s ease;
+    }
+    
+    /* Đảm bảo menu không chiếm không gian khi đóng */
+    body.sb-sidenav-toggled #layoutSidenav_content {
+        margin-left: 0;
     }
 }
