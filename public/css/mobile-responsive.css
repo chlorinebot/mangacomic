@@ -451,3 +451,55 @@
         font-size: 16px !important;
     }
 }
+
+/* Tạo kiểu cho nút Menu */
+#sidebarToggle {
+    color: #fff;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 0.375rem 0.75rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#sidebarToggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+#sidebarToggle:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Thêm hiệu ứng khi menu đang mở */
+body:not(.sb-sidenav-toggled) #sidebarToggle {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Điều chỉnh kích thước icon và chữ Menu */
+#sidebarToggle span {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+#sidebarToggle i {
+    font-size: 1.25rem;
+}
+
+@media (max-width: 767.98px) {
+    /* Đảm bảo menu luôn đóng trên mobile trừ khi được nhấn */
+    body.sb-sidenav-toggled #layoutSidenav_nav {
+        transform: translateX(-225px);
+    }
+    
+    body:not(.sb-sidenav-toggled) #layoutSidenav_nav {
+        transform: translateX(0);
+    }
+    
+    #layoutSidenav_nav {
+        transition: transform 0.3s ease;
+    }
+}
