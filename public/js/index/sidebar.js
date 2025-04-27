@@ -5,23 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            // Nếu đang ở chế độ điện thoại
-            if (window.innerWidth < 768) {
-                // Nếu sidebar đang đóng, mở nó ra
-                if (document.body.classList.contains('sb-sidenav-toggled')) {
-                    document.body.classList.remove('sb-sidenav-toggled');
-                    localStorage.setItem('sb|sidebar-mobile-state', 'open');
-                } else {
-                    // Nếu sidebar đang mở, đóng nó lại
-                    document.body.classList.add('sb-sidenav-toggled');
-                    localStorage.setItem('sb|sidebar-mobile-state', 'closed');
-                }
-            } else {
-                // Xử lý bình thường cho màn hình lớn
-                document.body.classList.toggle('sb-sidenav-toggled');
-                localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-            }
+            document.body.classList.toggle('sb-sidenav-toggled');
+            localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
         });
     }
     
@@ -30,20 +15,11 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.classList.add('sb-sidenav-toggled');
     }
     
-    // Đảm bảo menu đóng khi tải trang trên điện thoại
-    if (window.innerWidth < 768) {
-        document.body.classList.add('sb-sidenav-toggled');
-    }
-    
     // Mobile responsive handling
     function handleResponsive() {
         if (window.innerWidth < 768) {
-            // Luôn đóng sidebar khi ở chế độ điện thoại
             document.body.classList.add('sb-sidenav-toggled');
-            // Lưu trạng thái đóng cho điện thoại
-            localStorage.setItem('sb|sidebar-mobile-state', 'closed');
         } else {
-            // Khi chuyển sang màn hình lớn, kiểm tra trạng thái trước đó
             if (localStorage.getItem('sb|sidebar-toggle') !== 'true') {
                 document.body.classList.remove('sb-sidenav-toggled');
             }

@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         originalCardData = [];
     }
 
-    const cardContainer = document.querySelector('#cardContainer');
+    const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
     if (!cardContainer) {
         console.error('Không tìm thấy container cho cards!');
         return;
@@ -168,7 +168,7 @@ function displayCardsForPage(pageNumber) {
     const endIndex = startIndex + itemsPerPage;
     const currentPageData = cardData.slice(startIndex, endIndex);
 
-    const cardContainer = document.querySelector('#cardContainer');
+    const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
     if (!cardContainer) {
         console.error('Không tìm thấy container cho cards!');
         return;
@@ -248,7 +248,7 @@ function displayCardsForPage(pageNumber) {
 
 // Hàm hiển thị tất cả card
 function displayAllCards() {
-    const cardContainer = document.querySelector('#cardContainer');
+    const cardContainer = document.querySelector('.row.row-cols-1.row-cols-md-6.g-4');
     if (!cardContainer) {
         console.error('Không tìm thấy container cho cards!');
         return;
