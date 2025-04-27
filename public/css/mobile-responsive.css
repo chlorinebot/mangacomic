@@ -509,3 +509,69 @@
         margin-left: 0;
     }
 }
+
+/* Sửa lỗi hiển thị thẻ truyện trên điện thoại */
+@media (max-width: 767.98px) {
+    /* Điều chỉnh grid cho các thẻ truyện */
+    .row.row-cols-1.row-cols-md-6.g-4 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin: 0 5px;
+    }
+    
+    .row.row-cols-1.row-cols-md-6.g-4 .col {
+        width: 100%;
+        padding: 0 5px;
+        margin-bottom: 15px;
+    }
+    
+    /* Đảm bảo card hiển thị đúng */
+    .card {
+        height: 100%;
+        margin-bottom: 0;
+        width: 100%;
+    }
+    
+    .card-img-top {
+        height: 180px;
+        object-fit: cover;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    .card-title {
+        font-size: 0.9rem;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        margin-bottom: 0.25rem;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .card-text {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        margin-bottom: 0.25rem;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    /* Sửa lỗi hiển thị offcanvas search */
+    #offcanvasRight .card {
+        margin-bottom: 15px;
+    }
+    
+    #offcanvasRight .offcanvas-body {
+        padding: 10px;
+    }
+    
+    #offcanvasRight .card-img-top {
+        height: 120px;
+    }
+}
