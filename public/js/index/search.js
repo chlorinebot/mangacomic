@@ -1,55 +1,168 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Lấy các phần tử DOM cần thiết
   const searchForm = document.querySelector('nav.sb-topnav form[role="search"]'); // Chọn form trong navbar
-  const searchInput = searchForm.querySelector('input[type="search"]');
-  const searchButton = searchForm.querySelector('button[data-bs-toggle="offcanvas"]');
+  const searchInput = searchForm?.querySelector('input[type="search"]');
+  const searchButton = searchForm?.querySelector('button[data-bs-toggle="offcanvas"]');
   const offcanvasElement = document.getElementById('offcanvasRight'); // Lấy chính offcanvas
-  const offcanvasTitle = offcanvasElement.querySelector('#offcanvasRightLabel'); // Lấy title bên trong offcanvas
-  const offcanvasBody = offcanvasElement.querySelector('.offcanvas-body'); // Lấy body bên trong offcanvas
+  const offcanvasTitle = offcanvasElement?.querySelector('#offcanvasRightLabel'); // Lấy title bên trong offcanvas
+  const offcanvasBody = offcanvasElement?.querySelector('.offcanvas-body'); // Lấy body bên trong offcanvas
+  
+  // Lấy các phần tử tìm kiếm trên mobile
+  const mobileSearchForm = document.getElementById('mobileSearchForm');
+  const mobileSearchInput = document.getElementById('mobileSearchInput');
+  const mobileSearchButton = document.getElementById('mobileSearchButton');
+
+  // Kiểm tra nếu các phần tử không tồn tại
+  if (!searchForm || !searchInput || !searchButton || !offcanvasElement || !offcanvasTitle || !offcanvasBody) {
+    console.error('Không tìm thấy các phần tử DOM cần thiết cho chức năng tìm kiếm');
+    return;
+  }
+
+  // Dữ liệu mẫu cho truyện nếu API không hoạt động
+  const sampleCardData = [
+    {
+      id: 1,
+      title: 'Thám Tử Lừng Danh Conan',
+      content: 'Truyện trinh thám nổi tiếng của tác giả Gosho Aoyama',
+      image: '/images/cards/conan.jpg',
+      author: 'Gosho Aoyama',
+      genre: 'Trinh thám, Hành động',
+      link: '#'
+    },
+    {
+      id: 2,
+      title: 'One Piece',
+      content: 'Cuộc phiêu lưu tìm kiếm kho báu One Piece của Luffy và đồng đội',
+      image: '/images/cards/onepiece.jpg',
+      author: 'Eiichiro Oda',
+      genre: 'Phiêu lưu, Hành động',
+      link: '#'
+    },
+    {
+      id: 3,
+      title: 'Naruto',
+      content: 'Hành trình trở thành Hokage của Naruto Uzumaki',
+      image: '/images/cards/naruto.jpg',
+      author: 'Masashi Kishimoto',
+      genre: 'Hành động, Phiêu lưu',
+      link: '#'
+    },
+    {
+      id: 4,
+      title: 'Dragon Ball',
+      content: 'Cuộc phiêu lưu của Son Goku và những người bạn',
+      image: '/images/cards/dragonball.jpg',
+      author: 'Akira Toriyama',
+      genre: 'Hành động, Phiêu lưu',
+      link: '#'
+    },
+    {
+      id: 5,
+      title: 'Attack on Titan',
+      content: 'Cuộc chiến sinh tồn của nhân loại trước những người khổng lồ',
+      image: '/images/cards/aot.jpg',
+      author: 'Hajime Isayama',
+      genre: 'Hành động, Kinh dị',
+      link: '#'
+    }
+  ];
+
+  // Hàm tải dữ liệu truyện từ API hoặc sử dụng dữ liệu mẫu
+  async function loadCardData() {
+    // Kiểm tra xem biến cardData đã tồn tại chưa
+    if (typeof window.cardData !== 'undefined' && window.cardData.length > 0) {
+      return window.cardData;
+    }
+    
+    // Thử tải dữ liệu từ API
+    try {
+      const response = await fetch('https://gardentoon.up.railway.app/api/cards');
+      if (!response.ok) throw new Error('Lỗi khi lấy dữ liệu từ API');
+      const data = await response.json();
+      window.cardData = data; // Lưu vào biến toàn cục
+      return data;
+    } catch (error) {
+      console.warn('Không thể tải dữ liệu từ API, sử dụng dữ liệu mẫu:', error);
+      window.cardData = sampleCardData; // Sử dụng dữ liệu mẫu
+      return sampleCardData;
+    }
+  }
 
   // Xử lý sự kiện khi người dùng nhấn nút tìm kiếm
-  searchButton.addEventListener('click', function(event) {
-    // Lấy giá trị từ ô input
-    const searchValue = searchInput.value.trim().toLowerCase();
-
+  async function handleSearch(searchValue, fromMobile = false) {
     // Cập nhật tiêu đề của offcanvas
     if (offcanvasTitle) {
-        offcanvasTitle.textContent = 'Bạn đang tìm kiếm: ' + (searchValue || '...'); // Thêm kiểm tra null
+      offcanvasTitle.textContent = 'Bạn đang tìm kiếm: ' + (searchValue || '...');
     }
 
-    if (searchValue === '') {
-      if (offcanvasBody) { // Thêm kiểm tra null
-          offcanvasBody.innerHTML = '<p>Vui lòng nhập từ khóa tìm kiếm</p>';
+    if (!searchValue) {
+      if (offcanvasBody) {
+        offcanvasBody.innerHTML = '<p>Vui lòng nhập từ khóa tìm kiếm</p>';
       }
       return;
     }
 
-    // Kiểm tra xem cardData có tồn tại không
-    if (typeof cardData === 'undefined') {
-        console.error('Biến cardData không được định nghĩa.');
-        if (offcanvasBody) { // Thêm kiểm tra null
-            offcanvasBody.innerHTML = '<p>Lỗi: Không thể tải dữ liệu truyện.</p>';
-        }
-        return;
+    // Hiển thị thông báo đang tải
+    if (offcanvasBody) {
+      offcanvasBody.innerHTML = '<div class="d-flex justify-content-center my-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div><p class="text-center">Đang tìm kiếm...</p>';
     }
 
-    // Tìm kiếm trong dữ liệu cardData
+    // Tải dữ liệu truyện
+    const cardData = await loadCardData();
+
+    // Tìm kiếm trong dữ liệu
     const searchResults = cardData.filter(card =>
-      (card.title && card.title.toLowerCase().includes(searchValue)) ||
-      (card.content && card.content.toLowerCase().includes(searchValue)) // Thêm kiểm tra null cho title/content
+      (card.title && card.title.toLowerCase().includes(searchValue.toLowerCase())) ||
+      (card.content && card.content.toLowerCase().includes(searchValue.toLowerCase())) ||
+      (card.author && card.author.toLowerCase().includes(searchValue.toLowerCase())) ||
+      (card.genre && card.genre.toLowerCase().includes(searchValue.toLowerCase()))
     );
 
     // Hiển thị kết quả
-    if (offcanvasBody) { // Thêm kiểm tra null
-        displaySearchResults(searchResults);
+    if (offcanvasBody) {
+      displaySearchResults(searchResults);
     }
+
+    // Nếu tìm kiếm từ mobile, đóng form tìm kiếm
+    if (fromMobile) {
+      const mobileSearchContainer = document.querySelector('.mobile-search-form-container');
+      if (mobileSearchContainer && mobileSearchContainer.classList.contains('show')) {
+        setTimeout(() => {
+          mobileSearchContainer.classList.remove('show');
+          setTimeout(() => {
+            mobileSearchContainer.classList.add('d-none');
+          }, 300);
+        }, 300);
+      }
+    }
+  }
+
+  // Xử lý sự kiện khi người dùng nhấn nút tìm kiếm trên desktop
+  searchButton.addEventListener('click', function(event) {
+    const searchValue = searchInput.value.trim();
+    handleSearch(searchValue);
   });
 
-  // Ngăn chặn form submit mặc định
+  // Ngăn chặn form submit mặc định trên desktop
   searchForm.addEventListener('submit', function(event) {
     event.preventDefault();
-    searchButton.click(); // Kích hoạt sự kiện click trên nút tìm kiếm
+    const searchValue = searchInput.value.trim();
+    handleSearch(searchValue);
   });
+
+  // Xử lý sự kiện tìm kiếm trên mobile
+  if (mobileSearchForm && mobileSearchInput && mobileSearchButton) {
+    mobileSearchForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const searchValue = mobileSearchInput.value.trim();
+      handleSearch(searchValue, true);
+    });
+
+    mobileSearchButton.addEventListener('click', function(event) {
+      const searchValue = mobileSearchInput.value.trim();
+      handleSearch(searchValue, true);
+    });
+  }
 
   // Hàm hiển thị kết quả tìm kiếm
   function displaySearchResults(results) {
@@ -57,14 +170,14 @@ document.addEventListener('DOMContentLoaded', function() {
     offcanvasBody.innerHTML = '';
 
     if (results.length === 0) {
-      offcanvasBody.innerHTML = '<p>Không tìm thấy kết quả phù hợp</p>';
+      offcanvasBody.innerHTML = '<div class="alert alert-warning" role="alert"><i class="bi bi-exclamation-triangle-fill me-2"></i>Không tìm thấy kết quả phù hợp</div>';
       return;
     }
 
     // Tạo phần tử để hiển thị số lượng kết quả
     const resultCount = document.createElement('p');
     resultCount.className = 'mb-3';
-    resultCount.textContent = `Tìm thấy ${results.length} kết quả:`;
+    resultCount.innerHTML = `<i class="bi bi-search me-2"></i>Tìm thấy <strong>${results.length}</strong> kết quả:`;
     offcanvasBody.appendChild(resultCount);
 
     // Tạo các card kết quả
@@ -74,107 +187,45 @@ document.addEventListener('DOMContentLoaded', function() {
       // Sử dụng class của Bootstrap, không cần thêm style inline cho dark mode
       cardDiv.className = 'card mb-3';
       cardDiv.style.maxWidth = '540px';
-      cardDiv.style.maxHeight = '190px'; // Giữ đồng bộ với giao diện mẫu
+      cardDiv.style.cursor = 'pointer';
+
+      // Xử lý hình ảnh mặc định nếu không có
+      const imageUrl = item.image && item.image.trim() ? item.image : '/images/placeholder.jpg';
 
       // Tạo nội dung bên trong
       cardDiv.innerHTML = `
         <div class="row g-0">
-          <div class="col-md-4">
-            <img src="${item.image}" class="img-fluid rounded-start" alt="${item.title || 'Hình ảnh truyện'}">
+          <div class="col-4">
+            <img src="${imageUrl}" class="img-fluid rounded-start h-100" alt="${item.title || 'Hình ảnh truyện'}" style="object-fit: cover;">
           </div>
-          <div class="col-md-8">
+          <div class="col-8">
             <div class="card-body">
               <h5 class="card-title">${item.title || 'Không có tiêu đề'}</h5>
-              <p class="card-text">${item.content || 'Không có mô tả'}</p>
-              ${item.link ? `<a href="${item.link}" class="btn btn-primary btn-sm">Xem thông tin truyện</a>` : ''}
+              <p class="card-text small">${item.content || 'Không có mô tả'}</p>
+              <p class="card-text"><small class="text-muted">${item.author || 'Chưa có tác giả'}</small></p>
+              ${item.link ? `<a href="${item.link}" class="btn btn-primary btn-sm">Xem truyện</a>` : '<button class="btn btn-primary btn-sm">Xem truyện</button>'}
             </div>
           </div>
         </div>
       `;
 
       // Thêm sự kiện click để mở modal chi tiết
-      cardDiv.style.cursor = 'pointer';
       cardDiv.addEventListener('click', function(event) {
         // Ngăn sự kiện click từ nút "Xem chi tiết" kích hoạt modal
-        if (event.target.tagName === 'A' && event.target.closest('a')) return; // Sửa điều kiện kiểm tra thẻ a
-        openCardModal(item);
+        if (event.target.tagName === 'A' || event.target.tagName === 'BUTTON') return;
+        
+        // Kiểm tra xem hàm openCardModal có tồn tại không
+        if (typeof openCardModal === 'function') {
+          openCardModal(item);
+        } else {
+          console.warn('Hàm openCardModal chưa được định nghĩa');
+          // Tạo một modal đơn giản nếu không có hàm openCardModal
+          alert(`Thông tin truyện: ${item.title || 'Không có tiêu đề'}`);
+        }
       });
 
       // Thêm card vào offcanvas
       offcanvasBody.appendChild(cardDiv);
     });
-
-    // XÓA BỎ listener không cần thiết cho dark mode switch
-    // const darkModeSwitch = document.getElementById('flexSwitchCheckDefault');
-    // if (darkModeSwitch) {
-    //   darkModeSwitch.addEventListener('change', function() {
-    //     if (results.length > 0) {
-    //       displaySearchResults(results);
-    //     }
-    //   });
-    // }
-  }
-
-  // Hàm mở modal và hiển thị thông tin card (tích hợp từ card_title.js)
-  function openCardModal(data) {
-    // Kiểm tra xem có dữ liệu hợp lệ không
-    if (!data || typeof data !== 'object') {
-      console.error('Dữ liệu không hợp lệ để mở modal:', data);
-      return;
-    }
-
-    // Lấy các phần tử modal
-    const modalElement = document.getElementById('card');
-    if (!modalElement) {
-        console.error('Không tìm thấy phần tử modal #card');
-        return;
-    }
-    const modalTitle = modalElement.querySelector('#cardModalLabel'); // Sửa selector cho tiêu đề modal
-    const modalBody = modalElement.querySelector('.modal-body'); // Giữ nguyên selector body modal
-
-    if (!modalTitle || !modalBody) {
-        console.error('Không tìm thấy tiêu đề hoặc body của modal #card');
-        return;
-    }
-
-    // Đặt tiêu đề modal là tiêu đề card
-    modalTitle.textContent = data.title || 'Thông tin truyện'; // Thêm giá trị mặc định
-
-    // Cập nhật hình ảnh và thông tin trong card bên trong modal
-    const comicImage = modalBody.querySelector('#comicImage');
-    const comicTitle = modalBody.querySelector('#comicTitle');
-    const comicAuthor = modalBody.querySelector('#comicAuthor');
-    const comicGenre = modalBody.querySelector('#comicGenre');
-    const comicContent = modalBody.querySelector('#comicContent');
-
-    if (comicImage) {
-        comicImage.src = data.image || ''; // Thêm giá trị mặc định
-        comicImage.alt = data.title || 'Hình ảnh truyện';
-    }
-    if (comicTitle) comicTitle.textContent = data.title || 'Không có tiêu đề';
-    if (comicAuthor) comicAuthor.textContent = data.author || 'Không rõ tác giả'; // Giả sử có trường author
-    if (comicGenre) comicGenre.textContent = data.genre || 'Không rõ thể loại'; // Giả sử có trường genre
-    if (comicContent) comicContent.innerHTML = data.content || 'Không có mô tả'; // Sử dụng innerHTML nếu content có thể chứa HTML
-
-    // Đóng offcanvas nếu đang mở
-    // const offcanvasElement = document.getElementById('offcanvasRight'); // Đã khai báo ở trên
-    if (offcanvasElement) {
-        const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement);
-        if (offcanvasInstance) {
-            offcanvasInstance.hide();
-        }
-    }
-
-    // Mở modal sử dụng Bootstrap
-    const bsModal = bootstrap.Modal.getOrCreateInstance(modalElement); // Sử dụng getOrCreateInstance
-    bsModal.show();
-
-    // TODO: Load chapter list for the selected comic (this part needs integration with chapter.js logic)
-    // Ví dụ: giả sử có hàm loadChapters(comicId)
-    // if (typeof loadChapters === 'function' && data.id) {
-    //     loadChapters(data.id);
-    // } else {
-    //     console.warn('Hàm loadChapters chưa được định nghĩa hoặc comicId không tồn tại.');
-    // }
   }
 });
