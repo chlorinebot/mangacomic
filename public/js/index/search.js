@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
               <h5 class="card-title">${item.title || 'Không có tiêu đề'}</h5>
               <p class="card-text small">${item.content || 'Không có mô tả'}</p>
               <p class="card-text"><small class="text-muted">${item.author || 'Chưa có tác giả'}</small></p>
-              ${item.link ? `<a href="${item.link}" class="btn btn-primary btn-sm">Xem truyện</a>` : '<button class="btn btn-primary btn-sm">Xem truyện</button>'}
+              ${item.link ? `<a href="${item.link}" class="btn btn-primary btn-sm">Xem thông tin truyện</a>` : '<button class="btn btn-primary btn-sm">Xem truyện</button>'}
             </div>
           </div>
         </div>
