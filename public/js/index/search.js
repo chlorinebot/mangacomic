@@ -143,19 +143,38 @@ document.addEventListener('DOMContentLoaded', function() {
     handleSearch(searchValue);
   });
 
-  // Ngăn chặn form submit mặc định trên desktop
+  // Ngăn chặn form submit mặc định trên desktop và xử lý tìm kiếm
   searchForm.addEventListener('submit', function(event) {
     event.preventDefault();
     const searchValue = searchInput.value.trim();
     handleSearch(searchValue);
   });
 
+  // Thêm event listener cho phím Enter trên input desktop
+  searchInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const searchValue = searchInput.value.trim();
+      handleSearch(searchValue);
+    }
+  });
+
   // Xử lý sự kiện tìm kiếm trên mobile
   if (mobileSearchForm && mobileSearchInput && mobileSearchButton) {
+    // Xử lý form submit trên mobile
     mobileSearchForm.addEventListener('submit', function(event) {
       event.preventDefault();
       const searchValue = mobileSearchInput.value.trim();
       handleSearch(searchValue, true);
+    });
+
+    // Thêm event listener cho phím Enter trên input mobile
+    mobileSearchInput.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const searchValue = mobileSearchInput.value.trim();
+        handleSearch(searchValue, true);
+      }
     });
 
     mobileSearchButton.addEventListener('click', function(event) {
