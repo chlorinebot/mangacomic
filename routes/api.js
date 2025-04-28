@@ -271,4 +271,92 @@ router.post('/cards/views/increment/:cardId', async (req, res) => {
     }
 });
 
+// API Thông báo
+// Lấy tất cả thông báo của người dùng
+router.get('/notifications', async (req, res) => {
+    const user_id = req.query.user_id || req.user?.id; // Lấy từ query hoặc từ user đã xác thực
+    
+    if (!user_id) {
+        return res.status(401).json({ error: 'Bạn cần đăng nhập để xem thông báo' });
+    }
+    
+    const connection = await dbPool.getConnection();
+    try {
+        const [rows] = await connection.query(
+            `SELECT * FROM notifications 
+            WHERE user_id = ? 
+            ORDER BY received_at DESC 
+            LIMIT 20`,
+            [user_id]
+        );
+        
+        res.json(rows);
+    } catch (err) {
+        console.error('Lỗi khi lấy thông báo:', err);
+        res.status(500).json({ error: 'Lỗi khi lấy thông báo', details: err.message });
+    } finally {
+        connection.release();
+    }
+});
+
+// Đánh dấu một thông báo đã đọc
+router.put('/notifications/:id/read', async (req, res) => {
+    const { id } = req.params;
+    const user_id = req.query.user_id || req.user?.id;
+    
+    if (!user_id) {
+        return res.status(401).json({ error: 'Bạn cần đăng nhập để cập nhật thông báo' });
+    }
+    
+    const connection = await dbPool.getConnection();
+    try {
+        // Kiểm tra thông báo có thuộc về người dùng không
+        const [checkRows] = await connection.query(
+            'SELECT * FROM notifications WHERE id = ? AND user_id = ?',
+            [id, user_id]
+        );
+        
+        if (checkRows.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy thông báo' });
+        }
+        
+        // Cập nhật trạng thái đã đọc
+        await connection.query(
+            'UPDATE notifications SET read = TRUE, read_at = NOW() WHERE id = ?',
+            [id]
+        );
+        
+        res.json({ message: 'Đã đánh dấu thông báo là đã đọc', id });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật trạng thái thông báo:', err);
+        res.status(500).json({ error: 'Lỗi khi cập nhật trạng thái thông báo', details: err.message });
+    } finally {
+        connection.release();
+    }
+});
+
+// Đánh dấu tất cả thông báo đã đọc
+router.put('/notifications/read-all', async (req, res) => {
+    const user_id = req.query.user_id || req.user?.id;
+    
+    if (!user_id) {
+        return res.status(401).json({ error: 'Bạn cần đăng nhập để cập nhật thông báo' });
+    }
+    
+    const connection = await dbPool.getConnection();
+    try {
+        await connection.query(
+            'UPDATE notifications SET read = TRUE, read_at = NOW() WHERE user_id = ? AND read = FALSE',
+            [user_id]
+        );
+        
+        res.json({ message: 'Đã đánh dấu tất cả thông báo là đã đọc' });
+    } catch (err) {
+        console.error('Lỗi khi cập nhật trạng thái thông báo:', err);
+        res.status(500).json({ error: 'Lỗi khi cập nhật trạng thái thông báo', details: err.message });
+    } finally {
+        connection.release();
+    }
+});
+
 module.exports = router; 
