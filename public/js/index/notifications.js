@@ -64,124 +64,76 @@ function createNotificationHTML(notification) {
 // Hàm lấy thông báo từ server
 async function fetchNotifications() {
     try {
-        // Kiểm tra nếu người dùng chưa đăng nhập, không cần gọi API
-        if (!isLoggedIn()) {
-            // Ẩn badge và không hiển thị thông báo
-            if (notificationBadge) notificationBadge.classList.add('d-none');
-            if (notificationList) notificationList.innerHTML = '<div class="p-3 text-center text-muted">Vui lòng đăng nhập để xem thông báo</div>';
-            return;
-        }
-        
-        // Lấy user_id từ localStorage (giả sử user_id được lưu khi đăng nhập)
-        const userId = localStorage.getItem('user_id');
-        
-        // Thêm user_id vào query string
-        const response = await fetch(`/api/notifications${userId ? `?user_id=${userId}` : ''}`);
-        
-        if (!response.ok) {
-            throw new Error(`Lỗi khi lấy thông báo: ${response.status} ${response.statusText}`);
-        }
+        const response = await fetch('/api/notifications');
+        if (!response.ok) throw new Error('Lỗi khi lấy thông báo');
         
         const notifications = await response.json();
         
         // Cập nhật badge số lượng thông báo chưa đọc
         const unreadCount = notifications.filter(n => !n.read).length;
-        if (unreadCount > 0 && notificationBadge) {
+        if (unreadCount > 0) {
             notificationBadge.textContent = unreadCount;
             notificationBadge.classList.remove('d-none');
-            const bellIcon = notificationButton?.querySelector('.bi-bell');
-            if (bellIcon) bellIcon.classList.add('bell-shake');
-        } else if (notificationBadge) {
+            notificationButton.querySelector('.bi-bell').classList.add('bell-shake');
+        } else {
             notificationBadge.classList.add('d-none');
         }
         
         // Render thông báo
-        if (notificationList) {
-            notificationList.innerHTML = notifications.length > 0
-                ? notifications.map(createNotificationHTML).join('')
-                : '<div class="p-3 text-center text-muted">Không có thông báo mới</div>';
-        }
+        notificationList.innerHTML = notifications.length > 0
+            ? notifications.map(createNotificationHTML).join('')
+            : '<div class="p-3 text-center text-muted">Không có thông báo mới</div>';
+            
     } catch (error) {
-        console.error('Lỗi khi lấy thông báo:', error);
-        if (notificationList) {
-            notificationList.innerHTML = '<div class="p-3 text-center text-danger">Không thể tải thông báo</div>';
-        }
+        console.error('Lỗi:', error);
+        notificationList.innerHTML = '<div class="p-3 text-center text-danger">Không thể tải thông báo</div>';
     }
 }
 
 // Hàm đánh dấu thông báo đã đọc
 async function markNotificationAsRead(notificationId) {
-    if (!isLoggedIn()) {
-        console.error('Người dùng chưa đăng nhập, không thể đánh dấu thông báo đã đọc');
-        return;
-    }
-    
     try {
-        const userId = localStorage.getItem('user_id');
-        const response = await fetch(`/api/notifications/${notificationId}/read?user_id=${userId}`, {
+        const response = await fetch(`/api/notifications/${notificationId}/read`, {
             method: 'PUT'
         });
-        
-        if (!response.ok) {
-            throw new Error(`Lỗi khi cập nhật trạng thái thông báo: ${response.status} ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error('Lỗi khi cập nhật trạng thái thông báo');
         
         // Cập nhật UI
         const notificationElement = document.querySelector(`.notification-item[data-id="${notificationId}"]`);
         if (notificationElement) {
             notificationElement.classList.remove('unread');
-            const badgeElement = notificationElement.querySelector('.badge');
-            if (badgeElement) badgeElement.remove();
+            notificationElement.querySelector('.badge')?.remove();
         }
         
         // Cập nhật lại số lượng thông báo chưa đọc
-        if (notificationBadge && !notificationBadge.classList.contains('d-none')) {
-            const unreadCount = parseInt(notificationBadge.textContent) - 1;
-            if (unreadCount <= 0) {
-                notificationBadge.classList.add('d-none');
-                const bellIcon = notificationButton?.querySelector('.bi-bell');
-                if (bellIcon) bellIcon.classList.remove('bell-shake');
-            } else {
-                notificationBadge.textContent = unreadCount;
-            }
+        const unreadCount = parseInt(notificationBadge.textContent) - 1;
+        if (unreadCount <= 0) {
+            notificationBadge.classList.add('d-none');
+        } else {
+            notificationBadge.textContent = unreadCount;
         }
     } catch (error) {
-        console.error('Lỗi khi đánh dấu thông báo đã đọc:', error);
+        console.error('Lỗi:', error);
     }
 }
 
 // Hàm đánh dấu tất cả thông báo đã đọc
 async function markAllNotificationsAsRead() {
-    if (!isLoggedIn()) {
-        console.error('Người dùng chưa đăng nhập, không thể đánh dấu thông báo đã đọc');
-        return;
-    }
-    
     try {
-        const userId = localStorage.getItem('user_id');
-        const response = await fetch(`/api/notifications/read-all?user_id=${userId}`, {
+        const response = await fetch('/api/notifications/read-all', {
             method: 'PUT'
         });
-        
-        if (!response.ok) {
-            throw new Error(`Lỗi khi cập nhật trạng thái thông báo: ${response.status} ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error('Lỗi khi cập nhật trạng thái thông báo');
         
         // Cập nhật UI
-        const unreadItems = document.querySelectorAll('.notification-item.unread');
-        unreadItems.forEach(item => {
+        document.querySelectorAll('.notification-item.unread').forEach(item => {
             item.classList.remove('unread');
-            const badgeElement = item.querySelector('.badge');
-            if (badgeElement) badgeElement.remove();
+            item.querySelector('.badge')?.remove();
         });
         
-        if (notificationBadge) {
-            notificationBadge.classList.add('d-none');
-            const bellIcon = notificationButton?.querySelector('.bi-bell');
-            if (bellIcon) bellIcon.classList.remove('bell-shake');
-        }
+        notificationBadge.classList.add('d-none');
     } catch (error) {
-        console.error('Lỗi khi đánh dấu tất cả thông báo đã đọc:', error);
+        console.error('Lỗi:', error);
     }
 }
 
@@ -217,86 +169,30 @@ if (isLoggedIn()) {
 
 // WebSocket cho thông báo realtime (nếu có)
 function initializeWebSocket() {
-    try {
-        // Kiểm tra nếu người dùng chưa đăng nhập, không cần kết nối WebSocket
-        if (!isLoggedIn()) {
-            return;
+    const ws = new WebSocket('ws://your-websocket-server');
+    
+    ws.onmessage = (event) => {
+        const notification = JSON.parse(event.data);
+        if (notification.type === 'notification') {
+            // Thêm thông báo mới vào đầu danh sách
+            const notificationHTML = createNotificationHTML(notification.data);
+            notificationList.insertAdjacentHTML('afterbegin', notificationHTML);
+            
+            // Cập nhật badge và hiệu ứng
+            const currentCount = parseInt(notificationBadge.textContent) || 0;
+            notificationBadge.textContent = currentCount + 1;
+            notificationBadge.classList.remove('d-none');
+            notificationButton.querySelector('.bi-bell').classList.add('bell-shake');
         }
-        
-        // Lấy WebSocket URL từ biến môi trường hoặc sử dụng URL mặc định
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsHost = window.location.host;
-        const wsUrl = `${wsProtocol}//${wsHost}/ws/notifications`;
-        
-        const ws = new WebSocket(wsUrl);
-        
-        ws.onopen = () => {
-            console.log('WebSocket connection established');
-            // Gửi thông tin xác thực người dùng
-            const userId = localStorage.getItem('user_id');
-            if (userId) {
-                ws.send(JSON.stringify({
-                    type: 'auth',
-                    user_id: userId
-                }));
-            }
-        };
-        
-        ws.onmessage = (event) => {
-            try {
-                const notification = JSON.parse(event.data);
-                if (notification.type === 'notification') {
-                    // Thêm thông báo mới vào đầu danh sách
-                    const notificationHTML = createNotificationHTML(notification.data);
-                    if (notificationList) {
-                        notificationList.insertAdjacentHTML('afterbegin', notificationHTML);
-                    }
-                    
-                    // Cập nhật badge và hiệu ứng
-                    if (notificationBadge) {
-                        const currentCount = parseInt(notificationBadge.textContent) || 0;
-                        notificationBadge.textContent = currentCount + 1;
-                        notificationBadge.classList.remove('d-none');
-                        const bellIcon = notificationButton?.querySelector('.bi-bell');
-                        if (bellIcon) bellIcon.classList.add('bell-shake');
-                    }
-                }
-            } catch (error) {
-                console.error('Lỗi khi xử lý thông báo WebSocket:', error);
-            }
-        };
-        
-        ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
-        
-        ws.onclose = (event) => {
-            console.log(`WebSocket connection closed: ${event.code} ${event.reason}`);
-            // Thử kết nối lại sau 5 giây nếu đóng không phải do lỗi nghiêm trọng
-            if (event.code !== 1000 && event.code !== 1001) {
-                setTimeout(initializeWebSocket, 5000);
-            }
-        };
-        
-        return ws;
-    } catch (error) {
-        console.error('Lỗi khi khởi tạo WebSocket:', error);
-        return null;
-    }
+    };
+    
+    ws.onclose = () => {
+        // Thử kết nối lại sau 5 giây
+        setTimeout(initializeWebSocket, 5000);
+    };
 }
 
 // Khởi tạo WebSocket nếu người dùng đã đăng nhập
-let notificationWebSocket;
 if (isLoggedIn()) {
-    // Khởi tạo WebSocket sau khi trang đã tải xong
-    document.addEventListener('DOMContentLoaded', () => {
-        notificationWebSocket = initializeWebSocket();
-    });
-    
-    // Đóng WebSocket khi trang được đóng
-    window.addEventListener('beforeunload', () => {
-        if (notificationWebSocket && notificationWebSocket.readyState === WebSocket.OPEN) {
-            notificationWebSocket.close(1000, 'User left the page');
-        }
-    });
-}
+    initializeWebSocket();
+} 
