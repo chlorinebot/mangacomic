@@ -10,16 +10,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // Check for previous sidebar state
-    if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-        document.body.classList.add('sb-sidenav-toggled');
-    }
-    
     // Mobile responsive handling
     function handleResponsive() {
         if (window.innerWidth < 768) {
+            // Always hide sidebar on mobile by default
             document.body.classList.add('sb-sidenav-toggled');
         } else {
+            // On larger screens, respect user preference
             if (localStorage.getItem('sb|sidebar-toggle') !== 'true') {
                 document.body.classList.remove('sb-sidenav-toggled');
             }
