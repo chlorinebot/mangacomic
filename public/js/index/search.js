@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
         handleSearch(searchValue, true);
       }
     });
-
+//fdsaf
     mobileSearchButton.addEventListener('click', function(event) {
       const searchValue = mobileSearchInput.value.trim();
       handleSearch(searchValue, true);
